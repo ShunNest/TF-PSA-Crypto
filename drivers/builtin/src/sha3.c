@@ -51,7 +51,8 @@
 #include "mbedtls/platform.h"
 #endif /* MBEDTLS_SELF_TEST */
 
-#define XOR_BYTE 0x6
+#define SHA3_XOR_BYTE 0x06
+#define SHAKE_XOR_BYTE 0x1F
 
 /* Precomputed masks for the iota transform.
  *
@@ -297,6 +298,19 @@ int mbedtls_sha3_starts(mbedtls_sha3_context *ctx, mbedtls_sha3_id id)
             ctx->max_block_size = 576 / 8;
             break;
 #endif
+
+#if defined(MBEDTLS_SHA3_WANT_SHAKE128)
+        case MBEDTLS_SHA3_SHAKE128:
+            ctx->max_block_size = 1344 / 8;
+            break;
+#endif
+
+#if defined(MBEDTLS_SHA3_WANT_SHAKE256)
+        case MBEDTLS_SHA3_SHAKE256:
+            ctx->max_block_size = 1088 / 8;
+            break;
+#endif
+
         default:
             return MBEDTLS_ERR_SHA3_BAD_INPUT_DATA;
     }
@@ -354,6 +368,7 @@ int mbedtls_sha3_finish(mbedtls_sha3_context *ctx,
                         uint8_t *output, size_t olen)
 {
     int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
+    uint8_t xor_byte;
 
     /* Catch SHA-3 families, with fixed output length */
     if (ctx->olen > 0) {
@@ -362,9 +377,12 @@ int mbedtls_sha3_finish(mbedtls_sha3_context *ctx,
             goto exit;
         }
         olen = ctx->olen;
+        xor_byte = SHA3_XOR_BYTE;
+    } else {
+        xor_byte = SHAKE_XOR_BYTE;
     }
 
-    ABSORB(ctx, ctx->index, XOR_BYTE);
+    ABSORB(ctx, ctx->index, xor_byte);
     ABSORB(ctx, ctx->max_block_size - 1, 0x80);
     keccak_f1600(ctx);
     ctx->index = 0;
