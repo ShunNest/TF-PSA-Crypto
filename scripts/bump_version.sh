@@ -39,7 +39,7 @@ do
       echo "Usage: $0"
       echo -e "  -h|--help\t\tPrint this help."
       echo -e "  --version <version>\tVersion to bump to."
-      echo -e "  --so-crypto <version>\tSO version to bump libmbedcrypto to."
+      echo -e "  --so-crypto <version>\tSO version to bump libtfpsacrypto to."
       echo -e "  -v|--verbose\t\tVerbose."
       exit 1
       ;;
@@ -59,35 +59,29 @@ then
 fi
 
 [ $VERBOSE ] && echo "Bumping VERSION in CMakeLists.txt"
-sed -e "s/(MBEDTLS_VERSION [0-9.]\{1,\})/(MBEDTLS_VERSION $VERSION)/g" < CMakeLists.txt > tmp
+sed -e "s/(TF_PSA_CRYPTO_VERSION [0-9.]\{1,\})/(TF_PSA_CRYPTO_VERSION $VERSION)/g" < CMakeLists.txt > tmp
 mv tmp CMakeLists.txt
 
 if [ "X" != "X$SO_CRYPTO" ];
 then
-  [ $VERBOSE ] && echo "Bumping SOVERSION for libmbedcrypto in CMakeLists.txt"
-  sed -e "s/(MBEDTLS_CRYPTO_SOVERSION [0-9]\{1,\})/(MBEDTLS_CRYPTO_SOVERSION $SO_CRYPTO)/g" < CMakeLists.txt > tmp
+  [ $VERBOSE ] && echo "Bumping SOVERSION for libtfpsacrypto in CMakeLists.txt"
+  sed -e "s/(TF_PSA_CRYPTO_SOVERSION [0-9]\{1,\})/(TF_PSA_CRYPTO_SOVERSION $SO_CRYPTO)/g" < CMakeLists.txt > tmp
   mv tmp CMakeLists.txt
-
-  [ $VERBOSE ] && echo "Bumping SOVERSION for libmbedcrypto in library/Makefile"
-  sed -e "s/SOEXT_CRYPTO?=so.[0-9]\{1,\}/SOEXT_CRYPTO?=so.$SO_CRYPTO/g" < library/Makefile > tmp
-  mv tmp library/Makefile
 fi
 
-[ $VERBOSE ] && echo "Bumping VERSION in include/mbedtls/build_info.h"
+[ $VERBOSE ] && echo "Bumping VERSION in include/tf-psa-crypto/build_info.h"
 read MAJOR MINOR PATCH <<<$(IFS="."; echo $VERSION)
 VERSION_NR="$( printf "0x%02X%02X%02X00" $MAJOR $MINOR $PATCH )"
-cat include/mbedtls/build_info.h |                                    \
-    sed -e "s/\(# *define  *[A-Z]*_VERSION\)_MAJOR .\{1,\}/\1_MAJOR  $MAJOR/" |    \
-    sed -e "s/\(# *define  *[A-Z]*_VERSION\)_MINOR .\{1,\}/\1_MINOR  $MINOR/" |    \
-    sed -e "s/\(# *define  *[A-Z]*_VERSION\)_PATCH .\{1,\}/\1_PATCH  $PATCH/" |    \
-    sed -e "s/\(# *define  *[A-Z]*_VERSION\)_NUMBER .\{1,\}/\1_NUMBER         $VERSION_NR/" |    \
-    sed -e "s/\(# *define  *[A-Z]*_VERSION\)_STRING .\{1,\}/\1_STRING         \"$VERSION\"/" |    \
-    sed -e "s/\(# *define  *[A-Z]*_VERSION\)_STRING_FULL .\{1,\}/\1_STRING_FULL    \"Mbed TLS $VERSION\"/" \
+cat include/tf-psa-crypto/build_info.h |                                    \
+    sed -e "s/\(# *define  *[A-Z_]*_VERSION\)_MAJOR .\{1,\}/\1_MAJOR  $MAJOR/" |    \
+    sed -e "s/\(# *define  *[A-Z_]*_VERSION\)_MINOR .\{1,\}/\1_MINOR  $MINOR/" |    \
+    sed -e "s/\(# *define  *[A-Z_]*_VERSION\)_PATCH .\{1,\}/\1_PATCH  $PATCH/" |    \
+    sed -e "s/\(# *define  *[A-Z_]*_VERSION\)_NUMBER .\{1,\}/\1_NUMBER         $VERSION_NR/" |    \
+    sed -e "s/\(# *define  *[A-Z_]*_VERSION\)_STRING .\{1,\}/\1_STRING         \"$VERSION\"/" |    \
+    sed -e "s/\(# *define  *[A-Z_]*_VERSION\)_STRING_FULL .\{1,\}/\1_STRING_FULL    \"TF-PSA-Crypto $VERSION\"/" \
     > tmp
-mv tmp include/mbedtls/build_info.h
+mv tmp include/tf-psa-crypto/build_info.h
 
-[ $VERBOSE ] && echo "Bumping version in tests/suites/test_suite_version.data"
-sed -e "s/version:\".\{1,\}/version:\"$VERSION\"/g" < tf-psa-crypto/tests/suites/test_suite_version.data > tmp
-mv tmp tf-psa-crypto/tests/suites/test_suite_version.data
-
-
+[ $VERBOSE ] && echo "Bumping version in tests/suites/test_suite_tf_psa_crypto_version.data"
+sed -e "s/version:\".\{1,\}/version:\"$VERSION\"/g" < tests/suites/test_suite_tf_psa_crypto_version.data > tmp
+mv tmp tests/suites/test_suite_tf_psa_crypto_version.data
