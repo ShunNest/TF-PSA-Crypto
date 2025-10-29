@@ -8,7 +8,6 @@
 # Sets the version numbers in the source code to those given.
 #
 # Usage: bump_version.sh [ --version <version> ] [ --so-crypto <version>]
-#                           [ --so-x509 <version> ] [ --so-tls <version> ]
 #                           [ -v | --verbose ] [ -h | --help ]
 #
 
@@ -31,14 +30,6 @@ do
       shift
       SO_CRYPTO=$1
       ;;
-    --so-x509)
-      shift
-      SO_X509=$1
-      ;;
-    --so-tls)
-      shift
-      SO_TLS=$1
-      ;;
     -v|--verbose)
       # Be verbose
       VERBOSE="1"
@@ -49,8 +40,6 @@ do
       echo -e "  -h|--help\t\tPrint this help."
       echo -e "  --version <version>\tVersion to bump to."
       echo -e "  --so-crypto <version>\tSO version to bump libmbedcrypto to."
-      echo -e "  --so-x509 <version>\tSO version to bump libmbedx509 to."
-      echo -e "  --so-tls <version>\tSO version to bump libmbedtls to."
       echo -e "  -v|--verbose\t\tVerbose."
       exit 1
       ;;
@@ -84,28 +73,6 @@ then
   mv tmp library/Makefile
 fi
 
-if [ "X" != "X$SO_X509" ];
-then
-  [ $VERBOSE ] && echo "Bumping SOVERSION for libmbedx509 in CMakeLists.txt"
-  sed -e "s/(MBEDTLS_X509_SOVERSION [0-9]\{1,\})/(MBEDTLS_X509_SOVERSION $SO_X509)/g" < CMakeLists.txt > tmp
-  mv tmp CMakeLists.txt
-
-  [ $VERBOSE ] && echo "Bumping SOVERSION for libmbedx509 in library/Makefile"
-  sed -e "s/SOEXT_X509?=so.[0-9]\{1,\}/SOEXT_X509?=so.$SO_X509/g" < library/Makefile > tmp
-  mv tmp library/Makefile
-fi
-
-if [ "X" != "X$SO_TLS" ];
-then
-  [ $VERBOSE ] && echo "Bumping SOVERSION for libmbedtls in CMakeLists.txt"
-  sed -e "s/(MBEDTLS_TLS_SOVERSION [0-9]\{1,\})/(MBEDTLS_TLS_SOVERSION $SO_TLS)/g" < CMakeLists.txt > tmp
-  mv tmp CMakeLists.txt
-
-  [ $VERBOSE ] && echo "Bumping SOVERSION for libmbedtls in library/Makefile"
-  sed -e "s/SOEXT_TLS?=so.[0-9]\{1,\}/SOEXT_TLS?=so.$SO_TLS/g" < library/Makefile > tmp
-  mv tmp library/Makefile
-fi
-
 [ $VERBOSE ] && echo "Bumping VERSION in include/mbedtls/build_info.h"
 read MAJOR MINOR PATCH <<<$(IFS="."; echo $VERSION)
 VERSION_NR="$( printf "0x%02X%02X%02X00" $MAJOR $MINOR $PATCH )"
@@ -123,22 +90,4 @@ mv tmp include/mbedtls/build_info.h
 sed -e "s/version:\".\{1,\}/version:\"$VERSION\"/g" < tf-psa-crypto/tests/suites/test_suite_version.data > tmp
 mv tmp tf-psa-crypto/tests/suites/test_suite_version.data
 
-[ $VERBOSE ] && echo "Bumping PROJECT_NAME in doxygen/mbedtls.doxyfile and doxygen/input/doc_mainpage.h"
-for i in doxygen/mbedtls.doxyfile doxygen/input/doc_mainpage.h;
-do
-  sed -e "s/\\([Mm]bed TLS v\\)[0-9][0-9.]*/\\1$VERSION/g" < $i > tmp
-  mv tmp $i
-done
-
-[ $VERBOSE ] && echo "Re-generating library/error.c"
-scripts/generate_errors.pl
-
-[ $VERBOSE ] && echo "Re-generating programs/test/query_config.c"
-scripts/generate_query_config.pl
-
-[ $VERBOSE ] && echo "Re-generating library/version_features.c"
-scripts/generate_features.pl
-
-[ $VERBOSE ] && echo "Re-generating visualc files"
-scripts/generate_visualc_files.pl
 
