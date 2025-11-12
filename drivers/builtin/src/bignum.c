@@ -2409,7 +2409,10 @@ int mbedtls_asn1_write_mpi(unsigned char **p, const unsigned char *start, const 
         len += 1;
     }
 
-    ret = mbedtls_asn1_write_len_and_tag(p, start, len, MBEDTLS_ASN1_INTEGER);
+    MBEDTLS_ASN1_CHK_ADD(len, mbedtls_asn1_write_len(p, start, len));
+    MBEDTLS_ASN1_CHK_ADD(len, mbedtls_asn1_write_tag(p, start, MBEDTLS_ASN1_INTEGER));
+
+    ret = (int) len;
 
 cleanup:
     return ret;
