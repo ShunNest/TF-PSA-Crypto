@@ -5,6 +5,7 @@ set(src_crypto
     psa_crypto_slot_management.c
     psa_crypto_storage.c
     psa_its_file.c
+    psa_util.c
     tf_psa_crypto_config.c
     tf_psa_crypto_version.c
 )
