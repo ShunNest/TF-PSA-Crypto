@@ -48,13 +48,21 @@ PK utils: ECDSA SECP521R1
 depends_on:PSA_HAVE_ALG_ECDSA_VERIFY:PSA_WANT_ECC_SECP_R1_521
 pk_utils:MBEDTLS_PK_ECDSA:MBEDTLS_ECP_DP_SECP521R1:521:66:"ECDSA"
 
-PK PSA utilities: ECDSA setup/free, info functions, unsupported operations
+PK PSA utilities: ECDSA setup/free, info functions, unsupported operations 256 bit
 depends_on:PSA_HAVE_ALG_ECDSA_VERIFY:PSA_HAVE_ALG_ECDSA_SIGN:PSA_WANT_ECC_SECP_R1_256
-pk_psa_utils:0
+pk_psa_utils:PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1):256
 
-PK PSA utilities: RSA setup/free, info functions, unsupported operations
+PK PSA utilities: ECDSA setup/free, info functions, unsupported operations 521 bit
+depends_on:PSA_HAVE_ALG_ECDSA_VERIFY:PSA_HAVE_ALG_ECDSA_SIGN:PSA_WANT_ECC_SECP_R1_256
+pk_psa_utils:PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1):521
+
+PK PSA utilities: RSA setup/free, info functions, unsupported operations 1024 bit
 depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY
-pk_psa_utils:1
+pk_psa_utils:PSA_KEY_TYPE_RSA_KEY_PAIR:1024
+
+PK PSA utilities: RSA setup/free, info functions, unsupported operations 4096 bit
+depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY
+pk_psa_utils:PSA_KEY_TYPE_RSA_KEY_PAIR:4096
 
 PK can do ext: ECDSA(ANY)/NONE, invalid check STREAM_CIPHER
 depends_on:PSA_HAVE_ALG_ECDSA_SIGN:PSA_WANT_ECC_SECP_R1_256
