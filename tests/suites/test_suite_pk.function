@@ -623,8 +623,9 @@ exit:
 /* BEGIN_CASE */
 void pk_psa_utils(int key_type, int bitlen)
 {
-    mbedtls_pk_context priv_pk, priv_pk2;
+    mbedtls_pk_context priv_pk, priv_pk2, pub_pk;
     mbedtls_svc_key_id_t key = MBEDTLS_SVC_KEY_ID_INIT;
+    mbedtls_svc_key_id_t pub_key = MBEDTLS_SVC_KEY_ID_INIT;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
 
     const char * const name = "Opaque";
@@ -635,6 +636,7 @@ void pk_psa_utils(int key_type, int bitlen)
 
     mbedtls_pk_init(&priv_pk);
     mbedtls_pk_init(&priv_pk2);
+    mbedtls_pk_init(&pub_pk);
     PSA_INIT();
 
     TEST_ASSERT(mbedtls_pk_wrap_psa(&priv_pk, MBEDTLS_SVC_KEY_ID_INIT) ==
@@ -696,26 +698,17 @@ void pk_psa_utils(int key_type, int bitlen)
     TEST_ASSERT(mbedtls_pk_debug(&priv_pk, &dbg)
                 == MBEDTLS_ERR_PK_TYPE_MISMATCH);
 
-    /*pub_key = psa_pub_key_from_priv(key);
+    pub_key = psa_pub_key_from_priv(key);
 
-    if(PSA_KEY_TYPE_IS_RSA(key_type)){
-        PSA_ASSERT(pk_psa_setup(PSA_KEY_TYPE_RSA_PUBLIC_KEY, bitlen, 
-                                PSA_KEY_USAGE_VERIFY_HASH, PSA_ALG_RSA_PKCS1V15_SIGN_RAW,
-                                PSA_ALG_NONE, MBEDTLS_SVC_KEY_ID_INIT, &pub_key));
-    } else {
-        PSA_ASSERT(pk_psa_setup(PSA_KEY_TYPE_ECC_PUBLIC_KEY(PSA_ECC_FAMILY_SECP_R1), bitlen, 
-                                PSA_KEY_USAGE_VERIFY_HASH, PSA_ALG_ECDSA(PSA_ALG_SHA_256),
-                                PSA_ALG_NONE, MBEDTLS_SVC_KEY_ID_INIT, &pub_key));
-    }
-
-    TEST_ASSERT(mbedtls_pk_get_bitlen(&priv_pk) == (size_t) bitlen);
-
-    TEST_ASSERT(mbedtls_pk_wrap_psa(&pub_pk, key) == 0);*/
+    TEST_EQUAL(mbedtls_pk_copy_from_psa(pub_key, &pub_pk), 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pub_pk) == (size_t) bitlen);
 
     /* test that freeing the context does not destroy the key */
     mbedtls_pk_free(&priv_pk);
+    mbedtls_pk_free(&pub_pk);
     TEST_ASSERT(PSA_SUCCESS == psa_get_key_attributes(key, &attributes));
     TEST_ASSERT(PSA_SUCCESS == psa_destroy_key(key));
+    TEST_ASSERT(PSA_SUCCESS == psa_destroy_key(pub_key));
 
 exit:
     /*
@@ -726,7 +719,9 @@ exit:
 
     mbedtls_pk_free(&priv_pk);   /* redundant except upon error */
     mbedtls_pk_free(&priv_pk2);
+    mbedtls_pk_free(&pub_pk);
     psa_destroy_key(key);
+    psa_destroy_key(pub_key);
     PSA_DONE();
 }
 /* END_CASE */
