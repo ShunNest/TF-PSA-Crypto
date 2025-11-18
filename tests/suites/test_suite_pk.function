@@ -646,8 +646,8 @@ void pk_psa_utils(int key_type, int bitlen)
     mbedtls_pk_init(&priv_pk);
 
     if (PSA_KEY_TYPE_IS_RSA(key_type)) {
-        PSA_ASSERT(pk_psa_setup(PSA_KEY_TYPE_RSA_KEY_PAIR, bitlen, 
-                                PSA_KEY_USAGE_SIGN_HASH, PSA_ALG_RSA_PKCS1V15_SIGN_RAW, 
+        PSA_ASSERT(pk_psa_setup(PSA_KEY_TYPE_RSA_KEY_PAIR, bitlen,
+                                PSA_KEY_USAGE_SIGN_HASH, PSA_ALG_RSA_PKCS1V15_SIGN_RAW,
                                 PSA_ALG_NONE, MBEDTLS_SVC_KEY_ID_INIT, &key));
     } else {
         PSA_ASSERT(pk_psa_setup(PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1), bitlen,
