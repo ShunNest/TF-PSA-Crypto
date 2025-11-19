@@ -61,7 +61,7 @@ depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY
 pk_psa_utils:PSA_KEY_TYPE_RSA_KEY_PAIR:1024
 
 PK PSA utilities: RSA setup/free, info functions, unsupported operations 4096 bit
-depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_TEST_ALLOW_RSA_4096
+depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:PSA_VENDOR_RSA_MAX_KEY_BITS>=4096
 pk_psa_utils:PSA_KEY_TYPE_RSA_KEY_PAIR:4096
 
 PK can do ext: ECDSA(ANY)/NONE, invalid check STREAM_CIPHER
