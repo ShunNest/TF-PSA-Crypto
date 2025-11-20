@@ -514,6 +514,22 @@ cleanup:
 /****************************************************************/
 
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_ECDH)
+static psa_status_t ecdh_write_secret(const mbedtls_ecp_group *grp,
+                                      const mbedtls_ecp_point *secret,
+                                      uint8_t *shared_secret, size_t shared_secret_size,
+                                      size_t *shared_secret_length)
+{
+    *shared_secret_length = PSA_BITS_TO_BYTES(grp->pbits);
+    if (shared_secret_size < *shared_secret_length) {
+        return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    return mbedtls_to_psa_error(
+        mbedtls_ecp_get_type(grp) == MBEDTLS_ECP_TYPE_MONTGOMERY ?
+        mbedtls_mpi_write_binary_le(&secret->X, shared_secret, *shared_secret_length) :
+        mbedtls_mpi_write_binary(&secret->X, shared_secret, *shared_secret_length));
+}
+
 psa_status_t mbedtls_psa_key_agreement_ecdh(
     const psa_key_attributes_t *attributes,
     const uint8_t *key_buffer, size_t key_buffer_size,
@@ -562,15 +578,8 @@ psa_status_t mbedtls_psa_key_agreement_ecdh(
         goto exit;
     }
 
-    *shared_secret_length = PSA_BITS_TO_BYTES(bits);
-    if (shared_secret_size < *shared_secret_length) {
-        status = PSA_ERROR_BUFFER_TOO_SMALL;
-    }
-
-    status = mbedtls_to_psa_error(
-        mbedtls_ecp_get_type(&our_key->grp) == MBEDTLS_ECP_TYPE_MONTGOMERY ?
-        mbedtls_mpi_write_binary_le(&secret.X, shared_secret, *shared_secret_length) :
-        mbedtls_mpi_write_binary(&secret.X, shared_secret, *shared_secret_length));
+    status = ecdh_write_secret(&our_key->grp, &secret,
+                               shared_secret, shared_secret_size, shared_secret_length);
 
 exit:
     if (status != PSA_SUCCESS) {
@@ -826,16 +835,8 @@ psa_status_t mbedtls_psa_key_agreement_iop_complete(
         goto exit;
     }
 
-    *shared_secret_length = PSA_BITS_TO_BYTES(operation->our_key->grp.pbits);
-    if (shared_secret_size < *shared_secret_length) {
-        status = PSA_ERROR_BUFFER_TOO_SMALL;
-        goto exit;
-    }
-
-    status = mbedtls_to_psa_error(
-        mbedtls_ecp_get_type(&operation->our_key->grp) == MBEDTLS_ECP_TYPE_MONTGOMERY ?
-        mbedtls_mpi_write_binary_le(&secret.X, shared_secret, *shared_secret_length) :
-        mbedtls_mpi_write_binary(&secret.X, shared_secret, *shared_secret_length));
+    status = ecdh_write_secret(&operation->our_key->grp, &secret,
+                               shared_secret, shared_secret_size, shared_secret_length);
 
 exit:
     mbedtls_ecp_point_free(&secret);
