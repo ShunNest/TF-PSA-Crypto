@@ -132,6 +132,99 @@ component_test_accel_ecc_some_key_types () {
     ctest
 }
 
+# Run tests with only (non-)Weierstrass accelerated
+# Common code used in:
+# - component_test_accel_ecc_weierstrass_curves
+# - component_test_accel_ecc_non_weierstrass_curves
+common_test_accel_ecc_some_curves () {
+    weierstrass=$1
+    if [ $weierstrass -eq 1 ]; then
+        desc="Weierstrass"
+    else
+        desc="non-Weierstrass"
+    fi
+    msg "build: full minus PK with accelerated EC algs and $desc curves"
+
+    # Configure
+    # ---------
+
+    # Start with config crypto_full and remove PK_C:
+    # that's what's supported now, see docs/driver-only-builds.md.
+    ./scripts/config.py full
+    scripts/config.py unset MBEDTLS_PK_C
+    scripts/config.py unset MBEDTLS_PK_PARSE_C
+    scripts/config.py unset MBEDTLS_PK_WRITE_C
+
+    # Restartable feature is not yet supported by PSA. Once it will in
+    # the future, the following line could be removed (see issues
+    # 6061, 6332 and following ones)
+    scripts/config.py unset MBEDTLS_ECP_RESTARTABLE
+
+    # this is not supported by the driver API yet
+    scripts/config.py unset PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_DERIVE
+
+    cp "tests/configs/user-config-accel-ecc.h" "$OUT_OF_SOURCE_DIR/user-config-accel-ecc-some-curves.h"
+    cp "tests/configs/user-config-test-driver-extension.h" $OUT_OF_SOURCE_DIR
+
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecc-some-curves.h" \
+                      unset-all MBEDTLS_PSA_ACCEL_ECC_
+
+    if [ $weierstrass -eq 1 ]; then
+        scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecc-some-curves.h" \
+                          set-all MBEDTLS_PSA_ACCEL_ECC_SECP
+        scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecc-some-curves.h" \
+                          set-all MBEDTLS_PSA_ACCEL_ECC_BRAINPOOL
+    else
+        scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecc-some-curves.h" \
+                          set-all MBEDTLS_PSA_ACCEL_ECC_MONTGOMERY
+    fi
+
+    # Build
+    # -----
+
+    cd $OUT_OF_SOURCE_DIR
+    cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecc-some-curves.h" ..
+    make
+
+    # We expect ECDH to be re-enabled for the missing curves
+    grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.c.o
+    # We expect ECP to be re-enabled, however the parts specific to the
+    # families of curves that are accelerated should be ommited.
+    # - functions with mxz in the name are specific to Montgomery curves
+    # - ecp_muladd is specific to Weierstrass curves
+    if [ $weierstrass -eq 1 ]; then
+        not grep mbedtls_ecp_muladd ${CMAKE_BUILTIN_BUILD_DIR}/ecp.c.o
+        grep mxz ${CMAKE_BUILTIN_BUILD_DIR}/ecp.c.o
+    else
+        grep mbedtls_ecp_muladd ${CMAKE_BUILTIN_BUILD_DIR}/ecp.c.o
+        not grep mxz ${CMAKE_BUILTIN_BUILD_DIR}/ecp.c.o
+    fi
+    # We expect ECDSA and ECJPAKE to be re-enabled only when
+    # Weierstrass curves are not accelerated
+    if [ $weierstrass -eq 1 ]; then
+        not grep mbedtls_ecdsa ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
+        not grep mbedtls_ecjpake  ${CMAKE_BUILTIN_BUILD_DIR}/ecjpake.c.o
+    else
+        grep mbedtls_ecdsa ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
+        grep mbedtls_ecjpake  ${CMAKE_BUILTIN_BUILD_DIR}/ecjpake.c.o
+    fi
+
+    # Run the tests
+    # -------------
+
+    msg "test suites: crypto_full minus PK with accelerated EC algs and weirstrass curves"
+    ctest
+}
+
+component_test_accel_ecc_weierstrass_curves () {
+    common_test_accel_ecc_some_curves 1
+}
+
+component_test_accel_ecc_non_weierstrass_curves () {
+    common_test_accel_ecc_some_curves 0
+}
+
 component_test_accel_ecdh() {
     msg "build: accelerated ECDH"
 
