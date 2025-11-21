@@ -512,7 +512,7 @@ Check pair #2 (EC, bad)
 depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_256:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/ec_256_pub.pem":"../framework/data_files/server5.key":MBEDTLS_ERR_PK_BAD_INPUT_DATA
 
-Check pair #3 (RSA, OK)
+Check pair #3 (RSA, OK) 2048 bit keys
 depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:PSA_WANT_ALG_RSA_PKCS1V15_SIGN:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/server1.pubkey":"../framework/data_files/server1.key":0
 
@@ -523,6 +523,18 @@ mbedtls_pk_check_pair:"../framework/data_files/server1.pubkey":"../framework/dat
 Check pair #5 (RSA vs EC)
 depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_256:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/ec_256_pub.pem":"../framework/data_files/server1.key":MBEDTLS_ERR_PK_TYPE_MISMATCH
+
+Check pair #6 521 bit ec keys
+depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_521:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
+mbedtls_pk_check_pair:"../framework/data_files/ec_521_pub.pem":"../framework/data_files/ec_521_prv.pem":0
+
+Check pair #7 521 vs 256 bit ec keys
+depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_256:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
+mbedtls_pk_check_pair:"../framework/data_files/ec_521_pub.pem":"../framework/data_files/ec_256_prv.pem":MBEDTLS_ERR_PK_BAD_INPUT_DATA
+
+Check pair #8 (RSA, OK) 4096 bit keys
+depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:PSA_WANT_ALG_RSA_PKCS1V15_SIGN:MBEDTLS_PEM_PARSE_C:!MBEDTLS_PSA_STATIC_KEY_SLOTS
+mbedtls_pk_check_pair:"../framework/data_files/rsa4096_pub.pem":"../framework/data_files/rsa4096_prv.pem":0
 
 RSA hash_len overflow (size_t vs unsigned int)
 depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_HAVE_INT64

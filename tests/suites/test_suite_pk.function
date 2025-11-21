@@ -1067,7 +1067,7 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int ret)
     if (is_ec_key) {
         TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), ret);
     } else {
-        TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE);
+        TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), MBEDTLS_ERR_ASN1_BUF_TOO_SMALL);
     }
 
 exit:
