@@ -164,6 +164,40 @@ component_test_accel_ecdsa() {
     ctest
 }
 
+component_test_accel_ecjpake() {
+    msg "build: full with accelerated EC-JPAKE"
+
+    # Configure
+    # ---------
+
+    ./scripts/config.py full
+    cp "tests/configs/user-config-accel-ecc.h" \
+        "$OUT_OF_SOURCE_DIR/user-config-accel-ecjpake.h"
+    cp "tests/configs/user-config-test-driver-extension.h" $OUT_OF_SOURCE_DIR
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecjpake.h" \
+         unset-all MBEDTLS_PSA_ACCEL_ALG
+
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecjpake.h" \
+         set MBEDTLS_PSA_ACCEL_ALG_JPAKE
+
+    # Build
+    # -----
+
+    cd $OUT_OF_SOURCE_DIR
+    cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecjpake.h" ..
+    make
+
+    # Make sure built-in EC-JPAKE is empty.
+    not grep mbedtls_ecjpake_init ${CMAKE_BUILTIN_BUILD_DIR}/ecjpake.c.o
+
+    # Run the tests
+    # -------------
+
+    msg "test: full with accelerated JPAKE"
+    ctest
+}
+
 component_test_accel_hash () {
     msg "test: accelerated hash"
 
