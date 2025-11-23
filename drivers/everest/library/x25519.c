@@ -21,7 +21,7 @@
 
 #include "tf_psa_crypto_common.h"
 
-#if defined(MBEDTLS_ECDH_C) && defined(MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_ECDH) && defined(MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED)
 
 #include <mbedtls/private/ecdh.h>
 
@@ -142,6 +142,22 @@ int mbedtls_x25519_calc_secret( mbedtls_x25519_context *ctx, size_t *olen,
     return( 0 );
 }
 
+void mbedtls_x25519_scalarmult(uint8_t out[MBEDTLS_X25519_KEY_SIZE_BYTES],
+                               const uint8_t scalar[MBEDTLS_X25519_KEY_SIZE_BYTES],
+                               const uint8_t point[MBEDTLS_X25519_KEY_SIZE_BYTES])
+{
+    uint8_t cp_scalar[MBEDTLS_X25519_KEY_SIZE_BYTES];
+    uint8_t cp_point[MBEDTLS_X25519_KEY_SIZE_BYTES];
+
+    memcpy(cp_scalar, scalar, sizeof(cp_scalar));
+    memcpy(cp_point, point, sizeof(cp_point));
+
+    Hacl_Curve25519_crypto_scalarmult(out, cp_scalar, cp_point);
+
+    mbedtls_platform_zeroize(cp_scalar, sizeof(cp_scalar));
+    mbedtls_platform_zeroize(cp_point, sizeof(cp_point));
+}
+
 int mbedtls_x25519_make_public( mbedtls_x25519_context *ctx, size_t *olen,
                         unsigned char *buf, size_t blen,
                         int( *f_rng )(void *, unsigned char *, size_t),
@@ -183,4 +199,4 @@ int mbedtls_x25519_read_public( mbedtls_x25519_context *ctx,
 }
 
 
-#endif /* MBEDTLS_ECDH_C && MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED */
+#endif /* MBEDTLS_PSA_BUILTIN_ALG_ECDH && MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED */

@@ -146,6 +146,15 @@ int mbedtls_x25519_calc_secret( mbedtls_x25519_context *ctx, size_t *olen,
                         int( *f_rng )(void *, unsigned char *, size_t),
                         void *p_rng );
 
+/*
+ * Scalar multiplication: out = scalar * point
+ *
+ * All buffer must of at least the expected size.
+ */
+void mbedtls_x25519_scalarmult(uint8_t out[MBEDTLS_X25519_KEY_SIZE_BYTES],
+                               const uint8_t scalar[MBEDTLS_X25519_KEY_SIZE_BYTES],
+                               const uint8_t point[MBEDTLS_X25519_KEY_SIZE_BYTES]);
+
 /**
  * \brief           This function generates a public key and a TLS
  *                  ClientKeyExchange payload.

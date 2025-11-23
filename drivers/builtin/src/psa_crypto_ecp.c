@@ -24,6 +24,10 @@
 #include <mbedtls/private/ecp.h>
 #include <mbedtls/private/error_common.h>
 
+#if defined(MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED)
+#include "tf-psa-crypto/private/everest/x25519.h"
+#endif
+
 #if defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_KEY_PAIR_BASIC) || \
     defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_KEY_PAIR_IMPORT) || \
     defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_KEY_PAIR_EXPORT) || \
@@ -530,6 +534,29 @@ static psa_status_t ecdh_write_secret(const mbedtls_ecp_group *grp,
         mbedtls_mpi_write_binary(&secret->X, shared_secret, *shared_secret_length));
 }
 
+#if defined(MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED)
+static psa_status_t ecdh_everest_shared_secret(
+    const uint8_t *key_buffer, size_t key_buffer_size,
+    const uint8_t *peer_key, size_t peer_key_length,
+    uint8_t *shared_secret, size_t shared_secret_size,
+    size_t *shared_secret_length)
+{
+    if (key_buffer_size < MBEDTLS_X25519_KEY_SIZE_BYTES ||
+        peer_key_length < MBEDTLS_X25519_KEY_SIZE_BYTES) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    *shared_secret_length = MBEDTLS_X25519_KEY_SIZE_BYTES;
+    if (shared_secret_size < *shared_secret_length) {
+        return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    mbedtls_x25519_scalarmult(shared_secret, key_buffer, peer_key);
+
+    return PSA_SUCCESS;
+}
+#endif /* MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED */
+
 psa_status_t mbedtls_psa_key_agreement_ecdh(
     const psa_key_attributes_t *attributes,
     const uint8_t *key_buffer, size_t key_buffer_size,
@@ -547,6 +574,16 @@ psa_status_t mbedtls_psa_key_agreement_ecdh(
         !PSA_ALG_IS_ECDH(alg)) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
+
+#if defined(MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED)
+    if (attributes->type == PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_MONTGOMERY) &&
+        attributes->bits == 255) {
+        return ecdh_everest_shared_secret(key_buffer, key_buffer_size,
+                                          peer_key, peer_key_length,
+                                          shared_secret, shared_secret_size,
+                                          shared_secret_length);
+    }
+#endif /* MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED */
 
     status = mbedtls_psa_ecp_load_representation(
         attributes->type,
