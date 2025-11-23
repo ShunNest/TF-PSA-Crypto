@@ -10,7 +10,6 @@ endif()
 
 foreach (target IN LISTS target_libraries)
     add_library(${target} OBJECT
-      library/everest.c
       library/x25519.c
       library/Hacl_Curve25519_joined.c)
 
