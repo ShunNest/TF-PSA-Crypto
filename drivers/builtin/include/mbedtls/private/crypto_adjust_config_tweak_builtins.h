@@ -156,8 +156,7 @@
 #define MBEDTLS_ECP_LIGHT
 #endif
 
-/* Helper symbol to state that there is support for ECDH, either through
- * library implementation (ECDH_C) or through PSA. */
+/* Legacy helper, still used by mbedtls_check_config.h */
 #if defined(PSA_WANT_ALG_ECDH)
 #define MBEDTLS_CAN_ECDH
 #endif

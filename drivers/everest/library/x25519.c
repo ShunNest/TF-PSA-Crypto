@@ -23,7 +23,7 @@
 
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_ECDH) && defined(MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED)
 
-#include <mbedtls/private/ecdh.h>
+#include <mbedtls/private/ecp.h>
 
 #if !(defined(__SIZEOF_INT128__) && (__SIZEOF_INT128__ == 16))
 #define KRML_VERIFIED_UINT128

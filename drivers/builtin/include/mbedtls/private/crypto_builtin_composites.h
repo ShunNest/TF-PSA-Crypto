@@ -35,10 +35,6 @@
 #endif
 #include "mbedtls/private/chachapoly.h"
 
-#if defined(MBEDTLS_PSA_BUILTIN_ALG_ECDH)
-#include "mbedtls/private/ecdh.h"
-#endif
-
 /*
  * MAC multi-part operation definitions.
  */
