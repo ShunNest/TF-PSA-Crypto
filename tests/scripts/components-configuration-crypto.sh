@@ -50,6 +50,47 @@ component_test_accel_ecc_all () {
     ctest
 }
 
+component_test_accel_ecc_all_but_ecp_light() {
+    msg "build: full + all ECC accelerated but ECP_LIGHT"
+
+    # Configure
+    # ---------
+
+    ./scripts/config.py full
+
+    # Restartable feature is not yet supported by PSA. Once it will in
+    # the future, the following line could be removed (see issues
+    # 6061, 6332 and following ones)
+    scripts/config.py unset MBEDTLS_ECP_RESTARTABLE
+
+    # Emphasize on the configuration that enable ECP_LIGHT. Note that currently
+    # ECC key pair derivation acceleration is not supported.
+    scripts/config.py set MBEDTLS_PK_PARSE_EC_EXTENDED
+    scripts/config.py set MBEDTLS_PK_PARSE_EC_COMPRESSED
+    scripts/config.py set PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_DERIVE
+
+    # Build
+    # -----
+
+    cd $OUT_OF_SOURCE_DIR
+    cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-ecc.h" ..
+    make
+
+    # Make sure built-in EC alg objects are empty but ECP one.
+    not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
+    not grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.c.o
+    not grep mbedtls_ecjpake_ ${CMAKE_BUILTIN_BUILD_DIR}/ecjpake.c.o
+    not grep mbedtls_ecp_mul ${CMAKE_BUILTIN_BUILD_DIR}/ecp.c.o
+    grep mbedtls_ecp_ ${CMAKE_BUILTIN_BUILD_DIR}/ecp.c.o
+
+    # Run the tests
+    # -------------
+
+    msg "test: full + all ECC accelerated but ECP_LIGHT"
+    ctest
+}
+
 component_test_accel_ecdh() {
     msg "build: accelerated ECDH"
 
