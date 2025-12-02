@@ -716,7 +716,8 @@ exit:
      */
     psa_reset_key_attributes(&attributes);
 
-    mbedtls_pk_free(&priv_pk);   /* redundant except upon error */
+    /* redundant except upon error */
+    mbedtls_pk_free(&priv_pk);
     mbedtls_pk_free(&priv_pk2);
     mbedtls_pk_free(&pub_pk);
     psa_destroy_key(key);
