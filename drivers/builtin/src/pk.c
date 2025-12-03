@@ -1368,16 +1368,15 @@ size_t mbedtls_pk_get_bitlen(const mbedtls_pk_context *ctx)
     if (ctx == NULL || ctx->pk_info == NULL) {
         return 0;
     }
-    if (strncmp(ctx->pk_info->name, "Opaque", 6) == 0) {
+    if (ctx->bits != 0) {
+        return ctx->bits;
+    } else {
         if (PSA_SUCCESS != psa_get_key_attributes(ctx->priv_id, &attributes)) {
             return 0;
         }
-
         bits = psa_get_key_bits(&attributes);
         psa_reset_key_attributes(&attributes);
         return bits;
-    } else {
-        return ctx->bits;
     }
 }
 
