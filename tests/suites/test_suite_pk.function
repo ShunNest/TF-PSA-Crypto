@@ -697,9 +697,7 @@ void pk_psa_utils(int key_type, int bitlen)
     TEST_ASSERT(mbedtls_pk_debug(&priv_pk, &dbg)
                 == MBEDTLS_ERR_PK_TYPE_MISMATCH);
 
-    pub_key = psa_pub_key_from_priv(key);
-
-    TEST_EQUAL(mbedtls_pk_copy_from_psa(pub_key, &pub_pk), 0);
+    TEST_EQUAL(mbedtls_pk_copy_public_from_psa(key, &pub_pk), 0);
     TEST_ASSERT(mbedtls_pk_get_bitlen(&pub_pk) == (size_t) bitlen);
 
     /* test that freeing the context does not destroy the key */
