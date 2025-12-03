@@ -529,7 +529,7 @@ depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_521:PSA_WANT_KE
 mbedtls_pk_check_pair:"../framework/data_files/ec_521_pub.pem":"../framework/data_files/ec_521_prv.pem":0
 
 Check pair #7 521 vs 256 bit ec keys
-depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_256:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
+depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_512:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/ec_521_pub.pem":"../framework/data_files/ec_256_prv.pem":MBEDTLS_ERR_PK_BAD_INPUT_DATA
 
 Check pair #8 (RSA, OK) 4096 bit keys
