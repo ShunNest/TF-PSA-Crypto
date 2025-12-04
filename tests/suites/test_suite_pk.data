@@ -56,9 +56,9 @@ PK PSA utilities: ECDSA setup/free, info functions, unsupported operations 521 b
 depends_on:PSA_HAVE_ALG_ECDSA_VERIFY:PSA_HAVE_ALG_ECDSA_SIGN:PSA_WANT_ECC_SECP_R1_521
 pk_psa_utils:PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1):521
 
-PK PSA utilities: RSA setup/free, info functions, unsupported operations 1024 bit
+PK PSA utilities: RSA setup/free, info functions, unsupported operations 2048 bit
 depends_on:RSA_KEY_PAIR
-pk_psa_utils:PSA_KEY_TYPE_RSA_KEY_PAIR:1024
+pk_psa_utils:PSA_KEY_TYPE_RSA_KEY_PAIR:2048
 
 PK PSA utilities: RSA setup/free, info functions, unsupported operations 4096 bit
 depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:!MBEDTLS_PSA_STATIC_KEY_SLOTS
