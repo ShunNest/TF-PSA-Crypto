@@ -911,6 +911,7 @@ void valid_parameters()
      * We do not document that NULL is accepted, so we may wish to change
      * the behavior in a future version. */
     TEST_ASSERT(mbedtls_pk_get_bitlen(NULL) == 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == 0);
     TEST_ASSERT(mbedtls_pk_get_len(NULL) == 0);
     TEST_ASSERT(mbedtls_pk_can_do(NULL, MBEDTLS_PK_NONE) == 0);
 
