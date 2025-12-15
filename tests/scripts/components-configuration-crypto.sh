@@ -91,6 +91,108 @@ component_test_accel_ecc_all_but_ecp_light() {
     ctest
 }
 
+# This is a common configuration helper used directly from
+# common_test_accel_ecc_ffdh_no_bignum and indirectly from:
+# - component_test_accel_ecc_no_bignum
+#       - accelerate all EC algs, disable RSA and FFDH
+# - component_test_accel_ecc_ffdh_no_bignum
+#       - accelerate all EC and FFDH algs, disable only RSA
+#
+# This function accepts one parameter:
+# $1: a string value which states which components are tested. Allowed values
+#     are "ECC" or "ECC_DH".
+config_accel_ecc_ffdh_no_bignum () {
+    test_target="$1"
+
+    scripts/config.py "full"
+
+    # Disable all the features that auto-enable ECP_LIGHT (see build_info.h)
+    scripts/config.py unset MBEDTLS_PK_PARSE_EC_EXTENDED
+    scripts/config.py unset MBEDTLS_PK_PARSE_EC_COMPRESSED
+    scripts/config.py unset PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_DERIVE
+
+    # RSA support is intentionally disabled on this test because RSA_C depends
+    # on BIGNUM_C.
+    scripts/config.py unset-all "PSA_WANT_KEY_TYPE_RSA_[0-9A-Z_a-z]*"
+    scripts/config.py unset-all "PSA_WANT_ALG_RSA_[0-9A-Z_a-z]*"
+
+    if [ "$test_target" = "ECC" ]; then
+        # When testing ECC only, we disable FFDH support.
+        scripts/config.py unset PSA_WANT_ALG_FFDH
+        scripts/config.py unset-all "PSA_WANT_KEY_TYPE_DH_[0-9A-Z_a-z]*"
+        scripts/config.py unset-all "PSA_WANT_DH_RFC7919_[0-9]*"
+    fi
+
+    # Restartable feature is not yet supported by PSA. Once it will in
+    # the future, the following line could be removed (see issues
+    # 6061, 6332 and following ones)
+    scripts/config.py unset MBEDTLS_ECP_RESTARTABLE
+}
+
+# Common helper used by:
+# - component_test_accel_ecc_no_bignum
+# - component_test_accel_ecc_ffdh_no_bignum
+#
+# The goal is to build and test accelerating either:
+# - ECC only or
+# - both ECC and FFDH
+common_test_accel_ecc_ffdh_no_bignum () {
+    test_target="$1"
+
+    # This is an internal helper to simplify text message handling
+    if [ "$test_target" = "ECC_DH" ]; then
+        accel_text="ECC/FFDH"
+        removed_text="ECP - DH"
+    else
+        accel_text="ECC"
+        removed_text="ECP"
+    fi
+
+    msg "build: full + accelerated $accel_text algs - $removed_text - BIGNUM"
+
+    # Configure
+    # ---------
+
+    config_accel_ecc_ffdh_no_bignum "$test_target"
+
+    if [ "$test_target" = "ECC_DH" ]; then
+        user_config_accel_file_path="../tests/configs/user-config-accel-ecc-ffdh.h"
+    else
+        user_config_accel_file_path="../tests/configs/user-config-accel-ecc.h"
+    fi
+
+    # Build
+    # -----
+
+    cd $OUT_OF_SOURCE_DIR
+    cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="${user_config_accel_file_path}" ..
+    make
+
+    # Make sure any built-in EC alg was not re-enabled
+    not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.o
+    not grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.o
+    not grep mbedtls_ecjpake_ ${CMAKE_BUILTIN_BUILD_DIR}/ecjpake.o
+    # Also ensure that ECP, RSA or BIGNUM modules were not re-enabled
+    not grep mbedtls_ecp_ ${CMAKE_BUILTIN_BUILD_DIR}/ecp.o
+    not grep mbedtls_rsa_ ${CMAKE_BUILTIN_BUILD_DIR}/rsa.o
+    not grep mbedtls_mpi_ ${CMAKE_BUILTIN_BUILD_DIR}/bignum.o
+
+    # Run the tests
+    # -------------
+
+    msg "test suites: full + accelerated $accel_text algs - $removed_text - BIGNUM"
+    ctest
+}
+
+component_test_accel_ecc_no_bignum () {
+    common_test_accel_ecc_ffdh_no_bignum "ECC"
+}
+
+component_test_accel_ecc_ffdh_no_bignum () {
+    common_test_accel_ecc_ffdh_no_bignum "ECC_DH"
+}
+
 component_test_accel_ecc_some_key_types () {
     msg "build: full with accelerated EC algs and some key types"
 
