@@ -972,7 +972,7 @@ void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int c
     size_t bitlen;
     if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)){
         bitlen = curve_or_keybits;
-    } else if((pk_type == MBEDTLS_PK_ECDSA)){
+    } else if(pk_type == MBEDTLS_PK_ECDSA){
         TEST_ASSERT(mbedtls_ecc_group_to_psa(curve_or_keybits, &bitlen) != 0);
     } else {
         TEST_FAIL("Key not supported");
@@ -989,6 +989,7 @@ void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int c
     TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
 exit:
     mbedtls_pk_free(&pk);
+    PSA_DONE();
 }
 /* END_CASE */
 
