@@ -968,19 +968,27 @@ void valid_parameters()
 /* BEGIN_CASE depends_on:MBEDTLS_PK_WRITE_C:MBEDTLS_PK_PARSE_C */
 //bjwt TODO mbedtls_pk_parse_key functionality copied from valid_parameters_pkwrite and the input parameters can also probably be re-used.
 //Check if depends are required.
-void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int bit_len, int pk_type)
+void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int curve_or_keybits)
 {
     mbedtls_pk_context pk, pk_pub;
+    size_t bitlen;
+    if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)){
+        bitlen = curve_or_keybits;
+    } else if((pk_type == MBEDTLS_PK_ECDSA)){
+        TEST_ASSERT(mbedtls_ecc_group_to_psa(curve_or_keybits, &bitlen) != 0);
+    } else {
+        TEST_FAIL("Key not supported");
+    }
     
     PSA_INIT();
 
     mbedtls_pk_init(&pk);
     mbedtls_pk_init(&pk_pub);
-    TEST_EQUAL(pk_setup(&pk, pk_type, (size_t) bit_len), 0);
+    TEST_EQUAL(pk_setup(&pk, pk_type, (size_t) curve_or_keybits), 0);
     TEST_ASSERT(mbedtls_pk_parse_key(&pk, priv_key->x, priv_key->len, NULL, 0) == 0);
-    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == (size_t) bit_len);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
     TEST_ASSERT(mbedtls_pk_parse_public_key(&pk_pub, pub_key->x, pub_key->len) == 0);
-    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == (size_t) bit_len);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
 exit:
     mbedtls_pk_free(&pk);
 }
