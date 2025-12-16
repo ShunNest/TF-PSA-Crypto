@@ -483,15 +483,6 @@ psa_status_t mbedtls_to_psa_error(int ret)
 #if defined(MBEDTLS_ECP_LIGHT)
         case MBEDTLS_ERR_ECP_INVALID_KEY:
             return PSA_ERROR_INVALID_ARGUMENT;
-        case MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE:
-            return PSA_ERROR_NOT_SUPPORTED;
-        case MBEDTLS_ERR_ECP_RANDOM_FAILED:
-            return PSA_ERROR_INSUFFICIENT_ENTROPY;
-
-#if defined(MBEDTLS_ECP_RESTARTABLE)
-        case MBEDTLS_ERR_ECP_IN_PROGRESS:
-            return PSA_OPERATION_INCOMPLETE;
-#endif
 #endif
 
         case MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED:
