@@ -94,16 +94,27 @@ component_test_accel_ecc_all_but_ecp_light() {
 component_test_accel_ecdh() {
     msg "build: accelerated ECDH"
 
+    # Configure
+    # ---------
+
+    cp "tests/configs/user-config-accel-ecc.h" \
+        "$OUT_OF_SOURCE_DIR/user-config-accel-ecdh.h"
+    cp "tests/configs/user-config-test-driver-extension.h" $OUT_OF_SOURCE_DIR
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecdh.h" \
+         unset-all MBEDTLS_PSA_ACCEL_ALG
+
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecdh.h" \
+         set MBEDTLS_PSA_ACCEL_ALG_ECDH
+
     # Build
     # -----
 
     cd $OUT_OF_SOURCE_DIR
-
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
-          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-ecdh.h" ..
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecdh.h" ..
     make
 
-    # Make sure built-in ECDH was not re-enabled by accident (additive config)
+    # Make sure built-in ECDH is empty.
     not grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.c.o
 
     # Run the tests
@@ -116,16 +127,34 @@ component_test_accel_ecdh() {
 component_test_accel_ecdsa() {
     msg "build: accelerated ECDSA"
 
+    # Configure
+    # ---------
+
+    # Note: We accelerate all curves, including Montgomery curves, even though
+    # they are not usable for ECDSA. This is done because we want to test with
+    # PK enabled, and PK does not support partial acceleration of ECC curves.
+
+    cp "tests/configs/user-config-accel-ecc.h" \
+        "$OUT_OF_SOURCE_DIR/user-config-accel-ecdsa.h"
+    cp "tests/configs/user-config-test-driver-extension.h" $OUT_OF_SOURCE_DIR
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecdsa.h" \
+         unset-all MBEDTLS_PSA_ACCEL_ALG
+
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecdsa.h" \
+         set MBEDTLS_PSA_ACCEL_ALG_ECDSA
+    scripts/config.py -f "$OUT_OF_SOURCE_DIR/user-config-accel-ecdsa.h" \
+         set MBEDTLS_PSA_ACCEL_ALG_DETERMINISTIC_ECDSA
+
     # Build
     # -----
 
     cd $OUT_OF_SOURCE_DIR
 
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
-          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-ecdsa.h" ..
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecdsa.h" ..
     make
 
-    # Make sure built-in ECDSA was not re-enabled by accident (additive config)
+    # Make sure built-in ECDSA is empty.
     not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
 
     # Run the tests
