@@ -12,12 +12,6 @@ typedef enum {
 } pkwrite_file_format_t;
 
 typedef enum {
-    TEST_WRAP_PSA,
-    TEST_COPY_FROM_PSA,
-    TEST_COPY_PUBLIC_FROM_PSA,
-} pkwrite_pk_derivation_method_t;
-
-typedef enum {
     TEST_PUBLIC_KEY,
     TEST_PRIVATE_KEY,
 } pkwrite_key_type_t;
@@ -322,21 +316,8 @@ void pk_write_pubkey_psa_from_psa(int key_type, int key_bits, int pk_gen_method)
     key_id = pk_helpers_make_psa_key_from_predefined(key_type, key_bits, PSA_ALG_NONE,
                                                      PSA_ALG_NONE, PSA_KEY_USAGE_EXPORT);
 
-    switch (pk_gen_method) {
-        case TEST_WRAP_PSA:
-            TEST_EQUAL(mbedtls_pk_wrap_psa(&pk, key_id), 0);
-            break;
-        case TEST_COPY_FROM_PSA:
-            TEST_EQUAL(mbedtls_pk_copy_from_psa(key_id, &pk), 0);
-            break;
-        case TEST_COPY_PUBLIC_FROM_PSA:
-            TEST_EQUAL(mbedtls_pk_copy_public_from_psa(key_id, &pk), 0);
-            break;
-        default:
-            TEST_FAIL("Unknown method");
-    }
-
-    /* No need to check for return value here: TEST_EQUAL() macros are used in this function */
+    /* No need to check for return value here: TEST_EQUAL() macros are used in these functions */
+    pk_helpers_populate_context(&pk, key_id, pk_gen_method);
     test_pk_write_pubkey_psa(&pk);
 
 exit:
