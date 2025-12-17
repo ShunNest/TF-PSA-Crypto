@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
 
 """
-This script generates a file called identifiers that contains all Mbed TLS
+This script generates a file called identifiers that contains all TF-PSA-Crypto
 identifiers found on internal headers. This is the equivalent of what was
 previously `list-identifiers.sh --internal`, and is useful for generating an
 exclusion file list for ABI/API checking, since we do not promise compatibility
@@ -14,7 +14,7 @@ It uses the CodeParser class from framework/scripts/check_names.py to perform
 the parsing.
 
 The script returns 0 on success, 1 if there is a script error.
-Must be run from Mbed TLS root.
+Must be run from TF-PSA-Crypto root.
 """
 
 import argparse
@@ -34,10 +34,8 @@ def main():
 
     name_check = CodeParser(logging.getLogger())
     result = name_check.parse_identifiers([
-        "include/mbedtls/*_internal.h",
-        "library/*.h",
-        "tf-psa-crypto/core/*.h",
-        "tf-psa-crypto/drivers/builtin/src/*.h"
+        "core/*.h",
+        "drivers/builtin/src/*.h"
     ])[0]
     result.sort(key=lambda x: x.name)
 
