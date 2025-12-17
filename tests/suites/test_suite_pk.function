@@ -208,6 +208,7 @@ static psa_status_t pk_psa_import_key(const unsigned char *key_data, size_t key_
     psa_set_key_algorithm(&attributes, alg);
     psa_set_key_enrollment_algorithm(&attributes, alg2);
     psa_set_key_type(&attributes, type);
+    mbedtls_printf("bjwt:file=%s,line=%i, data_length= %lu\n", __FILE_NAME__, __LINE__, key_len);
     status = psa_import_key(&attributes, key_data, key_len, key);
 
     return status;
@@ -966,29 +967,47 @@ void valid_parameters()
 /* END_CASE */
 
 /* BEGIN_CASE */
+//TODO Rename to something sensible
 void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int curve_or_keybits)
 {
-    mbedtls_pk_context pk, pk_pub;
+    mbedtls_pk_context pk, pk_pub, new_pk;
     size_t bitlen;
+
+    mbedtls_svc_key_id_t pub_key_id = MBEDTLS_SVC_KEY_ID_INIT;
     if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)){
         bitlen = curve_or_keybits;
     } else if(pk_type == MBEDTLS_PK_ECDSA){
         TEST_ASSERT(mbedtls_ecc_group_to_psa(curve_or_keybits, &bitlen) != 0);
     } else {
-        TEST_FAIL("Key not supported");
+        TEST_FAIL("Key type not supported");
     }
     
     PSA_INIT();
 
     mbedtls_pk_init(&pk);
     mbedtls_pk_init(&pk_pub);
+    mbedtls_pk_init(&new_pk);
+
     TEST_EQUAL(pk_setup(&pk, pk_type, (size_t) curve_or_keybits), 0);
+
     TEST_ASSERT(mbedtls_pk_parse_key(&pk, priv_key->x, priv_key->len, NULL, 0) == 0);
     TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
+
     TEST_ASSERT(mbedtls_pk_parse_public_key(&pk_pub, pub_key->x, pub_key->len) == 0);
     TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
+
+    mbedtls_pk_init(&pk_pub);
+    pub_key_id = psa_pub_key_from_priv(pk.priv_id);
+    TEST_EQUAL(mbedtls_pk_copy_from_psa(pk.priv_id, &new_pk), 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&new_pk) == bitlen);
+    TEST_EQUAL(mbedtls_pk_copy_public_from_psa(pub_key_id, &pk_pub), 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk_pub) == bitlen);
+
 exit:
     mbedtls_pk_free(&pk);
+    mbedtls_pk_free(&pk_pub);
+    mbedtls_pk_free(&new_pk);
+    psa_destroy_key(pub_key_id);
     PSA_DONE();
 }
 /* END_CASE */
