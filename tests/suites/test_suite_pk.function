@@ -208,7 +208,6 @@ static psa_status_t pk_psa_import_key(const unsigned char *key_data, size_t key_
     psa_set_key_algorithm(&attributes, alg);
     psa_set_key_enrollment_algorithm(&attributes, alg2);
     psa_set_key_type(&attributes, type);
-    mbedtls_printf("bjwt:file=%s,line=%i, data_length= %lu\n", __FILE_NAME__, __LINE__, key_len);
     status = psa_import_key(&attributes, key_data, key_len, key);
 
     return status;
@@ -966,7 +965,7 @@ void valid_parameters()
 }
 /* END_CASE */
 
-/* BEGIN_CASE */
+/* BEGIN_CASE depends_on:MBEDTLS_PK_PARSE_C */
 //TODO Rename to something sensible
 void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int curve_or_keybits)
 {
