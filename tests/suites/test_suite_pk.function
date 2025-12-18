@@ -966,8 +966,7 @@ void valid_parameters()
 /* END_CASE */
 
 /* BEGIN_CASE depends_on:MBEDTLS_PK_PARSE_C:PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_BASIC */
-//TODO Rename to something sensible
-void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int curve_or_keybits)
+void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve_or_keybits)
 {
     mbedtls_pk_context pk, pk_pub, new_pk;
     size_t bitlen;
