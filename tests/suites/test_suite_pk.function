@@ -965,7 +965,7 @@ void valid_parameters()
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_PK_PARSE_C */
+/* BEGIN_CASE depends_on:MBEDTLS_PK_PARSE_C:PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_BASIC */
 //TODO Rename to something sensible
 void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int curve_or_keybits)
 {
@@ -973,14 +973,14 @@ void bitlen_test_parse_key(data_t *priv_key, data_t *pub_key, int pk_type, int c
     size_t bitlen;
 
     mbedtls_svc_key_id_t pub_key_id = MBEDTLS_SVC_KEY_ID_INIT;
-    if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)){
+    if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)) {
         bitlen = curve_or_keybits;
-    } else if(pk_type == MBEDTLS_PK_ECDSA){
+    } else if (pk_type == MBEDTLS_PK_ECDSA) {
         TEST_ASSERT(mbedtls_ecc_group_to_psa(curve_or_keybits, &bitlen) != 0);
     } else {
         TEST_FAIL("Key type not supported");
     }
-    
+
     PSA_INIT();
 
     mbedtls_pk_init(&pk);
