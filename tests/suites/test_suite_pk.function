@@ -631,7 +631,6 @@ void pk_psa_utils(int key_is_rsa)
 
     mbedtls_md_type_t md_alg = MBEDTLS_MD_NONE;
     unsigned char b1[1], b2[1];
-    mbedtls_pk_debug_item dbg;
 
     mbedtls_pk_init(&pk);
     mbedtls_pk_init(&pk2);
@@ -692,8 +691,6 @@ void pk_psa_utils(int key_is_rsa)
                                      mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY)) == 0);
     }
     TEST_ASSERT(mbedtls_pk_check_pair(&pk, &pk2)
-                == MBEDTLS_ERR_PK_TYPE_MISMATCH);
-    TEST_ASSERT(mbedtls_pk_debug(&pk, &dbg)
                 == MBEDTLS_ERR_PK_TYPE_MISMATCH);
 
     /* test that freeing the context does not destroy the key */
