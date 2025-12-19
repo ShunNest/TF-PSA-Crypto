@@ -79,9 +79,6 @@ struct mbedtls_pk_info_t {
     void (*rs_free_func)(void *rs_ctx);
 #endif /* MBEDTLS_ECP_RESTARTABLE */
 
-    /** Interface with the debug module */
-    void (*debug_func)(mbedtls_pk_context *pk, mbedtls_pk_debug_item *items);
-
 };
 #if defined(PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY)
 extern const mbedtls_pk_info_t mbedtls_rsa_info;
