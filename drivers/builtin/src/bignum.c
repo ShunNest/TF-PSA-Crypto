@@ -2371,8 +2371,7 @@ cleanup:
 #endif /* MBEDTLS_GENPRIME */
 
 
-#if defined(MBEDTLS_ASN1_WRITE_C) || defined(MBEDTLS_ASN1_PARSE_C) || \
-    defined(PSA_HAVE_ALG_SOME_ECDSA)
+#if defined(MBEDTLS_ASN1_WRITE_C)
 #include "mbedtls/asn1.h"
 #include "mbedtls/asn1write.h"
 int mbedtls_asn1_write_mpi(unsigned char **p, const unsigned char *start, const mbedtls_mpi *X)
@@ -2417,7 +2416,10 @@ int mbedtls_asn1_write_mpi(unsigned char **p, const unsigned char *start, const 
 cleanup:
     return ret;
 }
+#endif /* MBEDTLS_ASN1_WRITE_C */
 
+#if defined(MBEDTLS_ASN1_PARSE_C)
+#include "mbedtls/asn1.h"
 int mbedtls_asn1_get_mpi(unsigned char **p,
                          const unsigned char *end,
                          mbedtls_mpi *X)
@@ -2435,7 +2437,7 @@ int mbedtls_asn1_get_mpi(unsigned char **p,
 
     return ret;
 }
-#endif /* MBEDTLS_ASN1_WRITE_C || MBEDTLS_ASN1_PARSE_C || PSA_HAVE_ALG_SOME_ECDSA */
+#endif /* MBEDTLS_ASN1_PARSE_C */
 
 #if defined(MBEDTLS_SELF_TEST)
 
