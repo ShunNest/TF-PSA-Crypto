@@ -1,4 +1,5 @@
 set(src_crypto
+    constant_time.c
     psa_crypto.c
     psa_crypto_client.c
     psa_crypto_driver_wrappers_no_static.c
