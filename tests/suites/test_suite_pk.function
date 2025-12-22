@@ -990,7 +990,7 @@ void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve
     TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
 
     TEST_ASSERT(mbedtls_pk_parse_public_key(&pk_pub, pub_key->x, pub_key->len) == 0);
-    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk_pub) == bitlen);
 
     mbedtls_pk_init(&pk_pub);
     pub_key_id = psa_pub_key_from_priv(pk.priv_id);
