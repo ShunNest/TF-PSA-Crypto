@@ -980,11 +980,11 @@ void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve
         TEST_FAIL("Key type not supported");
     }
 
-    PSA_INIT();
-
     mbedtls_pk_init(&pk);
     mbedtls_pk_init(&pk_pub);
     mbedtls_pk_init(&new_pk);
+
+    PSA_INIT();
 
     TEST_EQUAL(pk_setup(&pk, pk_type, (size_t) curve_or_keybits), 0);
 
