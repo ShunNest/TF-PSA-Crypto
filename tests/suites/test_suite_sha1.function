@@ -2,7 +2,11 @@
 #include "mbedtls/private/sha1.h"
 /* END_HEADER */
 
-/* BEGIN_CASE depends_on:MBEDTLS_SHA1_C */
+/* BEGIN_DEPENDENCIES
+ * depends_on:MBEDTLS_SHA1_C
+ * END_DEPENDENCIES */
+
+/* BEGIN_CASE depends_on */
 void mbedtls_sha1(data_t *src_str, data_t *hash)
 {
     unsigned char output[41];
@@ -16,7 +20,7 @@ void mbedtls_sha1(data_t *src_str, data_t *hash)
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_SHA1_C:MBEDTLS_SELF_TEST */
+/* BEGIN_CASE depends_on:MBEDTLS_SELF_TEST */
 void sha1_selftest()
 {
     TEST_ASSERT(mbedtls_sha1_self_test(1) == 0);
