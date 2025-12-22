@@ -971,7 +971,6 @@ void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve
     mbedtls_pk_context pk, pk_pub, new_pk;
     size_t bitlen;
 
-    mbedtls_svc_key_id_t pub_key_id = MBEDTLS_SVC_KEY_ID_INIT;
     if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)) {
         bitlen = curve_or_keybits;
     } else if (pk_type == MBEDTLS_PK_ECDSA) {
@@ -994,17 +993,15 @@ void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve
 
     mbedtls_pk_free(&pk_pub);
     mbedtls_pk_init(&pk_pub);
-    pub_key_id = psa_pub_key_from_priv(pk.priv_id);
     TEST_EQUAL(mbedtls_pk_copy_from_psa(pk.priv_id, &new_pk), 0);
     TEST_ASSERT(mbedtls_pk_get_bitlen(&new_pk) == bitlen);
-    TEST_EQUAL(mbedtls_pk_copy_public_from_psa(pub_key_id, &pk_pub), 0);
+    TEST_EQUAL(mbedtls_pk_copy_public_from_psa(pk.priv_id, &pk_pub), 0);
     TEST_ASSERT(mbedtls_pk_get_bitlen(&pk_pub) == bitlen);
 
 exit:
     mbedtls_pk_free(&pk);
     mbedtls_pk_free(&pk_pub);
     mbedtls_pk_free(&new_pk);
-    psa_destroy_key(pub_key_id);
     PSA_DONE();
 }
 /* END_CASE */
