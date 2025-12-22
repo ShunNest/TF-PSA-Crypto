@@ -30,6 +30,14 @@
  */
 #define MBEDTLS_USE_PSA_CRYPTO
 
+/* Whether any Keccak variant is enabled, i.e. the bulk of sha3.c. */
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
+#define MBEDTLS_SHA3_C
+#endif
+
 /* Auto-enable CIPHER_C when any of the unauthenticated ciphers is builtin
  * in PSA. */
 #if defined(MBEDTLS_PSA_CRYPTO_C) && \

@@ -3,13 +3,6 @@
 #include "mbedtls/private/sha256.h"
 #include "mbedtls/private/sha512.h"
 #include "mbedtls/private/sha3.h"
-
-#if defined(PSA_WANT_ALG_SHA3_224) || \
-    defined(PSA_WANT_ALG_SHA3_256) || \
-    defined(PSA_WANT_ALG_SHA3_384) || \
-    defined(PSA_WANT_ALG_SHA3_512)
-#define MBEDTLS_TEST_SHA3_ENABLED
-#endif
 /* END_HEADER */
 
 /* BEGIN_CASE depends_on:MBEDTLS_SHA1_C */
@@ -157,7 +150,7 @@ void sha512_selftest()
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_TEST_SHA3_ENABLED */
+/* BEGIN_CASE depends_on:MBEDTLS_SHA3_C */
 void mbedtls_sha3(int family, data_t *in, data_t *hash)
 {
     unsigned char *output = NULL;
@@ -196,7 +189,7 @@ exit:
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_TEST_SHA3_ENABLED */
+/* BEGIN_CASE depends_on:MBEDTLS_SHA3_C */
 void mbedtls_sha3_multi(int family, data_t *in, data_t *hash)
 {
     unsigned char *output = NULL;
@@ -221,7 +214,7 @@ exit:
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_TEST_SHA3_ENABLED */
+/* BEGIN_CASE depends_on:MBEDTLS_SHA3_C */
 void sha3_streaming(int type, data_t *input)
 {
     mbedtls_sha3_context ctx;
@@ -271,7 +264,7 @@ exit:
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_TEST_SHA3_ENABLED */
+/* BEGIN_CASE depends_on:MBEDTLS_SHA3_C */
 void sha3_reuse(data_t *input1, data_t *hash1,
                 data_t *input2, data_t *hash2)
 {
@@ -312,7 +305,7 @@ exit:
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_TEST_SHA3_ENABLED:MBEDTLS_SELF_TEST */
+/* BEGIN_CASE depends_on:MBEDTLS_SHA3_C:MBEDTLS_SELF_TEST */
 void sha3_selftest()
 {
     TEST_ASSERT(mbedtls_sha3_self_test(0) == 0);

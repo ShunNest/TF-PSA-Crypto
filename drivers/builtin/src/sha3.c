@@ -12,10 +12,7 @@
 
 #include "tf_psa_crypto_common.h"
 
-#if defined(PSA_WANT_ALG_SHA3_224) || \
-    defined(PSA_WANT_ALG_SHA3_256) || \
-    defined(PSA_WANT_ALG_SHA3_384) || \
-    defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_SHA3_C)
 
 /*
  * These macros select manually unrolled implementations of parts of the main permutation function.
@@ -786,5 +783,4 @@ int mbedtls_sha3_self_test(int verbose)
 }
 #endif /* MBEDTLS_SELF_TEST */
 
-#endif /* PSA_WANT_ALG_SHA3_224 || PSA_WANT_ALG_SHA3_256 ||
-          PSA_WANT_ALG_SHA3_384 || PSA_WANT_ALG_SHA3_512 */
+#endif /* MBEDTLS_SHA3_C */
