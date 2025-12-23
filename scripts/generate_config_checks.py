@@ -18,15 +18,22 @@ ALWAYS_ENABLED_SINCE_1_0 = frozenset([
 def checkers_for_removed_options() -> Iterator[Checker]:
     """Discover removed options. Yield corresponding checkers."""
     previous_major = config_macros.History('mbedtls', '3.6')
-    this_major = config_macros.History('tfpsacrypto', '1.0')
+    # Query historical data about Mbed TLS. We don't query live data
+    # because TF-PSA-Crypto has to be able to compile on its own, without
+    # a surrounding Mbed TLS source tree.
     tls = config_macros.History('mbedtls', '4.0')
-    new_public = this_major.options() | tls.options()
+    current = config_macros.Current()
+    # Don't complain about options that have moved to Mbed TLS!
+    # It's perfectly fine to set Mbed TLS 4.x options in the
+    # TF-PSA-Crypto 1.x config file.
+    # (If we re-add an option in Mbed TLS 4.x after removing it in 4.0,
+    # we'll need to update our tls reference to avoid a complaint here.)
+    new_public = current.options() | tls.options()
     old_public = previous_major.options()
-    internal = this_major.internal()
     for option in sorted(old_public - new_public):
         if option in ALWAYS_ENABLED_SINCE_1_0:
             continue
-        if option in internal:
+        if option in current.internal():
             yield Internal(option)
         else:
             yield Removed(option, 'TF-PSA_Crypto 1.0')
