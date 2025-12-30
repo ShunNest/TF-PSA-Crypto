@@ -9917,6 +9917,7 @@ void key_agreement_interruptible(int alg_arg,
     psa_key_type_t our_key_type = our_key_type_arg;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_attributes_t shared_secret_attributes = PSA_KEY_ATTRIBUTES_INIT;
+    unsigned char *bad_peer_key = NULL;
     unsigned char *output = NULL;
     size_t output_length = ~0;
     size_t key_bits;
@@ -10038,6 +10039,17 @@ void key_agreement_interruptible(int alg_arg,
 
     PSA_ASSERT(psa_key_agreement_iop_abort(&operation));
 
+    /* Setup with invalid input (peer_key) */
+    size_t bad_peer_key_len = peer_key_data->len - 1;
+    TEST_CALLOC(bad_peer_key, bad_peer_key_len);
+    memcpy(bad_peer_key, peer_key_data->x, bad_peer_key_len);
+    TEST_EQUAL(PSA_ERROR_INVALID_ARGUMENT,
+               psa_key_agreement_iop_setup(&operation, our_key,
+                                           bad_peer_key, bad_peer_key_len,
+                                           alg, &shared_secret_attributes));
+    mbedtls_free(bad_peer_key);
+    bad_peer_key = NULL;
+
 exit:
 
     psa_key_agreement_iop_abort(&operation);
@@ -10045,6 +10057,7 @@ exit:
     psa_destroy_key(our_key);
     psa_destroy_key(output_key);
     mbedtls_free(output);
+    mbedtls_free(bad_peer_key);
     PSA_DONE();
 }
 
