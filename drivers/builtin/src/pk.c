@@ -706,7 +706,7 @@ int mbedtls_pk_get_psa_attributes(const mbedtls_pk_context *pk,
     return 0;
 }
 
-psa_key_type_t mbedtls_pk_get_key_type(mbedtls_pk_context *pk)
+psa_key_type_t mbedtls_pk_get_key_type(const mbedtls_pk_context *pk)
 {
     return pk->psa_type;
 }

@@ -421,7 +421,7 @@ int mbedtls_pk_get_psa_attributes(const mbedtls_pk_context *pk,
  *                      - PSA_KEY_TYPE_ECC_PUBLIC_KEY(curve)
  * \return          PSA_KEY_TYPE_NONE, if the context has not been populated.
  */
-psa_key_type_t mbedtls_pk_get_key_type(mbedtls_pk_context *pk);
+psa_key_type_t mbedtls_pk_get_key_type(const mbedtls_pk_context *pk);
 
 
 /**
