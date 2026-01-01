@@ -4396,7 +4396,7 @@ typedef struct psa_verify_hash_interruptible_operation_s psa_verify_hash_interru
  *
  * \note                        For keys in local storage when no accelerator
  *                              driver applies, please see also the
- *                              documentation for \c mbedtls_ecp_set_max_ops(),
+ *                              documentation for \c psa_interruptible_set_max_ops(),
  *                              which is the internal implementation in these
  *                              cases.
  *
