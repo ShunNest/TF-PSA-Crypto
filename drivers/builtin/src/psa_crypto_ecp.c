@@ -852,9 +852,11 @@ psa_status_t mbedtls_psa_key_agreement_iop_abort(
 {
     mbedtls_ecp_keypair_free(operation->our_key);
     mbedtls_free(operation->our_key);
+    operation->our_key = NULL;
 
     mbedtls_ecp_keypair_free(operation->their_key);
     mbedtls_free(operation->their_key);
+    operation->their_key = NULL;
 
     mbedtls_ecp_restart_free(&operation->rs);
     operation->num_ops = 0;
