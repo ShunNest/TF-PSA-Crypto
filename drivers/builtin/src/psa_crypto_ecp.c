@@ -541,8 +541,13 @@ static psa_status_t ecdh_everest_shared_secret(
     uint8_t *shared_secret, size_t shared_secret_size,
     size_t *shared_secret_length)
 {
-    if (key_buffer_size < MBEDTLS_X25519_KEY_SIZE_BYTES ||
-        peer_key_length < MBEDTLS_X25519_KEY_SIZE_BYTES) {
+    /* This static function is only called when we know the curve is x25519,
+     * so we know key_buffer_size is correct unless the keystore is corrupted.
+     */
+    (void) key_buffer_size;
+
+    /* peer_key_length OTOH comes from the outside and could be incorrect */
+    if (peer_key_length < MBEDTLS_X25519_KEY_SIZE_BYTES) {
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
