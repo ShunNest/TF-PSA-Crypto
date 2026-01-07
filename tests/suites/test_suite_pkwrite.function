@@ -313,11 +313,11 @@ void pk_write_pubkey_psa_from_psa(int key_type, int key_bits, int pk_gen_method)
 
     PSA_INIT();
 
-    key_id = pk_helpers_make_psa_key_from_predefined(key_type, key_bits, PSA_ALG_NONE,
-                                                     PSA_ALG_NONE, PSA_KEY_USAGE_EXPORT);
+    key_id = mbedtls_pk_helpers_make_psa_key_from_predefined(key_type, key_bits, PSA_ALG_NONE,
+                                                             PSA_ALG_NONE, PSA_KEY_USAGE_EXPORT);
 
     /* No need to check for return value here: TEST_EQUAL() macros are used in these functions */
-    pk_helpers_populate_context(&pk, key_id, pk_gen_method);
+    mbedtls_pk_helpers_populate_context(&pk, key_id, pk_gen_method);
     test_pk_write_pubkey_psa(&pk);
 
 exit:
