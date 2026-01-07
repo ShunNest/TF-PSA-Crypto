@@ -6,7 +6,7 @@
  * depends_on:MBEDTLS_SHA1_C
  * END_DEPENDENCIES */
 
-/* BEGIN_CASE depends_on */
+/* BEGIN_CASE */
 void mbedtls_sha1(data_t *src_str, data_t *hash)
 {
     unsigned char output[41];
