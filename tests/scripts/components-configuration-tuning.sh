@@ -9,7 +9,13 @@
 #### Configuration Testing - Optimization tuning
 ################################################################
 
-## test_sha3_variation NAME THETA PI CHI RHO
+## Usage:
+##   test_sha3_variation NAME THETA PI CHI RHO
+## Parameters:
+##   NAME: name of the variation, used in messages and in the outcome file
+##   THETA, PI, CHI, RHO: 0 to disable unrolling, 1 to enable unrolling
+## Inputs:
+##   targets: the list of test suites to run (base names only)
 test_sha3_variation () {
     declare MBEDTLS_TEST_CONFIGURATION="$MBEDTLS_TEST_CONFIGURATION+$1"
 
