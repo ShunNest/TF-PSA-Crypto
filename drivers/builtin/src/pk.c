@@ -1380,7 +1380,7 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
                                    &prv_key_len);
     ret = PSA_PK_TO_MBEDTLS_ERR(status);
     if (ret == 0) {
-        if (memcmp(prv_key_buf, pub->pub_raw, pub->pub_raw_len) != 0) {
+        if (memcmp(prv_key_buf, pub->pub_raw, pub->pub_raw_len) != 0 || (prv_key_len != pub->pub_raw_len)) {
             ret = MBEDTLS_ERR_PK_BAD_INPUT_DATA;
         }
     }
