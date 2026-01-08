@@ -1344,7 +1344,6 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
     psa_status_t status;
     int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
     uint8_t *prv_key_buf = NULL;
-    psa_key_type_t private_key_type;
     size_t prv_key_len;
     size_t prv_key_size;
     mbedtls_svc_key_id_t key_id = prv->priv_id;
@@ -1361,19 +1360,12 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
     }
 
     if (prv->pk_info->type == MBEDTLS_PK_OPAQUE){
-        psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
-        status = psa_get_key_attributes(key_id, &attributes);
-        if(status != PSA_SUCCESS){
-            return PSA_PK_TO_MBEDTLS_ERR(status);
-        }
-        private_key_type = psa_get_key_type(&attributes);
-        psa_reset_key_attributes(&attributes);
-        if (!PSA_KEY_TYPE_IS_ECC(private_key_type)){
+        if (!PSA_KEY_TYPE_IS_ECC(mbedtls_pk_get_key_type(prv))){
             return MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE;
         }
     }
 
-    if ((prv->pk_info->type == MBEDTLS_PK_RSA) || (prv->pk_info->type == MBEDTLS_PK_RSASSA_PSS)) {
+    if (PSA_KEY_TYPE_IS_RSA(mbedtls_pk_get_key_type(prv))) {
         prv_key_size = MBEDTLS_PK_MAX_RSA_PUBKEY_RAW_LEN;
     } else {
         prv_key_size = MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH;
