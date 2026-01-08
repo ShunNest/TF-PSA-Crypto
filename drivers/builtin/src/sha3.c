@@ -12,10 +12,7 @@
 
 #include "tf_psa_crypto_common.h"
 
-#if defined(PSA_WANT_ALG_SHA3_224) || \
-    defined(PSA_WANT_ALG_SHA3_256) || \
-    defined(PSA_WANT_ALG_SHA3_384) || \
-    defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_SHA3_C)
 
 /*
  * These macros select manually unrolled implementations of parts of the main permutation function.
@@ -273,28 +270,28 @@ void mbedtls_sha3_clone(mbedtls_sha3_context *dst,
 int mbedtls_sha3_starts(mbedtls_sha3_context *ctx, mbedtls_sha3_id id)
 {
     switch (id) {
-#if defined(PSA_WANT_ALG_SHA3_224)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
         case MBEDTLS_SHA3_224:
             ctx->olen = 224 / 8;
             ctx->max_block_size = 1152 / 8;
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_256)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256)
         case MBEDTLS_SHA3_256:
             ctx->olen = 256 / 8;
             ctx->max_block_size = 1088 / 8;
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_384)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384)
         case MBEDTLS_SHA3_384:
             ctx->olen = 384 / 8;
             ctx->max_block_size = 832 / 8;
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_SHA3_512:
             ctx->olen = 512 / 8;
             ctx->max_block_size = 576 / 8;
@@ -433,7 +430,7 @@ static const size_t test_data_len[2] =
     3  /* "abc" */
 };
 
-#if defined(PSA_WANT_ALG_SHA3_224)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
 static const unsigned char test_hash_sha3_224[2][28] =
 {
     { /* "" */
@@ -451,7 +448,7 @@ static const unsigned char test_hash_sha3_224[2][28] =
 };
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_256)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256)
 static const unsigned char test_hash_sha3_256[2][32] =
 {
     { /* "" */
@@ -469,7 +466,7 @@ static const unsigned char test_hash_sha3_256[2][32] =
 };
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_384)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384)
 static const unsigned char test_hash_sha3_384[2][48] =
 {
     { /* "" */
@@ -491,7 +488,7 @@ static const unsigned char test_hash_sha3_384[2][48] =
 };
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
 static const unsigned char test_hash_sha3_512[2][64] =
 {
     { /* "" */
@@ -517,7 +514,7 @@ static const unsigned char test_hash_sha3_512[2][64] =
 };
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_224)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
 static const unsigned char long_kat_hash_sha3_224[28] =
 {
     0xD6, 0x93, 0x35, 0xB9, 0x33, 0x25, 0x19, 0x2E,
@@ -527,7 +524,7 @@ static const unsigned char long_kat_hash_sha3_224[28] =
 };
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_256)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256)
 static const unsigned char long_kat_hash_sha3_256[32] =
 {
     0x5C, 0x88, 0x75, 0xAE, 0x47, 0x4A, 0x36, 0x34,
@@ -537,7 +534,7 @@ static const unsigned char long_kat_hash_sha3_256[32] =
 };
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_384)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384)
 static const unsigned char long_kat_hash_sha3_384[48] =
 {
     0xEE, 0xE9, 0xE2, 0x4D, 0x78, 0xC1, 0x85, 0x53,
@@ -549,7 +546,7 @@ static const unsigned char long_kat_hash_sha3_384[48] =
 };
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
 static const unsigned char long_kat_hash_sha3_512[64] =
 {
     0x3C, 0x3A, 0x87, 0x6D, 0xA1, 0x40, 0x34, 0xAB,
@@ -584,25 +581,25 @@ static int mbedtls_sha3_kat_test(int verbose,
     }
 
     switch (id) {
-#if defined(PSA_WANT_ALG_SHA3_224)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
         case MBEDTLS_SHA3_224:
             result = memcmp(hash, test_hash_sha3_224[test_num], 28);
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_256)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256)
         case MBEDTLS_SHA3_256:
             result = memcmp(hash, test_hash_sha3_256[test_num], 32);
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_384)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384)
         case MBEDTLS_SHA3_384:
             result = memcmp(hash, test_hash_sha3_384[test_num], 48);
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_SHA3_512:
             result = memcmp(hash, test_hash_sha3_512[test_num], 64);
             break;
@@ -672,25 +669,25 @@ static int mbedtls_sha3_long_kat_test(int verbose,
     }
 
     switch (id) {
-#if defined(PSA_WANT_ALG_SHA3_224)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
         case MBEDTLS_SHA3_224:
             result = memcmp(hash, long_kat_hash_sha3_224, 28);
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_256)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256)
         case MBEDTLS_SHA3_256:
             result = memcmp(hash, long_kat_hash_sha3_256, 32);
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_384)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384)
         case MBEDTLS_SHA3_384:
             result = memcmp(hash, long_kat_hash_sha3_384, 48);
             break;
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         case MBEDTLS_SHA3_512:
             result = memcmp(hash, long_kat_hash_sha3_512, 64);
             break;
@@ -721,28 +718,28 @@ int mbedtls_sha3_self_test(int verbose)
     /* SHA-3 Known Answer Tests (KAT) */
     for (i = 0; i < 2; i++) {
 
-#if defined(PSA_WANT_ALG_SHA3_224)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
         if (0 != mbedtls_sha3_kat_test(verbose,
                                        "SHA3-224", MBEDTLS_SHA3_224, i)) {
             return 1;
         }
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_256)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256)
         if (0 != mbedtls_sha3_kat_test(verbose,
                                        "SHA3-256", MBEDTLS_SHA3_256, i)) {
             return 1;
         }
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_384)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384)
         if (0 != mbedtls_sha3_kat_test(verbose,
                                        "SHA3-384", MBEDTLS_SHA3_384, i)) {
             return 1;
         }
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
         if (0 != mbedtls_sha3_kat_test(verbose,
                                        "SHA3-512", MBEDTLS_SHA3_512, i)) {
             return 1;
@@ -751,28 +748,28 @@ int mbedtls_sha3_self_test(int verbose)
     }
 
     /* SHA-3 long KAT tests */
-#if defined(PSA_WANT_ALG_SHA3_224)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
     if (0 != mbedtls_sha3_long_kat_test(verbose,
                                         "SHA3-224", MBEDTLS_SHA3_224)) {
         return 1;
     }
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_256)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_256)
     if (0 != mbedtls_sha3_long_kat_test(verbose,
                                         "SHA3-256", MBEDTLS_SHA3_256)) {
         return 1;
     }
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_384)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_384)
     if (0 != mbedtls_sha3_long_kat_test(verbose,
                                         "SHA3-384", MBEDTLS_SHA3_384)) {
         return 1;
     }
 #endif
 
-#if defined(PSA_WANT_ALG_SHA3_512)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_512)
     if (0 != mbedtls_sha3_long_kat_test(verbose,
                                         "SHA3-512", MBEDTLS_SHA3_512)) {
         return 1;
@@ -786,5 +783,4 @@ int mbedtls_sha3_self_test(int verbose)
 }
 #endif /* MBEDTLS_SELF_TEST */
 
-#endif /* PSA_WANT_ALG_SHA3_224 || PSA_WANT_ALG_SHA3_256 ||
-          PSA_WANT_ALG_SHA3_384 || PSA_WANT_ALG_SHA3_512 */
+#endif /* MBEDTLS_SHA3_C */
