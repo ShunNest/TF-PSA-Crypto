@@ -121,6 +121,55 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE */
+/* Test an empty input with or without an update() call.
+ * This function only tests that the outputs are identical.
+ * Test cases for mbedtls_sha3_multi() and shake_input() check that the
+ * output is correct for one particular way of passing the empty input. */
+void sha3_empty(int type, int len)
+{
+    mbedtls_sha3_context ctx;
+    mbedtls_sha3_init(&ctx);
+    uint8_t *output_no_update = NULL;
+    uint8_t *output_update_null = NULL;
+    uint8_t *output_update_nonnull = NULL;
+    uint8_t *output_update_twice = NULL;
+    uint8_t byte = 'b';
+
+    TEST_CALLOC(output_no_update, len);
+    TEST_CALLOC(output_update_null, len);
+    TEST_CALLOC(output_update_nonnull, len);
+    TEST_CALLOC(output_update_twice, len);
+
+    TEST_EQUAL(mbedtls_sha3_starts(&ctx, type), 0);
+    TEST_EQUAL(mbedtls_sha3_finish(&ctx, output_no_update, len), 0);
+
+    TEST_EQUAL(mbedtls_sha3_starts(&ctx, type), 0);
+    TEST_EQUAL(mbedtls_sha3_update(&ctx, NULL, 0), 0);
+    TEST_EQUAL(mbedtls_sha3_finish(&ctx, output_update_null, len), 0);
+
+    TEST_EQUAL(mbedtls_sha3_starts(&ctx, type), 0);
+    TEST_EQUAL(mbedtls_sha3_update(&ctx, &byte, 0), 0);
+    TEST_EQUAL(mbedtls_sha3_finish(&ctx, output_update_nonnull, len), 0);
+
+    TEST_EQUAL(mbedtls_sha3_starts(&ctx, type), 0);
+    TEST_EQUAL(mbedtls_sha3_update(&ctx, &byte, 0), 0);
+    TEST_EQUAL(mbedtls_sha3_update(&ctx, &byte, 0), 0);
+    TEST_EQUAL(mbedtls_sha3_finish(&ctx, output_update_twice, len), 0);
+
+    TEST_MEMORY_COMPARE(output_no_update, 0, output_update_null, 0);
+    TEST_MEMORY_COMPARE(output_no_update, 0, output_update_nonnull, 0);
+    TEST_MEMORY_COMPARE(output_no_update, 0, output_update_twice, 0);
+
+exit:
+    mbedtls_sha3_free(&ctx);
+    mbedtls_free(output_no_update);
+    mbedtls_free(output_update_null);
+    mbedtls_free(output_update_nonnull);
+    mbedtls_free(output_update_twice);
+}
+/* END_CASE */
+
+/* BEGIN_CASE */
 void sha3_reuse(data_t *input1, data_t *hash1,
                 data_t *input2, data_t *hash2)
 {
