@@ -1360,24 +1360,12 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
  */
 size_t mbedtls_pk_get_bitlen(const mbedtls_pk_context *ctx)
 {
-    size_t bits;
-    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
-
     /* For backward compatibility, accept NULL or a context that
      * isn't set up yet, and return a fake value that should be safe. */
     if (ctx == NULL || ctx->pk_info == NULL) {
         return 0;
     }
-    if (ctx->bits != 0) {
-        return ctx->bits;
-    } else {
-        if (PSA_SUCCESS != psa_get_key_attributes(ctx->priv_id, &attributes)) {
-            return 0;
-        }
-        bits = psa_get_key_bits(&attributes);
-        psa_reset_key_attributes(&attributes);
-        return bits;
-    }
+    return ctx->bits;
 }
 
 /*
