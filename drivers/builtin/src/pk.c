@@ -1354,12 +1354,12 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
     }
 
     if ((prv->pk_info->type != MBEDTLS_PK_OPAQUE) &&
-        (pub->pk_info != prv->pk_info)){
+        (pub->pk_info != prv->pk_info)) {
         return MBEDTLS_ERR_PK_TYPE_MISMATCH;
     }
 
-    if (prv->pk_info->type == MBEDTLS_PK_OPAQUE){
-        if (!PSA_KEY_TYPE_IS_ECC(mbedtls_pk_get_key_type(prv))){
+    if (prv->pk_info->type == MBEDTLS_PK_OPAQUE) {
+        if (!PSA_KEY_TYPE_IS_ECC(mbedtls_pk_get_key_type(prv))) {
             return MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE;
         }
     }
@@ -1380,7 +1380,8 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
                                    &prv_key_len);
     ret = PSA_PK_TO_MBEDTLS_ERR(status);
     if (ret == 0) {
-        if (memcmp(prv_key_buf, pub->pub_raw, pub->pub_raw_len) != 0 || (prv_key_len != pub->pub_raw_len)) {
+        if (memcmp(prv_key_buf, pub->pub_raw,
+                   pub->pub_raw_len) != 0 || (prv_key_len != pub->pub_raw_len)) {
             ret = MBEDTLS_ERR_PK_BAD_INPUT_DATA;
         }
     }
