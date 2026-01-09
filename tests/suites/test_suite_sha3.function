@@ -161,6 +161,95 @@ exit:
 }
 /* END_CASE */
 
+/* BEGIN_CASE */
+void shake_input(int type, data_t *input, data_t *expected_output)
+{
+    mbedtls_sha3_context ctx;
+    mbedtls_sha3_init(&ctx);
+    uint8_t *input1 = NULL;
+    uint8_t *input2 = NULL;
+    uint8_t *input3 = NULL;
+    uint8_t *actual_output = NULL;
+    size_t output_len = expected_output->len;
+
+    TEST_CALLOC(actual_output, output_len);
+
+    for (size_t n1 = 0; n1 <= input->len; n1++) {
+        TEST_CALLOC(input1, n1);
+        if (n1 != 0) {
+            memcpy(input1, input->x, n1);
+        }
+        for (size_t n2 = 0; n2 <= input->len - n1; n2++) {
+            size_t n3 = input->len - n1 - n2;
+            mbedtls_test_set_step(n1 * 1000000 + n2 * 1000 + n3);
+            TEST_CALLOC(input2, n2);
+            if (n2 != 0) {
+                memcpy(input2, input->x + n1, n2);
+            }
+            TEST_CALLOC(input3, n3);
+            if (n3 != 0) {
+                memcpy(input3, input->x + n1 + n2, n3);
+            }
+            TEST_EQUAL(mbedtls_sha3_starts(&ctx, type), 0);
+            TEST_EQUAL(mbedtls_sha3_update(&ctx, input1, n1), 0);
+            TEST_EQUAL(mbedtls_sha3_update(&ctx, input2, n2), 0);
+            TEST_EQUAL(mbedtls_sha3_update(&ctx, input3, n3), 0);
+            TEST_EQUAL(mbedtls_sha3_finish(&ctx, actual_output, output_len), 0);
+            TEST_MEMORY_COMPARE(actual_output, output_len,
+                                expected_output->x, expected_output->len);
+            mbedtls_free(input2);
+            input2 = NULL;
+            mbedtls_free(input3);
+            input3 = NULL;
+        }
+        mbedtls_free(input1);
+        input1 = NULL;
+    }
+
+exit:
+    mbedtls_sha3_free(&ctx);
+    mbedtls_free(input1);
+    mbedtls_free(input2);
+    mbedtls_free(input3);
+    mbedtls_free(actual_output);
+}
+/* END_CASE */
+
+/* BEGIN_CASE */
+void shake_output(int type, data_t *input, data_t *expected_output)
+{
+    mbedtls_sha3_context ctx;
+    mbedtls_sha3_init(&ctx);
+    uint8_t *output1 = NULL;
+    uint8_t *output2 = NULL;
+
+    for (size_t n1 = 0; n1 <= expected_output->len; n1++) {
+        TEST_CALLOC(output1, n1);
+        for (size_t n2 = 0; n2 <= expected_output->len - n1; n2++) {
+            TEST_CALLOC(output2, n2);
+            mbedtls_test_set_step(n1 * 1000 + n2);
+            TEST_EQUAL(mbedtls_sha3_starts(&ctx, type), 0);
+            TEST_EQUAL(mbedtls_sha3_update(&ctx, input->x, input->len), 0);
+            TEST_EQUAL(mbedtls_sha3_finish(&ctx, output1, n1), 0);
+            TEST_EQUAL(mbedtls_sha3_finish(&ctx, output2, n2), 0);
+            TEST_MEMORY_COMPARE(output1, n1,
+                                expected_output->x, n1);
+            TEST_MEMORY_COMPARE(output2, n2,
+                                expected_output->x + n1, n2);
+            mbedtls_free(output2);
+            output2 = NULL;
+        }
+        mbedtls_free(output1);
+        output1 = NULL;
+    }
+
+exit:
+    mbedtls_sha3_free(&ctx);
+    mbedtls_free(output1);
+    mbedtls_free(output2);
+}
+/* END_CASE */
+
 /* BEGIN_CASE depends_on:MBEDTLS_SELF_TEST */
 void sha3_selftest()
 {
