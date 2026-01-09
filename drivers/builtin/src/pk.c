@@ -163,6 +163,7 @@ int mbedtls_pk_wrap_psa(mbedtls_pk_context *ctx,
     const mbedtls_pk_info_t *info = NULL;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_type_t type;
+    psa_key_bits_t bits;
     int ret;
 
     if (ctx == NULL || ctx->pk_info != NULL) {
@@ -173,6 +174,7 @@ int mbedtls_pk_wrap_psa(mbedtls_pk_context *ctx,
         return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
     }
     type = psa_get_key_type(&attributes);
+    bits = psa_get_key_bits(&attributes);
     psa_reset_key_attributes(&attributes);
 
 #if defined(PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY)
@@ -196,6 +198,7 @@ int mbedtls_pk_wrap_psa(mbedtls_pk_context *ctx,
 
     ctx->pk_info = info;
     ctx->psa_type = type;
+    ctx->bits = bits;
 
     return 0;
 }
