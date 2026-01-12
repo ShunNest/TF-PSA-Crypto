@@ -38,8 +38,16 @@
 #define MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH
 #endif
 
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128)
+#define MBEDTLS_SHA3_WANT_SHAKE128
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256)
+#define MBEDTLS_SHA3_WANT_SHAKE256
+#endif
+
 /* Whether any Keccak variant is enabled, i.e. the bulk of sha3.c. */
-#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH) || \
+    defined(MBEDTLS_SHA3_WANT_SHAKE128) || defined(MBEDTLS_SHA3_WANT_SHAKE256)
 #define MBEDTLS_SHA3_C
 #endif
 

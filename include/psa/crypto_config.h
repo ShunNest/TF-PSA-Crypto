@@ -862,6 +862,12 @@
  */
 #define MBEDTLS_PK_WRITE_C
 
+/* Enable SHAKE internally. There is no API yet. These macros are temporarily
+ * exposed in crypto_config.h for technical reasons, but are not part of the
+ * API of TF-PSA-Crypto and will become internal soon. */
+//#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE128
+//#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE256
+
 /** \} name SECTION: Cryptographic mechanism selection (extended API) */
 
 /**
