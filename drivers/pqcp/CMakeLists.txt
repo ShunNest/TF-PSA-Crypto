@@ -5,3 +5,9 @@ set(tf_psa_crypto_driver "pqcp")
 file(GLOB pqcp_src_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.c)
 
 include(${PROJECT_SOURCE_DIR}/drivers/driver.cmake)
+
+foreach (target IN LISTS target_libraries)
+    target_include_directories(${target}
+        PRIVATE mldsa-native/mldsa
+    )
+endforeach(target)

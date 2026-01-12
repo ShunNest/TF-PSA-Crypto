@@ -8,6 +8,8 @@
 
 #if defined(MBEDTLS_PSA_CRYPTO_C) && defined(TF_PSA_CRYPTO_PQCP_MLDSA_ENABLED)
 
+#include "wrap_mldsa_native.h"
+
 int tf_psa_crypto_pqcp_driver_exists = 1;
 
 #endif /* MBEDTLS_PSA_CRYPTO_C && TF_PSA_CRYPTO_PQCP_MLDSA_ENABLED */
