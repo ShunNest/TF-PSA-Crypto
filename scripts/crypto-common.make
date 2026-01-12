@@ -30,8 +30,10 @@ TF_PSA_CRYPTO_DRIVERS_BUILTIN_SRC_PATH = $(TF_PSA_CRYPTO_PATH)/drivers/builtin/s
 # "builtin" driver (historically located in /3rdparty in Mbed TLS 2.x/3.x).
 THIRDPARTY_DIR := $(TF_PSA_CRYPTO_PATH)/drivers
 THIRDPARTY_INCLUDES =
+THIRDPARTY_PRIVATE_INCLUDES =
 include $(TF_PSA_CRYPTO_PATH)/drivers/everest/Makefile.inc
 include $(TF_PSA_CRYPTO_PATH)/drivers/p256-m/Makefile.inc
+include $(TF_PSA_CRYPTO_PATH)/drivers/pqcp/Makefile.inc
 
 # Directories with headers of public interfaces of TF-PSA-Crypto
 TF_PSA_CRYPTO_LIBRARY_PUBLIC_INCLUDE = \
@@ -44,7 +46,8 @@ TF_PSA_CRYPTO_LIBRARY_PUBLIC_INCLUDE = \
 # cleaning up)
 TF_PSA_CRYPTO_LIBRARY_PRIVATE_INCLUDE = \
 	-I$(TF_PSA_CRYPTO_CORE_PATH) \
-	-I$(TF_PSA_CRYPTO_DRIVERS_BUILTIN_SRC_PATH)
+	-I$(TF_PSA_CRYPTO_DRIVERS_BUILTIN_SRC_PATH) \
+	$(THIRDPARTY_PRIVATE_INCLUDES)
 
 # Extra linker flags required by the crypto library or the platform
 TF_PSA_CRYPTO_EXTRA_LDFLAGS =
