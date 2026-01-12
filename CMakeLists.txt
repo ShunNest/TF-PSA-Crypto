@@ -438,7 +438,9 @@ if(ENABLE_TESTING OR ENABLE_PROGRAMS)
                 ${CMAKE_CURRENT_BINARY_DIR}/include
                 include
                 core
-                drivers/builtin/src)
+                drivers/builtin/src
+                drivers/pqcp/src
+            )
 
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_TARGETS})
         get_target_property(public_includes ${driver_target} INTERFACE_INCLUDE_DIRECTORIES)
