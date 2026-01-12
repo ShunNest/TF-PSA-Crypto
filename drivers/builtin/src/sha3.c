@@ -448,6 +448,8 @@ exit:
 
 #if defined(MBEDTLS_SELF_TEST)
 
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH)
+
 static const unsigned char test_data[2][4] =
 {
     "",
@@ -740,6 +742,8 @@ cleanup:
     mbedtls_sha3_free(&ctx);
     return result;
 }
+
+#endif /* defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH) */
 
 #if defined(MBEDTLS_SHA3_WANT_SHAKE128)
 static const unsigned char shake128_test_input[2][16] =
