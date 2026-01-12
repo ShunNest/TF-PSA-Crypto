@@ -522,9 +522,9 @@ mbedtls_ecp_curve_type mbedtls_ecp_get_type(const mbedtls_ecp_group *grp);
  *
  * \note            This function returns information about all curves
  *                  supported by the library. Some curves may not be
- *                  supported for all algorithms. Call mbedtls_ecdh_can_do()
- *                  or mbedtls_ecdsa_can_do() to check if a curve is
- *                  supported for ECDH or ECDSA.
+ *                  supported for all algorithms. Call
+ *                  mbedtls_ecdsa_can_do() to check if a curve is
+ *                  supported for ECDSA.
  *
  * \return          A statically allocated array. The last entry is 0.
  */
@@ -537,9 +537,9 @@ const mbedtls_ecp_curve_info *mbedtls_ecp_curve_list(void);
  *
  * \note            This function returns information about all curves
  *                  supported by the library. Some curves may not be
- *                  supported for all algorithms. Call mbedtls_ecdh_can_do()
- *                  or mbedtls_ecdsa_can_do() to check if a curve is
- *                  supported for ECDH or ECDSA.
+ *                  supported for all algorithms. Call
+ *                  mbedtls_ecdsa_can_do() to check if a curve is
+ *                  supported for ECDSA.
  *
  * \return          A statically allocated array,
  *                  terminated with MBEDTLS_ECP_DP_NONE.

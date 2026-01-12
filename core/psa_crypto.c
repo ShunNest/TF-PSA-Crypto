@@ -48,7 +48,6 @@
 #include "mbedtls/private/ccm.h"
 #include "mbedtls/private/cmac.h"
 #include "mbedtls/constant_time.h"
-#include "mbedtls/private/ecdh.h"
 #include "mbedtls/private/ecp.h"
 #include "mbedtls/private/entropy.h"
 #include "mbedtls/private/error_common.h"

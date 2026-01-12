@@ -62,7 +62,7 @@ typedef enum {
  * then incrementally increasing to be large enough for each supported
  * signature mechanism.
  *
- * The resulting value can be 0, for example if MBEDTLS_ECDH_C is enabled
+ * The resulting value can be 0, for example if ECDH is enabled
  * (which allows the pk module to be included) but neither MBEDTLS_ECDSA_C
  * nor MBEDTLS_RSA_C nor any PSA signature mechanism (PSA).
  */
