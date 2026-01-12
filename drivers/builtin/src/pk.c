@@ -163,7 +163,7 @@ int mbedtls_pk_wrap_psa(mbedtls_pk_context *ctx,
     const mbedtls_pk_info_t *info = NULL;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_type_t type;
-    psa_key_bits_t bits;
+    size_t bits;
     int ret;
 
     if (ctx == NULL || ctx->pk_info != NULL) {
