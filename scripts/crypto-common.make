@@ -43,9 +43,16 @@ endif
 THIRDPARTY_DIR := $(TF_PSA_CRYPTO_PATH)/drivers
 THIRDPARTY_INCLUDES =
 THIRDPARTY_PRIVATE_INCLUDES =
+
+# When building libtestdriver1, skip all third-party directories.
+# This saves us from having to adapt the third-party build scripts to work
+# in libtestdriver1.
+# This means we can't use their features in the test driver, which is fine.
+ifeq (,$(BUILDING_LIBTESTDRIVER1))
 include $(TF_PSA_CRYPTO_PATH)/drivers/everest/Makefile.inc
 include $(TF_PSA_CRYPTO_PATH)/drivers/p256-m/Makefile.inc
 include $(TF_PSA_CRYPTO_PATH)/drivers/pqcp/Makefile.inc
+endif
 
 # Directories with headers of public interfaces of TF-PSA-Crypto
 TF_PSA_CRYPTO_LIBRARY_PUBLIC_INCLUDE = \
