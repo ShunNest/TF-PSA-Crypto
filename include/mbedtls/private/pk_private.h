@@ -41,29 +41,6 @@ typedef enum {
 } mbedtls_pk_type_t;
 
 /**
- * \brief           Types for interfacing with the debug module
- */
-typedef enum {
-    MBEDTLS_PK_DEBUG_NONE = 0,
-    MBEDTLS_PK_DEBUG_MPI,
-    MBEDTLS_PK_DEBUG_ECP,
-    MBEDTLS_PK_DEBUG_PSA_EC,
-    MBEDTLS_PK_DEBUG_PSA_RSA,
-} mbedtls_pk_debug_type;
-
-/**
- * \brief           Item to send to the debug module
- */
-typedef struct mbedtls_pk_debug_item {
-    mbedtls_pk_debug_type MBEDTLS_PRIVATE(type);
-    const char *MBEDTLS_PRIVATE(name);
-    void *MBEDTLS_PRIVATE(value);
-} mbedtls_pk_debug_item;
-
-/** Maximum number of item send for debugging, plus 1 */
-#define MBEDTLS_PK_DEBUG_MAX_ITEMS 3
-
-/**
  * \brief           Return information associated with the given PK type
  *
  * \param pk_type   PK type to search for.
@@ -141,16 +118,6 @@ int mbedtls_pk_can_do(const mbedtls_pk_context *ctx, mbedtls_pk_type_t type);
  */
 int mbedtls_pk_can_do_ext(const mbedtls_pk_context *ctx, psa_algorithm_t alg,
                           psa_key_usage_t usage);
-
-/**
- * \brief           Export debug information
- *
- * \param ctx       The PK context to use. It must have been initialized.
- * \param items     Place to write debug items
- *
- * \return          0 on success or MBEDTLS_ERR_PK_BAD_INPUT_DATA
- */
-int mbedtls_pk_debug(const mbedtls_pk_context *ctx, mbedtls_pk_debug_item *items);
 
 /**
  * \brief           Access the type name

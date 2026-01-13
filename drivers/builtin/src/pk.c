@@ -1370,23 +1370,6 @@ size_t mbedtls_pk_get_bitlen(const mbedtls_pk_context *ctx)
 }
 
 /*
- * Export debug information
- */
-int mbedtls_pk_debug(const mbedtls_pk_context *ctx, mbedtls_pk_debug_item *items)
-{
-    if (ctx->pk_info == NULL) {
-        return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
-    }
-
-    if (ctx->pk_info->debug_func == NULL) {
-        return MBEDTLS_ERR_PK_TYPE_MISMATCH;
-    }
-
-    ctx->pk_info->debug_func((mbedtls_pk_context *) ctx, items);
-    return 0;
-}
-
-/*
  * Access the PK type name
  */
 const char *mbedtls_pk_get_name(const mbedtls_pk_context *ctx)
