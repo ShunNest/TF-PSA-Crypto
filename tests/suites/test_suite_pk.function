@@ -971,6 +971,10 @@ void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve
     mbedtls_pk_context pk, pk_pub, new_pk;
     size_t bitlen;
 
+    mbedtls_pk_init(&pk);
+    mbedtls_pk_init(&pk_pub);
+    mbedtls_pk_init(&new_pk);
+
     mbedtls_svc_key_id_t wrapped_key_id = MBEDTLS_SVC_KEY_ID_INIT;
     psa_key_attributes_t wrapped_key_attr = PSA_KEY_ATTRIBUTES_INIT;
 
@@ -981,10 +985,6 @@ void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve
     } else {
         TEST_FAIL("Key type not supported");
     }
-
-    mbedtls_pk_init(&pk);
-    mbedtls_pk_init(&pk_pub);
-    mbedtls_pk_init(&new_pk);
 
     PSA_INIT();
 
