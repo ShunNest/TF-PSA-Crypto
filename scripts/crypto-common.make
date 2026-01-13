@@ -26,6 +26,18 @@ endif
 TF_PSA_CRYPTO_CORE_PATH = $(TF_PSA_CRYPTO_PATH)/core
 TF_PSA_CRYPTO_DRIVERS_BUILTIN_SRC_PATH = $(TF_PSA_CRYPTO_PATH)/drivers/builtin/src
 
+# Are we building libtestdriver1? Figure it out based on the path to the
+# build directory. This is fragile, but it works with the current code
+# for building libtestdriver1 in tests/Makefile in Mbed TLS. If that changes,
+# a better way would be to pass an explicit parameter on the make command
+# line.
+ifeq (,$(patsubst %/libtestdriver1/library,,$(abspath .)))
+BUILDING_LIBTESTDRIVER1 = 1
+$(info Note: building $(MAKECMDGOALS) for libtestdriver1 in $(abspath .))
+else
+BUILDING_LIBTESTDRIVER1 =
+endif
+
 # Gather information about crypto drivers that are separate from the main
 # "builtin" driver (historically located in /3rdparty in Mbed TLS 2.x/3.x).
 THIRDPARTY_DIR := $(TF_PSA_CRYPTO_PATH)/drivers
