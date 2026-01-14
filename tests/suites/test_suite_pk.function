@@ -980,8 +980,10 @@ void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve
 
     if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)) {
         bitlen = curve_or_keybits;
+    #if defined(PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_BASIC)
     } else if (pk_type == MBEDTLS_PK_ECDSA) {
         TEST_ASSERT(mbedtls_ecc_group_to_psa(curve_or_keybits, &bitlen) != 0);
+    #endif /* PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_BASIC */
     } else {
         TEST_FAIL("Key type not supported");
     }
