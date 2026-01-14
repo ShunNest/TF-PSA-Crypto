@@ -362,17 +362,6 @@ static int ecdsa_opaque_sign_wrap(mbedtls_pk_context *pk,
 
 #if defined(MBEDTLS_ECP_RESTARTABLE)
 
-/*
- * Restart context for ECDSA operations with ECKEY context
- *
- * We need to store an actual ECDSA context, as we need to pass the same to
- * the underlying ecdsa function, so we can't create it on the fly every time.
- */
-typedef struct {
-    mbedtls_ecdsa_restart_ctx ecdsa_rs;
-    mbedtls_ecdsa_context ecdsa_ctx;
-} eckey_restart_ctx;
-
 #if defined(PSA_HAVE_ALG_ECDSA_SIGN) || defined(PSA_HAVE_ALG_ECDSA_VERIFY)
 static void *eckey_rs_alloc(mbedtls_pk_rs_op_t op_type)
 {
