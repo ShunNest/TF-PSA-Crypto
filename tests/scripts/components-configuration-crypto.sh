@@ -11,6 +11,50 @@
 
 CMAKE_BUILTIN_BUILD_DIR="drivers/builtin/CMakeFiles/builtin.dir/src"
 
+component_test_accel_ecdh() {
+    msg "build: accelerated ECDH"
+
+    # Build
+    # -----
+
+    cd $OUT_OF_SOURCE_DIR
+
+    cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-ecdh.h" ..
+    make
+
+    # Make sure built-in ECDH was not re-enabled by accident (additive config)
+    not grep mbedtls_ecdh_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdh.c.o
+
+    # Run the tests
+    # -------------
+
+    msg "test: accelerated ECDH"
+    ctest
+}
+
+component_test_accel_ecdsa() {
+    msg "build: accelerated ECDSA"
+
+    # Build
+    # -----
+
+    cd $OUT_OF_SOURCE_DIR
+
+    cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
+          -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-ecdsa.h" ..
+    make
+
+    # Make sure built-in ECDSA was not re-enabled by accident (additive config)
+    not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
+
+    # Run the tests
+    # -------------
+
+    msg "test: accelerated ECDSA"
+    ctest
+}
+
 component_test_accel_hash () {
     msg "test: accelerated hash"
 
