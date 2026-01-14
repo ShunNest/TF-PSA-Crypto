@@ -38,9 +38,6 @@ struct mbedtls_pk_info_t {
     /** Type name */
     const char *name;
 
-    /** Get key size in bits */
-    size_t (*get_bitlen)(mbedtls_pk_context *pk);
-
     /** Tell if the context implements this type (e.g. ECKEY can do ECDSA) */
     int (*can_do)(mbedtls_pk_type_t type);
 

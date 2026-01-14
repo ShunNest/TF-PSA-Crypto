@@ -908,6 +908,7 @@ void valid_parameters()
      * We do not document that NULL is accepted, so we may wish to change
      * the behavior in a future version. */
     TEST_ASSERT(mbedtls_pk_get_bitlen(NULL) == 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == 0);
     TEST_ASSERT(mbedtls_pk_get_len(NULL) == 0);
     TEST_ASSERT(mbedtls_pk_can_do(NULL, MBEDTLS_PK_NONE) == 0);
 
@@ -957,6 +958,61 @@ void valid_parameters()
     TEST_ASSERT(mbedtls_pk_parse_public_key(&pk, NULL, 0) ==
                 MBEDTLS_ERR_PK_KEY_INVALID_FORMAT);
 #endif /* MBEDTLS_PK_PARSE_C */
+    PSA_DONE();
+}
+/* END_CASE */
+
+/* BEGIN_CASE depends_on:MBEDTLS_PK_PARSE_C */
+void test_bitlen_setup(data_t *priv_key, data_t *pub_key, int pk_type, int curve_or_keybits)
+{
+    mbedtls_pk_context pk, pk_pub, new_pk;
+    size_t bitlen;
+
+    mbedtls_pk_init(&pk);
+    mbedtls_pk_init(&pk_pub);
+    mbedtls_pk_init(&new_pk);
+
+    mbedtls_svc_key_id_t wrapped_key_id = MBEDTLS_SVC_KEY_ID_INIT;
+    psa_key_attributes_t wrapped_key_attr = PSA_KEY_ATTRIBUTES_INIT;
+
+    if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)) {
+        bitlen = curve_or_keybits;
+    #if defined(PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_BASIC)
+    } else if (pk_type == MBEDTLS_PK_ECDSA) {
+        TEST_ASSERT(mbedtls_ecc_group_to_psa(curve_or_keybits, &bitlen) != 0);
+    #endif /* PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_BASIC */
+    } else {
+        TEST_FAIL("Key type not supported");
+    }
+
+    PSA_INIT();
+
+    TEST_ASSERT(mbedtls_pk_parse_key(&pk, priv_key->x, priv_key->len, NULL, 0) == 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
+
+    TEST_ASSERT(mbedtls_pk_parse_public_key(&pk_pub, pub_key->x, pub_key->len) == 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk_pub) == bitlen);
+
+    mbedtls_pk_free(&pk_pub);
+    mbedtls_pk_init(&pk_pub);
+    TEST_EQUAL(mbedtls_pk_copy_from_psa(pk.priv_id, &new_pk), 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&new_pk) == bitlen);
+    TEST_EQUAL(mbedtls_pk_copy_public_from_psa(pk.priv_id, &pk_pub), 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk_pub) == bitlen);
+
+    TEST_EQUAL(mbedtls_pk_get_psa_attributes(&pk, PSA_KEY_USAGE_SIGN_HASH,
+                                             &wrapped_key_attr), 0);
+    TEST_EQUAL(mbedtls_pk_import_into_psa(&pk, &wrapped_key_attr, &wrapped_key_id), 0);
+    mbedtls_pk_free(&pk);
+    mbedtls_pk_init(&pk);
+    TEST_EQUAL(mbedtls_pk_wrap_psa(&pk, wrapped_key_id), 0);
+    TEST_ASSERT(mbedtls_pk_get_bitlen(&pk) == bitlen);
+
+exit:
+    psa_destroy_key(wrapped_key_id);
+    mbedtls_pk_free(&pk);
+    mbedtls_pk_free(&pk_pub);
+    mbedtls_pk_free(&new_pk);
     PSA_DONE();
 }
 /* END_CASE */

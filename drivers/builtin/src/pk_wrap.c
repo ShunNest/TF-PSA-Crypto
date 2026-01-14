@@ -48,11 +48,6 @@ static int rsa_can_do(mbedtls_pk_type_t type)
            type == MBEDTLS_PK_RSASSA_PSS;
 }
 
-static size_t rsa_get_bitlen(mbedtls_pk_context *pk)
-{
-    return pk->bits;
-}
-
 static int rsa_verify_wrap(mbedtls_pk_context *pk, mbedtls_md_type_t md_alg,
                            const unsigned char *hash, size_t hash_len,
                            const unsigned char *sig, size_t sig_len)
@@ -155,7 +150,6 @@ static int rsa_check_pair_wrap(mbedtls_pk_context *pub, mbedtls_pk_context *prv)
 const mbedtls_pk_info_t mbedtls_rsa_info = {
     .type = MBEDTLS_PK_RSA,
     .name = "RSA",
-    .get_bitlen = rsa_get_bitlen,
     .can_do = rsa_can_do,
     .verify_func = rsa_verify_wrap,
     .sign_func = rsa_sign_wrap,
@@ -178,11 +172,6 @@ static int eckey_can_do(mbedtls_pk_type_t type)
     return type == MBEDTLS_PK_ECKEY ||
            type == MBEDTLS_PK_ECKEY_DH ||
            type == MBEDTLS_PK_ECDSA;
-}
-
-static size_t eckey_get_bitlen(mbedtls_pk_context *pk)
-{
-    return pk->bits;
 }
 
 #if defined(PSA_HAVE_ALG_ECDSA_VERIFY)
@@ -549,7 +538,6 @@ static int eckey_check_pair_wrap(mbedtls_pk_context *pub, mbedtls_pk_context *pr
 const mbedtls_pk_info_t mbedtls_eckey_info = {
     .type = MBEDTLS_PK_ECKEY,
     .name = "EC",
-    .get_bitlen = eckey_get_bitlen,
     .can_do = eckey_can_do,
 #if defined(PSA_HAVE_ALG_ECDSA_VERIFY)
     .verify_func = ecdsa_verify_wrap,   /* Compatible key structures */
@@ -595,7 +583,6 @@ static int eckeydh_can_do(mbedtls_pk_type_t type)
 const mbedtls_pk_info_t mbedtls_eckeydh_info = {
     .type = MBEDTLS_PK_ECKEY_DH,
     .name = "EC_DH",
-    .get_bitlen = eckey_get_bitlen,         /* Same underlying key structure */
     .can_do = eckeydh_can_do,
     .verify_func = NULL,
     .sign_func = NULL,
@@ -615,7 +602,6 @@ static int ecdsa_can_do(mbedtls_pk_type_t type)
 const mbedtls_pk_info_t mbedtls_ecdsa_info = {
     .type = MBEDTLS_PK_ECDSA,
     .name = "ECDSA",
-    .get_bitlen = eckey_get_bitlen,     /* Compatible key structures */
     .can_do = ecdsa_can_do,
 #if defined(PSA_HAVE_ALG_ECDSA_VERIFY)
     .verify_func = ecdsa_verify_wrap,   /* Compatible key structures */
@@ -648,20 +634,6 @@ const mbedtls_pk_info_t mbedtls_ecdsa_info = {
 #endif /* PSA_HAVE_ALG_SOME_ECDSA */
 #endif /* PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY */
 
-static size_t opaque_get_bitlen(mbedtls_pk_context *pk)
-{
-    size_t bits;
-    psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
-
-    if (PSA_SUCCESS != psa_get_key_attributes(pk->priv_id, &attributes)) {
-        return 0;
-    }
-
-    bits = psa_get_key_bits(&attributes);
-    psa_reset_key_attributes(&attributes);
-    return bits;
-}
-
 #if defined(PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY)
 static int ecdsa_opaque_can_do(mbedtls_pk_type_t type)
 {
@@ -672,7 +644,6 @@ static int ecdsa_opaque_can_do(mbedtls_pk_type_t type)
 const mbedtls_pk_info_t mbedtls_ecdsa_opaque_info = {
     .type = MBEDTLS_PK_OPAQUE,
     .name = "Opaque",
-    .get_bitlen = opaque_get_bitlen,
     .can_do = ecdsa_opaque_can_do,
 #if defined(PSA_HAVE_ALG_ECDSA_VERIFY)
     .verify_func = ecdsa_opaque_verify_wrap,
@@ -752,7 +723,6 @@ static int rsa_opaque_sign_wrap(mbedtls_pk_context *pk, mbedtls_md_type_t md_alg
 const mbedtls_pk_info_t mbedtls_rsa_opaque_info = {
     .type = MBEDTLS_PK_OPAQUE,
     .name = "Opaque",
-    .get_bitlen = opaque_get_bitlen,
     .can_do = rsa_opaque_can_do,
     .verify_func = NULL,
     .sign_func = rsa_opaque_sign_wrap,
