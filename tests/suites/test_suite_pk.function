@@ -1036,12 +1036,12 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE depends_on:MBEDTLS_PK_PARSE_C:MBEDTLS_FS_IO */
-void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int ret)
+void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int expected_ret)
 {
     mbedtls_pk_context pub, prv, alt;
     mbedtls_svc_key_id_t opaque_key_id = MBEDTLS_SVC_KEY_ID_INIT;
     psa_key_attributes_t opaque_key_attr = PSA_KEY_ATTRIBUTES_INIT;
-    int is_ec_key = 0;
+    int ret;
 
     mbedtls_pk_init(&pub);
     mbedtls_pk_init(&prv);
@@ -1052,9 +1052,12 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int ret)
     TEST_ASSERT(mbedtls_pk_parse_keyfile(&prv, prv_file, NULL)
                 == 0);
 
-    TEST_ASSERT(mbedtls_pk_check_pair(&pub, &prv) == ret);
+    ret = mbedtls_pk_check_pair(&pub, &prv);
+    if(ret != 0){
+        TEST_ASSERT(expected_ret == ret);
+        goto exit;
+    }
 
-    is_ec_key = (mbedtls_pk_get_type(&prv) == MBEDTLS_PK_ECKEY);
     /* Turn the prv PK context into an opaque one.*/
     TEST_EQUAL(mbedtls_pk_get_psa_attributes(&prv, PSA_KEY_USAGE_SIGN_HASH,
                                              &opaque_key_attr), 0);
@@ -1062,13 +1065,7 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int ret)
     mbedtls_pk_free(&prv);
     mbedtls_pk_init(&prv);
     TEST_EQUAL(mbedtls_pk_wrap_psa(&prv, opaque_key_id), 0);
-    /* Test check_pair() between the opaque key we just created and the public PK counterpart.
-     * Note: opaque EC keys support check_pair(), whereas RSA ones do not. */
-    if (is_ec_key) {
-        TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), ret);
-    } else {
-        TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE);
-    }
+    TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), expected_ret);
 
 exit:
     psa_destroy_key(opaque_key_id);

@@ -1358,12 +1358,6 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
         return MBEDTLS_ERR_PK_TYPE_MISMATCH;
     }
 
-    if (prv->pk_info->type == MBEDTLS_PK_OPAQUE) {
-        if (!PSA_KEY_TYPE_IS_ECC(mbedtls_pk_get_key_type(prv))) {
-            return MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE;
-        }
-    }
-
     if (PSA_KEY_TYPE_IS_RSA(mbedtls_pk_get_key_type(prv))) {
         prv_key_size = MBEDTLS_PK_MAX_RSA_PUBKEY_RAW_LEN;
     } else {
