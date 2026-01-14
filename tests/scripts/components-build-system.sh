@@ -130,7 +130,7 @@ component_tf_psa_crypto_build_custom_config_file () {
     make
     # Verify that MBEDTLS_NIST_KW_C was really disabled, i.e. crypto_config_user.h was included
     # correctly in the build.
-    not grep -q mbedtls_nist_kw_wrap drivers/builtin/libtfpsacrypto.a
+    not grep -q mbedtls_nist_kw_wrap core/libtfpsacrypto.a
 
     # Restore default crypto config file and remove generated ones
     mv include/psa/crypto_config_default.h "$CRYPTO_CONFIG_H"
