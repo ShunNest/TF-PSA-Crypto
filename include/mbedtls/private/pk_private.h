@@ -120,15 +120,6 @@ int mbedtls_pk_can_do_ext(const mbedtls_pk_context *ctx, psa_algorithm_t alg,
                           psa_key_usage_t usage);
 
 /**
- * \brief           Access the type name
- *
- * \param ctx       The PK context to use. It must have been initialized.
- *
- * \return          Type name on success, or "invalid PK"
- */
-const char *mbedtls_pk_get_name(const mbedtls_pk_context *ctx);
-
-/**
  * \brief           Get the key type
  *
  * \param ctx       The PK context to use. It must have been initialized.

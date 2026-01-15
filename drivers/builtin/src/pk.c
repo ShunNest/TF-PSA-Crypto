@@ -1372,18 +1372,6 @@ size_t mbedtls_pk_get_bitlen(const mbedtls_pk_context *ctx)
 }
 
 /*
- * Access the PK type name
- */
-const char *mbedtls_pk_get_name(const mbedtls_pk_context *ctx)
-{
-    if (ctx == NULL || ctx->pk_info == NULL) {
-        return "invalid PK";
-    }
-
-    return ctx->pk_info->name;
-}
-
-/*
  * Access the PK type
  */
 mbedtls_pk_type_t mbedtls_pk_get_type(const mbedtls_pk_context *ctx)
