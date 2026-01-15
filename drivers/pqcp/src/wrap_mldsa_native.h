@@ -15,7 +15,7 @@
  * parameter sets. It is included both when building code that uses
  * mldsa-native (via wrap_mldsa_native.h) and when building mldsa-native
  * itself (via wrap_mldsa_native.c). */
-#define MLD_CONFIG_FILE "tf-psa-crypto/private/pqcp-config.h"
+#define MLD_CONFIG_FILE "pqcp-config.h"
 
 #if defined(TF_PSA_CRYPTO_PQCP_MLDSA_87_ENABLED)
 #  define MLD_CONFIG_PARAMETER_SET 87

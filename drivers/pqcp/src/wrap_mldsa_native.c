@@ -8,7 +8,7 @@
 
 #if defined(TF_PSA_CRYPTO_PQCP_MLDSA_ENABLED)
 
-#include <tf-psa-crypto/private/pqcp-config.h>
+#include "pqcp-config.h"
 
 /* If we include multiple levels, tell the first level to include the
  * shared stuff.
