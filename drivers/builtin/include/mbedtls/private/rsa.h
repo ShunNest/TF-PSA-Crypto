@@ -203,38 +203,6 @@ int mbedtls_rsa_import(mbedtls_rsa_context *ctx,
                        const mbedtls_mpi *D, const mbedtls_mpi *E);
 
 /**
- * \brief          This function imports core RSA parameters, in raw big-endian
- *                 binary format, into an RSA context.
- *
- * \note           This function can be called multiple times for successive
- *                 imports, if the parameters are not simultaneously present.
- *
- * \note           The imported parameters are copied and need not be preserved
- *                 for the lifetime of the RSA context being set up.
- *
- * \param ctx      The initialized RSA context to store the parameters in.
- * \param N        The RSA modulus. This may be \c NULL.
- * \param N_len    The Byte length of \p N; it is ignored if \p N == NULL.
- * \param P        The first prime factor of \p N. This may be \c NULL.
- * \param P_len    The Byte length of \p P; it is ignored if \p P == NULL.
- * \param Q        The second prime factor of \p N. This may be \c NULL.
- * \param Q_len    The Byte length of \p Q; it is ignored if \p Q == NULL.
- * \param D        The private exponent. This may be \c NULL.
- * \param D_len    The Byte length of \p D; it is ignored if \p D == NULL.
- * \param E        The public exponent. This may be \c NULL.
- * \param E_len    The Byte length of \p E; it is ignored if \p E == NULL.
- *
- * \return         \c 0 on success.
- * \return         A non-zero error code on failure.
- */
-int mbedtls_rsa_import_raw(mbedtls_rsa_context *ctx,
-                           unsigned char const *N, size_t N_len,
-                           unsigned char const *P, size_t P_len,
-                           unsigned char const *Q, size_t Q_len,
-                           unsigned char const *D, size_t D_len,
-                           unsigned char const *E, size_t E_len);
-
-/**
  * \brief          This function exports the core parameters of an RSA key.
  *
  *                 If this function runs successfully, the non-NULL buffers
