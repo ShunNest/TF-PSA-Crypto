@@ -43,18 +43,11 @@
 static psa_status_t psa_check_rsa_key_byte_aligned(
     const mbedtls_rsa_context *rsa)
 {
-    mbedtls_mpi n;
-    psa_status_t status;
-    mbedtls_mpi_init(&n);
-    status = mbedtls_to_psa_error(
-        mbedtls_rsa_export(rsa, &n, NULL, NULL, NULL, NULL));
-    if (status == PSA_SUCCESS) {
-        if (mbedtls_mpi_bitlen(&n) % 8 != 0) {
-            status = PSA_ERROR_NOT_SUPPORTED;
-        }
+    if (mbedtls_mpi_bitlen(&rsa->N) % 8 != 0) {
+        return PSA_ERROR_NOT_SUPPORTED;
     }
-    mbedtls_mpi_free(&n);
-    return status;
+
+    return PSA_SUCCESS;
 }
 
 psa_status_t mbedtls_psa_rsa_load_representation(
