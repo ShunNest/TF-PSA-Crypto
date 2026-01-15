@@ -280,79 +280,56 @@ exit:
     return ret;
 }
 
+#define MBEDTLS_RSA_WRITE_MPI(m)                               \
+    do {                                                        \
+        if ((ret = mbedtls_asn1_write_mpi(p, start, m)) < 0) {  \
+            goto end_of_export;                                 \
+        }                                                       \
+        len += ret;                                             \
+    } while(0)
+
 int mbedtls_rsa_write_key(const mbedtls_rsa_context *rsa, unsigned char *start,
                           unsigned char **p)
 {
     size_t len = 0;
     int ret;
+#if defined(MBEDTLS_RSA_NO_CRT)
+    mbedtls_mpi DP, DQ, QP;
 
-    mbedtls_mpi T; /* Temporary holding the exported parameters */
+    mbedtls_mpi_init(&DP); mbedtls_mpi_init(&DQ); mbedtls_mpi_init(&QP);
+#endif /* MBEDTLS_RSA_NO_CRT */
 
     /*
      * Export the parameters one after another to avoid simultaneous copies.
      */
 
-    mbedtls_mpi_init(&T);
-
-    /* Export QP */
-    if ((ret = mbedtls_rsa_export_crt(rsa, NULL, NULL, &T)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
+     /* Export QP, DQ, DP */
+#if !defined(MBEDTLS_RSA_NO_CRT)
+    MBEDTLS_RSA_WRITE_MPI(&rsa->QP);
+    MBEDTLS_RSA_WRITE_MPI(&rsa->DQ);
+    MBEDTLS_RSA_WRITE_MPI(&rsa->DP);
+#else /* MBEDTLS_RSA_NO_CRT */
+    if ((ret = mbedtls_rsa_deduce_crt(&rsa->P, &rsa->Q, &rsa->D, &DP, &DQ, &QP)) != 0) {
+        return MBEDTLS_ERROR_ADD(MBEDTLS_ERR_RSA_BAD_INPUT_DATA, ret);
     }
-    len += ret;
+    MBEDTLS_RSA_WRITE_MPI(&QP);
+    MBEDTLS_RSA_WRITE_MPI(&DQ);
+    MBEDTLS_RSA_WRITE_MPI(&DP);
+#endif /* MBEDTLS_RSA_NO_CRT */
 
-    /* Export DQ */
-    if ((ret = mbedtls_rsa_export_crt(rsa, NULL, &T, NULL)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
-
-    /* Export DP */
-    if ((ret = mbedtls_rsa_export_crt(rsa, &T, NULL, NULL)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
-
-    /* Export Q */
-    if ((ret = mbedtls_rsa_export(rsa, NULL, NULL, &T, NULL, NULL)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
-
-    /* Export P */
-    if ((ret = mbedtls_rsa_export(rsa, NULL, &T, NULL, NULL, NULL)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
-
-    /* Export D */
-    if ((ret = mbedtls_rsa_export(rsa, NULL, NULL, NULL, &T, NULL)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
-
-    /* Export E */
-    if ((ret = mbedtls_rsa_export(rsa, NULL, NULL, NULL, NULL, &T)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
-
-    /* Export N */
-    if ((ret = mbedtls_rsa_export(rsa, &T, NULL, NULL, NULL, NULL)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
+    /* Export Q, P, D, E, N */
+    MBEDTLS_RSA_WRITE_MPI(&rsa->Q);
+    MBEDTLS_RSA_WRITE_MPI(&rsa->P);
+    MBEDTLS_RSA_WRITE_MPI(&rsa->D);
+    MBEDTLS_RSA_WRITE_MPI(&rsa->E);
+    MBEDTLS_RSA_WRITE_MPI(&rsa->N);
 
 end_of_export:
 
-    mbedtls_mpi_free(&T);
+#if defined(MBEDTLS_RSA_NO_CRT)
+    mbedtls_mpi_free(&DP); mbedtls_mpi_free(&DQ); mbedtls_mpi_free(&QP);
+#endif /* MBEDTLS_RSA_NO_CRT */
+
     if (ret < 0) {
         return ret;
     }
@@ -377,27 +354,13 @@ int mbedtls_rsa_write_pubkey(const mbedtls_rsa_context *rsa, unsigned char *star
 {
     int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
     size_t len = 0;
-    mbedtls_mpi T;
 
-    mbedtls_mpi_init(&T);
-
-    /* Export E */
-    if ((ret = mbedtls_rsa_export(rsa, NULL, NULL, NULL, NULL, &T)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
-
-    /* Export N */
-    if ((ret = mbedtls_rsa_export(rsa, &T, NULL, NULL, NULL, NULL)) != 0 ||
-        (ret = mbedtls_asn1_write_mpi(p, start, &T)) < 0) {
-        goto end_of_export;
-    }
-    len += ret;
+    /* Export E, N */
+    MBEDTLS_RSA_WRITE_MPI(&rsa->E);
+    MBEDTLS_RSA_WRITE_MPI(&rsa->N);
 
 end_of_export:
 
-    mbedtls_mpi_free(&T);
     if (ret < 0) {
         return ret;
     }
