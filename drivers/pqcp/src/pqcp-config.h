@@ -31,10 +31,7 @@
 
 /* Use our own zeroize function */
 #define MLD_CONFIG_CUSTOM_ZEROIZE
-static inline void mld_zeroize_native(void *ptr, size_t len)
-{
-    mbedtls_platform_zeroize(ptr, len);
-}
+#define mld_zeroize mbedtls_platform_zeroize
 
 /* Don't expose internal functions to the linker. This lets the compiler
  * optimize more. */
