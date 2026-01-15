@@ -940,12 +940,7 @@ void mbedtls_rsa_export_raw(data_t *input_N, data_t *input_P,
     mbedtls_rsa_init(&ctx);
 
     /* Setup RSA context */
-    TEST_ASSERT(mbedtls_rsa_import_raw(&ctx,
-                                       input_N->len ? input_N->x : NULL, input_N->len,
-                                       input_P->len ? input_P->x : NULL, input_P->len,
-                                       input_Q->len ? input_Q->x : NULL, input_Q->len,
-                                       input_D->len ? input_D->x : NULL, input_D->len,
-                                       input_E->len ? input_E->x : NULL, input_E->len) == 0);
+    TEST_EQUAL(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q, input_N, input_E, input_D), 0);
 
     /*
      * Export parameters and compare to original ones.
@@ -1007,123 +1002,6 @@ void mbedtls_rsa_export_raw(data_t *input_N, data_t *input_P,
     }
 
 exit:
-    mbedtls_rsa_free(&ctx);
-}
-/* END_CASE */
-
-/* BEGIN_CASE */
-void mbedtls_rsa_import_raw(data_t *input_N,
-                            data_t *input_P, data_t *input_Q,
-                            data_t *input_D, data_t *input_E,
-                            int successive,
-                            int is_priv,
-                            int res_check,
-                            int res_complete)
-{
-    /* Buffers used for encryption-decryption test */
-    unsigned char *buf_orig = NULL;
-    unsigned char *buf_enc  = NULL;
-    unsigned char *buf_dec  = NULL;
-    mbedtls_mpi DP, DQ, QP;
-
-    mbedtls_rsa_context ctx;
-
-    mbedtls_rsa_init(&ctx);
-    mbedtls_mpi_init(&DP); mbedtls_mpi_init(&DQ); mbedtls_mpi_init(&QP);
-
-    if (!successive) {
-        TEST_ASSERT(mbedtls_rsa_import_raw(&ctx,
-                                           (input_N->len > 0) ? input_N->x : NULL, input_N->len,
-                                           (input_P->len > 0) ? input_P->x : NULL, input_P->len,
-                                           (input_Q->len > 0) ? input_Q->x : NULL, input_Q->len,
-                                           (input_D->len > 0) ? input_D->x : NULL, input_D->len,
-                                           (input_E->len > 0) ? input_E->x : NULL,
-                                           input_E->len) == 0);
-    } else {
-        /* Import N, P, Q, D, E separately.
-         * This should make no functional difference. */
-
-        TEST_ASSERT(mbedtls_rsa_import_raw(&ctx,
-                                           (input_N->len > 0) ? input_N->x : NULL, input_N->len,
-                                           NULL, 0, NULL, 0, NULL, 0, NULL, 0) == 0);
-
-        TEST_ASSERT(mbedtls_rsa_import_raw(&ctx,
-                                           NULL, 0,
-                                           (input_P->len > 0) ? input_P->x : NULL, input_P->len,
-                                           NULL, 0, NULL, 0, NULL, 0) == 0);
-
-        TEST_ASSERT(mbedtls_rsa_import_raw(&ctx,
-                                           NULL, 0, NULL, 0,
-                                           (input_Q->len > 0) ? input_Q->x : NULL, input_Q->len,
-                                           NULL, 0, NULL, 0) == 0);
-
-        TEST_ASSERT(mbedtls_rsa_import_raw(&ctx,
-                                           NULL, 0, NULL, 0, NULL, 0,
-                                           (input_D->len > 0) ? input_D->x : NULL, input_D->len,
-                                           NULL, 0) == 0);
-
-        TEST_ASSERT(mbedtls_rsa_import_raw(&ctx,
-                                           NULL, 0, NULL, 0, NULL, 0, NULL, 0,
-                                           (input_E->len > 0) ? input_E->x : NULL,
-                                           input_E->len) == 0);
-    }
-
-#if !defined(MBEDTLS_RSA_NO_CRT)
-    TEST_ASSERT(mbedtls_rsa_deduce_crt(&ctx.P, &ctx.Q, &ctx.D, &DP, &DQ, &QP) == 0);
-    TEST_ASSERT(mbedtls_mpi_copy(&ctx.DP, &DP) == 0);
-    TEST_ASSERT(mbedtls_mpi_copy(&ctx.DQ, &DQ) == 0);
-    TEST_ASSERT(mbedtls_mpi_copy(&ctx.QP, &QP) == 0);
-#endif /* !MBEDTLS_RSA_NO_CRT */
-
-    /* On expected success, perform some public and private
-     * key operations to check if the key is working properly. */
-    if (res_complete == 0) {
-        if (is_priv) {
-            TEST_ASSERT(mbedtls_rsa_check_privkey(&ctx) == res_check);
-        } else {
-            TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == res_check);
-        }
-
-        if (res_check != 0) {
-            goto exit;
-        }
-
-        buf_orig = mbedtls_calloc(1, mbedtls_rsa_get_len(&ctx));
-        buf_enc  = mbedtls_calloc(1, mbedtls_rsa_get_len(&ctx));
-        buf_dec  = mbedtls_calloc(1, mbedtls_rsa_get_len(&ctx));
-        if (buf_orig == NULL || buf_enc == NULL || buf_dec == NULL) {
-            goto exit;
-        }
-
-        /* This test uses an insecure RNG, suitable only for testing.
-         * In production, always use a cryptographically strong RNG! */
-        TEST_ASSERT(mbedtls_test_rnd_std_rand(NULL,
-                                              buf_orig, mbedtls_rsa_get_len(&ctx)) == 0);
-
-        /* Make sure the number we're generating is smaller than the modulus */
-        buf_orig[0] = 0x00;
-
-        TEST_ASSERT(mbedtls_rsa_public(&ctx, buf_orig, buf_enc) == 0);
-
-        if (is_priv) {
-            /* This test uses an insecure RNG, suitable only for testing.
-             * In production, always use a cryptographically strong RNG! */
-            TEST_ASSERT(mbedtls_rsa_private(&ctx, mbedtls_test_rnd_std_rand,
-                                            NULL, buf_enc,
-                                            buf_dec) == 0);
-
-            TEST_ASSERT(memcmp(buf_orig, buf_dec,
-                               mbedtls_rsa_get_len(&ctx)) == 0);
-        }
-    }
-
-exit:
-
-    mbedtls_free(buf_orig);
-    mbedtls_free(buf_enc);
-    mbedtls_free(buf_dec);
-    mbedtls_mpi_free(&DP); mbedtls_mpi_free(&DQ); mbedtls_mpi_free(&QP);
-
     mbedtls_rsa_free(&ctx);
 }
 /* END_CASE */
