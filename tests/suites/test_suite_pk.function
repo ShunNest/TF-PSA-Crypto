@@ -1051,7 +1051,7 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int expected_ret)
                 == 0);
 
     ret = mbedtls_pk_check_pair(&pub, &prv);
-    if(ret != 0){
+    if (ret != 0) {
         TEST_ASSERT(expected_ret == ret);
         goto exit;
     }
