@@ -2773,16 +2773,12 @@ int mbedtls_rsa_self_test(int verbose)
     mbedtls_mpi_init(&K);
     mbedtls_rsa_init(&rsa);
 
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&K, 16, RSA_N));
-    MBEDTLS_MPI_CHK(mbedtls_rsa_import(&rsa, &K, NULL, NULL, NULL, NULL));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&K, 16, RSA_P));
-    MBEDTLS_MPI_CHK(mbedtls_rsa_import(&rsa, NULL, &K, NULL, NULL, NULL));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&K, 16, RSA_Q));
-    MBEDTLS_MPI_CHK(mbedtls_rsa_import(&rsa, NULL, NULL, &K, NULL, NULL));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&K, 16, RSA_D));
-    MBEDTLS_MPI_CHK(mbedtls_rsa_import(&rsa, NULL, NULL, NULL, &K, NULL));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&K, 16, RSA_E));
-    MBEDTLS_MPI_CHK(mbedtls_rsa_import(&rsa, NULL, NULL, NULL, NULL, &K));
+    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&rsa.N, 16, RSA_N));
+    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&rsa.P, 16, RSA_P));
+    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&rsa.Q, 16, RSA_Q));
+    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&rsa.D, 16, RSA_D));
+    MBEDTLS_MPI_CHK(mbedtls_mpi_read_string(&rsa.E, 16, RSA_E));
+    rsa.len = mbedtls_mpi_size(&rsa.N);
 
 #if !defined(MBEDTLS_RSA_NO_CRT)
     MBEDTLS_MPI_CHK(mbedtls_rsa_deduce_crt(&rsa.P, &rsa.Q, &rsa.D, &rsa.DP, &rsa.DQ, &rsa.QP));
