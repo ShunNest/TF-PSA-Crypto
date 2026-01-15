@@ -10,31 +10,54 @@
 
 static int mbedtls_rsa_test_fill_context(mbedtls_rsa_context *rsa,
                                          data_t *P_data, data_t *Q_data,
-                                         data_t *N_data, data_t *E_data)
+                                         data_t *N_data, data_t *E_data,
+                                         data_t *D_data)
 {
-    mbedtls_mpi N; mbedtls_mpi P; mbedtls_mpi Q;
-    mbedtls_mpi E; mbedtls_mpi D;
     int ret;
 
-    mbedtls_mpi_init(&N); mbedtls_mpi_init(&P); mbedtls_mpi_init(&Q);
-    mbedtls_mpi_init(&E); mbedtls_mpi_init(&D);
+    mbedtls_mpi_init(&rsa->N); mbedtls_mpi_init(&rsa->P); mbedtls_mpi_init(&rsa->Q);
+    mbedtls_mpi_init(&rsa->E); mbedtls_mpi_init(&rsa->D);
 
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&P, P_data->x, P_data->len));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&Q, Q_data->x, Q_data->len));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&N, N_data->x, N_data->len));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&E, E_data->x, E_data->len));
+    if (P_data != NULL) {
+        MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&rsa->P, P_data->x, P_data->len));
+    }
+    if (Q_data != NULL) {
+        MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&rsa->Q, Q_data->x, Q_data->len));
+    }
+    if (N_data != NULL) {
+        MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&rsa->N, N_data->x, N_data->len));
+        rsa->len = mbedtls_mpi_size(&rsa->N);
+    }
+    if (E_data != NULL) {
+        MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&rsa->E, E_data->x, E_data->len));
+    }
+    if (D_data != NULL) {
+        MBEDTLS_MPI_CHK(mbedtls_mpi_read_binary(&rsa->D, D_data->x, D_data->len));
+    }
 
-    MBEDTLS_MPI_CHK(mbedtls_rsa_deduce_private_exponent(&P, &Q, &E, &D));
-
-    MBEDTLS_MPI_CHK(mbedtls_rsa_import(rsa, &N, &P, &Q, &D, &E));
+    if (mbedtls_mpi_size(&rsa->D) == 0) {
+        if ((mbedtls_mpi_size(&rsa->P) != 0) &&
+            (mbedtls_mpi_size(&rsa->Q) != 0) &&
+            (mbedtls_mpi_size(&rsa->E) != 0)) {
+            MBEDTLS_MPI_CHK(mbedtls_rsa_deduce_private_exponent(&rsa->P, &rsa->Q, &rsa->E,
+                                                                &rsa->D));
+        }
+    }
 
 #if !defined(MBEDTLS_RSA_NO_CRT)
-    MBEDTLS_MPI_CHK(mbedtls_rsa_deduce_crt(&P, &Q, &D, &rsa->DP, &rsa->DQ, &rsa->QP));
+    if ((mbedtls_mpi_size(&rsa->P) != 0) &&
+        (mbedtls_mpi_size(&rsa->Q) != 0) &&
+        (mbedtls_mpi_size(&rsa->D) != 0)) {
+        MBEDTLS_MPI_CHK(mbedtls_rsa_deduce_crt(&rsa->P, &rsa->Q, &rsa->D, &rsa->DP, &rsa->DQ, &rsa->QP));
+    }
 #endif /* !MBEDTLS_RSA_NO_CRT */
 
 cleanup:
-    mbedtls_mpi_free(&N); mbedtls_mpi_free(&P); mbedtls_mpi_free(&Q);
-    mbedtls_mpi_free(&E); mbedtls_mpi_free(&D);
+    if (ret != 0) {
+        mbedtls_mpi_free(&rsa->N); mbedtls_mpi_free(&rsa->P); mbedtls_mpi_free(&rsa->Q);
+        mbedtls_mpi_free(&rsa->E); mbedtls_mpi_free(&rsa->D);
+    }
+
     return ret;
 }
 
