@@ -178,31 +178,6 @@ int mbedtls_rsa_get_padding_mode(const mbedtls_rsa_context *ctx);
 int mbedtls_rsa_get_md_alg(const mbedtls_rsa_context *ctx);
 
 /**
- * \brief          This function imports a set of core parameters into an
- *                 RSA context.
- *
- * \note           This function can be called multiple times for successive
- *                 imports, if the parameters are not simultaneously present.
- *
- * \note           The imported parameters are copied and need not be preserved
- *                 for the lifetime of the RSA context being set up.
- *
- * \param ctx      The initialized RSA context to store the parameters in.
- * \param N        The RSA modulus. This may be \c NULL.
- * \param P        The first prime factor of \p N. This may be \c NULL.
- * \param Q        The second prime factor of \p N. This may be \c NULL.
- * \param D        The private exponent. This may be \c NULL.
- * \param E        The public exponent. This may be \c NULL.
- *
- * \return         \c 0 on success.
- * \return         A non-zero error code on failure.
- */
-int mbedtls_rsa_import(mbedtls_rsa_context *ctx,
-                       const mbedtls_mpi *N,
-                       const mbedtls_mpi *P, const mbedtls_mpi *Q,
-                       const mbedtls_mpi *D, const mbedtls_mpi *E);
-
-/**
  * \brief          This function exports the core parameters of an RSA key.
  *
  *                 If this function runs successfully, the non-NULL buffers

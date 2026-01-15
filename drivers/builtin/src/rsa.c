@@ -564,28 +564,6 @@ static int mbedtls_ct_rsaes_pkcs1_v15_unpadding(unsigned char *input,
 
 #endif /* MBEDTLS_PKCS1_V15 && MBEDTLS_RSA_C */
 
-int mbedtls_rsa_import(mbedtls_rsa_context *ctx,
-                       const mbedtls_mpi *N,
-                       const mbedtls_mpi *P, const mbedtls_mpi *Q,
-                       const mbedtls_mpi *D, const mbedtls_mpi *E)
-{
-    int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
-
-    if ((N != NULL && (ret = mbedtls_mpi_copy(&ctx->N, N)) != 0) ||
-        (P != NULL && (ret = mbedtls_mpi_copy(&ctx->P, P)) != 0) ||
-        (Q != NULL && (ret = mbedtls_mpi_copy(&ctx->Q, Q)) != 0) ||
-        (D != NULL && (ret = mbedtls_mpi_copy(&ctx->D, D)) != 0) ||
-        (E != NULL && (ret = mbedtls_mpi_copy(&ctx->E, E)) != 0)) {
-        return MBEDTLS_ERROR_ADD(MBEDTLS_ERR_RSA_BAD_INPUT_DATA, ret);
-    }
-
-    if (N != NULL) {
-        ctx->len = mbedtls_mpi_size(&ctx->N);
-    }
-
-    return 0;
-}
-
 /*
  * Checks whether the context fields are set in such a way
  * that the RSA primitives will be able to execute without error.
