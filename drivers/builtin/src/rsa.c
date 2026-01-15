@@ -231,49 +231,61 @@ int mbedtls_rsa_parse_pubkey(mbedtls_rsa_context *rsa, const unsigned char *key,
      *      publicExponent    INTEGER   -- e
      *  }
      */
+    mbedtls_mpi_init(&rsa->N);
+    mbedtls_mpi_init(&rsa->E);
 
     if ((ret = mbedtls_asn1_get_tag(&p, end, &len,
                                     MBEDTLS_ASN1_CONSTRUCTED | MBEDTLS_ASN1_SEQUENCE)) != 0) {
-        return ret;
+        goto exit;
     }
 
     if (end != p + len) {
-        return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+        ret = MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+        goto exit;
     }
 
     /* Import N */
     if ((ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_INTEGER)) != 0) {
-        return ret;
+        goto exit;
     }
 
-    if ((ret = mbedtls_rsa_import_raw(rsa, p, len, NULL, 0, NULL, 0,
-                                      NULL, 0, NULL, 0)) != 0) {
-        return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+    if ((ret = mbedtls_mpi_read_binary(&rsa->N, p, len)) != 0) {
+        ret = MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+        goto exit;
     }
+
+    rsa->len = mbedtls_mpi_size(&rsa->N);
 
     p += len;
 
     /* Import E */
     if ((ret = mbedtls_asn1_get_tag(&p, end, &len, MBEDTLS_ASN1_INTEGER)) != 0) {
-        return ret;
+        goto exit;
     }
 
-    if ((ret = mbedtls_rsa_import_raw(rsa, NULL, 0, NULL, 0, NULL, 0,
-                                      NULL, 0, p, len)) != 0) {
-        return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+    if ((ret = mbedtls_mpi_read_binary(&rsa->E, p, len)) != 0) {
+        ret = MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+        goto exit;
     }
 
     p += len;
 
     if (mbedtls_rsa_check_pubkey(rsa) != 0) {
-        return MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+        ret = MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
+        goto exit;
     }
 
     if (p != end) {
-        return MBEDTLS_ERR_ASN1_LENGTH_MISMATCH;
+        ret = MBEDTLS_ERR_ASN1_LENGTH_MISMATCH;
     }
 
-    return 0;
+exit:
+    if (ret != 0) {
+        mbedtls_mpi_free(&rsa->N);
+        mbedtls_mpi_free(&rsa->E);
+    }
+
+    return ret;
 }
 
 int mbedtls_rsa_write_key(const mbedtls_rsa_context *rsa, unsigned char *start,
