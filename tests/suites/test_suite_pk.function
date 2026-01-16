@@ -1210,7 +1210,7 @@ exit:
 }
 /* END_CASE */
 
-/* BEGIN_CASE depends_on:MBEDTLS_ECP_RESTARTABLE:MBEDTLS_ECDSA_DETERMINISTIC */
+/* BEGIN_CASE depends_on:MBEDTLS_ECP_RESTARTABLE:PSA_WANT_ALG_DETERMINISTIC_ECDSA */
 void pk_sign_verify_restart(int pk_type, int grp_id, data_t *d_str,
                             char *QX_str, char *QY_str,
                             int md_alg, data_t *hash, data_t *sig_check,
@@ -1714,7 +1714,7 @@ void pk_get_psa_attributes(int pk_type, int from_pair,
     psa_set_key_enrollment_algorithm(&attributes, 42);
     psa_key_usage_t expected_usage = pk_get_psa_attributes_implied_usage(usage);
 
-#if defined(MBEDTLS_ECDSA_DETERMINISTIC)
+#if defined(PSA_WANT_ALG_DETERMINISTIC_ECDSA)
     /* When the resulting algorithm is ECDSA, the compile-time configuration
      * can cause it to be either deterministic or randomized ECDSA.
      * Rather than have two near-identical sets of test data depending on
