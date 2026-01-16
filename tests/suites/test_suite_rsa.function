@@ -48,7 +48,8 @@ static int mbedtls_rsa_test_fill_context(mbedtls_rsa_context *rsa,
     if ((mbedtls_mpi_size(&rsa->P) != 0) &&
         (mbedtls_mpi_size(&rsa->Q) != 0) &&
         (mbedtls_mpi_size(&rsa->D) != 0)) {
-        MBEDTLS_MPI_CHK(mbedtls_rsa_deduce_crt(&rsa->P, &rsa->Q, &rsa->D, &rsa->DP, &rsa->DQ, &rsa->QP));
+        MBEDTLS_MPI_CHK(mbedtls_rsa_deduce_crt(&rsa->P, &rsa->Q, &rsa->D, &rsa->DP, &rsa->DQ,
+                                               &rsa->QP));
     }
 #endif /* !MBEDTLS_RSA_NO_CRT */
 

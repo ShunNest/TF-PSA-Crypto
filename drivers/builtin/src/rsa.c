@@ -286,7 +286,7 @@ exit:
             goto end_of_export;                                 \
         }                                                       \
         len += ret;                                             \
-    } while(0)
+    } while (0)
 
 int mbedtls_rsa_write_key(const mbedtls_rsa_context *rsa, unsigned char *start,
                           unsigned char **p)
@@ -303,7 +303,7 @@ int mbedtls_rsa_write_key(const mbedtls_rsa_context *rsa, unsigned char *start,
      * Export the parameters one after another to avoid simultaneous copies.
      */
 
-     /* Export QP, DQ, DP */
+    /* Export QP, DQ, DP */
 #if !defined(MBEDTLS_RSA_NO_CRT)
     MBEDTLS_RSA_WRITE_MPI(&rsa->QP);
     MBEDTLS_RSA_WRITE_MPI(&rsa->DQ);
