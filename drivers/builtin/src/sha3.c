@@ -270,6 +270,9 @@ void mbedtls_sha3_clone(mbedtls_sha3_context *dst,
  */
 int mbedtls_sha3_starts(mbedtls_sha3_context *ctx, mbedtls_sha3_id id)
 {
+    /* Clean up in case the context is being reused */
+    memset(ctx, 0, sizeof(*ctx));
+
     switch (id) {
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHA3_224)
         case MBEDTLS_SHA3_224:
@@ -314,10 +317,6 @@ int mbedtls_sha3_starts(mbedtls_sha3_context *ctx, mbedtls_sha3_id id)
         default:
             return MBEDTLS_ERR_SHA3_BAD_INPUT_DATA;
     }
-
-    memset(ctx->state, 0, sizeof(ctx->state));
-    ctx->index = 0;
-    ctx->finished = 0;
 
     return 0;
 }
