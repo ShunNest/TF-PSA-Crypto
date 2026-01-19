@@ -3,6 +3,8 @@ TF-PSA-Crypto sample programs
 
 This subdirectory mostly contains sample programs that illustrate specific features of the library, as well as a few test and support programs.
 
+**Warning!** These programs are not intended for and are not suitable to be used in production. The code needs to be adapted to build a real-world applications.
+
 ## PSA cryptography API examples
 
 * [`psa/aead_demo.c`](psa/aead_demo.c): demonstrates the AEAD multi-part PSA Cryptography API.
