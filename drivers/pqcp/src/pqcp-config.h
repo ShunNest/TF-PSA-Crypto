@@ -9,13 +9,12 @@
  * It can be set as `MLD_CONFIG_FILE` when building mldsa-native,
  * and can be included before `mldsa_native.c`.
  *
- * In addition, you need to define parameter-set-specific macros:
- * - `MLD_CONFIG_PARAMETER_SET` and `MLD_CONFIG_NAMESPACE_PREFIX` when
- *   building mldsa-native, which needs to be done once per supported
- *   parameter set.
- * - `MLD_CONFIG_API_PARAMETER_SET` and `MLD_CONFIG_API_NAMESPACE_PREFIX`
- *   before including `mldsa_native.h`, which needs to be done once per
- *   supported parameter set.
+ * In addition, you need to define `MLD_CONFIG_PARAMETER_SET` when
+ * building `mldsa_native.c` and when including `mldsa_native.h`.
+ * Both of these need to be done once per supported parameter set,
+ * with `MLD_CONFIG_PARAMETER_SET` defined to the desired value each time.
+ * We build mldsa-native via `wrap_mldsa_native.c`, and we declare
+ * its functions in `wrap_mldsa_native.h`.
  */
 /*
  *  Copyright The Mbed TLS Contributors
@@ -44,7 +43,16 @@
  */
 #define MLD_CONFIG_MULTILEVEL_BUILD
 
-/* Prefix for exported function names */
+/* Prefix for exported function names.
+ *
+ * The function names will have this prefix, followed by
+ * the parameter set (except for functions shared between levels), e.g.
+ * tf_psa_crypto_pqcp_mldsa87_keypair_internal().
+ *
+ * This is implemented through the macros `MLD_API_NAMESPACE()` in
+ * mldsa/mldsa_native.h, and `MLD_NAMESPACE()` (parameter-set-independent)
+ * and `MLD_NAMESPACE_KL()` (parameter-set-specific) in mldsa/src/common.h.
+ */
 #define MLD_CONFIG_NAMESPACE_PREFIX tf_psa_crypto_pqcp_mldsa
 
 /* We have not integrated our RNG into mldsa-native. Instead, we call
