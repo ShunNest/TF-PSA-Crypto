@@ -1341,47 +1341,29 @@ int mbedtls_pk_sign_ext(mbedtls_pk_sigalg_t pk_type,
 int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
                           const mbedtls_pk_context *prv)
 {
-    psa_status_t status;
-    int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
-    uint8_t *prv_key_buf = NULL;
-    size_t prv_key_len;
-    size_t prv_key_size;
-    mbedtls_svc_key_id_t key_id = prv->priv_id;
-
+    /* Check some basic setup */
     if (pub->pk_info == NULL ||
-        prv->pk_info == NULL) {
+        prv->pk_info == NULL ||
+        prv->pub_raw_len == 0) {
         return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
     }
 
-    if ((prv->pk_info->type != MBEDTLS_PK_OPAQUE) &&
-        (pub->pk_info != prv->pk_info)) {
+    /* Check input data */
+    if ((mbedtls_pk_get_bitlen(pub) != mbedtls_pk_get_bitlen(prv)) ||
+        prv->pub_raw_len != pub->pub_raw_len ||
+        memcmp(prv->pub_raw, pub->pub_raw, prv->pub_raw_len) != 0) {
+        return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
+    }
+
+    /* Check types */
+    if (((prv->pk_info->type != MBEDTLS_PK_OPAQUE) && (pub->pk_info != prv->pk_info)) ||
+        !PSA_KEY_TYPE_IS_KEY_PAIR(prv->psa_type) ||
+        pub->psa_type != PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(prv->psa_type)) {
         return MBEDTLS_ERR_PK_TYPE_MISMATCH;
     }
 
-    if (PSA_KEY_TYPE_IS_RSA(mbedtls_pk_get_key_type(prv))) {
-        prv_key_size = MBEDTLS_PK_MAX_RSA_PUBKEY_RAW_LEN;
-    } else {
-        prv_key_size = MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH;
-    }
-
-    prv_key_buf = mbedtls_calloc(1, prv_key_size);
-
-    if (prv_key_buf == NULL) {
-        return MBEDTLS_ERR_PK_ALLOC_FAILED;
-    }
-
-    status = psa_export_public_key(key_id, prv_key_buf, prv_key_size,
-                                   &prv_key_len);
-    ret = PSA_PK_TO_MBEDTLS_ERR(status);
-    if (ret == 0) {
-        if (memcmp(prv_key_buf, pub->pub_raw,
-                   pub->pub_raw_len) != 0 || (prv_key_len != pub->pub_raw_len)) {
-            ret = MBEDTLS_ERR_PK_BAD_INPUT_DATA;
-        }
-    }
-
-    mbedtls_free(prv_key_buf);
-    return ret;
+    /* return 0 on match */
+    return 0;
 }
 
 /*
