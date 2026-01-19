@@ -310,7 +310,8 @@ int mbedtls_rsa_write_key(const mbedtls_rsa_context *rsa, unsigned char *start,
     MBEDTLS_RSA_WRITE_MPI(&rsa->DP);
 #else /* MBEDTLS_RSA_NO_CRT */
     if ((ret = mbedtls_rsa_deduce_crt(&rsa->P, &rsa->Q, &rsa->D, &DP, &DQ, &QP)) != 0) {
-        return MBEDTLS_ERROR_ADD(MBEDTLS_ERR_RSA_BAD_INPUT_DATA, ret);
+        ret = MBEDTLS_ERROR_ADD(MBEDTLS_ERR_RSA_BAD_INPUT_DATA, ret);
+        goto end_of_export;
     }
     MBEDTLS_RSA_WRITE_MPI(&QP);
     MBEDTLS_RSA_WRITE_MPI(&DQ);
