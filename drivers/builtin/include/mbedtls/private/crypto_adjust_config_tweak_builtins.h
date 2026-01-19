@@ -38,6 +38,18 @@
 #define MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH
 #endif
 
+/* If a SHAKE variant is enabled in psa_crypto_xof.c, tell sha3.c that we
+ * want it.
+ *
+ * Note that the PSA API (following NIST standards) defines hash algorithms
+ * that are SHAKE128 or SHAKE256 with a specific output lengths. From the
+ * perspective of sha3.c, these are just users of SHAKE128/SHAKE256, but
+ * from the perspective of psa_crypto_hash.c and psa_crypto_xof.c,
+ * they are hashes and not XOF. So, for example, if the SHAKE256/512 hash
+ * algorithm is enabled in the PSA API (for Ed448ph) but the SHAKE256 XOF
+ * algorithm is disabled, then MBEDTLS_PSA_BUILTIN_ALG_SHAKE256 will be
+ * disabled but we'll still need to enable MBEDTLS_SHA3_WANT_SHAKE256.
+ */
 #if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128)
 #define MBEDTLS_SHA3_WANT_SHAKE128
 #endif
