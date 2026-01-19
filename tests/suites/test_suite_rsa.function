@@ -13,7 +13,7 @@ static int mbedtls_rsa_test_fill_context(mbedtls_rsa_context *rsa,
                                          data_t *N_data, data_t *E_data,
                                          data_t *D_data)
 {
-    int ret;
+    int ret = MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
 
     mbedtls_mpi_init(&rsa->N); mbedtls_mpi_init(&rsa->P); mbedtls_mpi_init(&rsa->Q);
     mbedtls_mpi_init(&rsa->E); mbedtls_mpi_init(&rsa->D);
