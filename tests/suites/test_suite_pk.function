@@ -1066,8 +1066,15 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int expected_ret)
     mbedtls_pk_init(&prv);
     TEST_EQUAL(mbedtls_pk_wrap_psa(&prv, wrapped_key_id), 0);
     TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), expected_ret);
+
+    /* Empty context checks */
     TEST_EQUAL(mbedtls_pk_check_pair(&pub, &empty_ctx), PSA_ERROR_INVALID_ARGUMENT);
     TEST_EQUAL(mbedtls_pk_check_pair(&empty_ctx, &prv), PSA_ERROR_INVALID_ARGUMENT);
+
+    /* Incorrect context provided */
+    TEST_EQUAL(mbedtls_pk_check_pair(&pub, &pub), MBEDTLS_ERR_PK_TYPE_MISMATCH);
+    TEST_EQUAL(mbedtls_pk_check_pair(&prv, &prv), MBEDTLS_ERR_PK_TYPE_MISMATCH);
+    TEST_EQUAL(mbedtls_pk_check_pair(&prv, &pub), MBEDTLS_ERR_PK_TYPE_MISMATCH);
 
 exit:
     psa_destroy_key(wrapped_key_id);
