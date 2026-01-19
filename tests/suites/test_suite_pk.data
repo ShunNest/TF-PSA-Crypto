@@ -528,11 +528,23 @@ Check pair #6 521 bit ec keys
 depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_521:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/ec_521_pub.pem":"../framework/data_files/ec_521_prv.pem":0
 
-Check pair #7 521 vs 256 bit ec keys
+Check pair #7 521 pub vs 256 prv bit ec keys
 depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_521:PSA_WANT_ECC_SECP_R1_256:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/ec_521_pub.pem":"../framework/data_files/ec_256_prv.pem":MBEDTLS_ERR_PK_BAD_INPUT_DATA
 
-Check pair #8 (RSA, OK) 4096 bit keys
+Check pair #8 256 pub vs 521 prv bit ec keys
+depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_521:PSA_WANT_ECC_SECP_R1_256:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
+mbedtls_pk_check_pair:"../framework/data_files/ec_256_pub.pem":"../framework/data_files/ec_521_prv.pem":MBEDTLS_ERR_PK_BAD_INPUT_DATA
+
+Check pair #9 4096 pub vs 2048 prv bit rsa keys
+depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:PSA_WANT_ALG_RSA_PKCS1V15_SIGN:MBEDTLS_PEM_PARSE_C:!MBEDTLS_PSA_STATIC_KEY_SLOTS
+mbedtls_pk_check_pair:"../framework/data_files/rsa4096_pub.pem":"../framework/data_files/server1.key":MBEDTLS_ERR_PK_BAD_INPUT_DATA
+
+Check pair #10 2048 pub vs 4096 prv bit rsa keys
+depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:PSA_WANT_ALG_RSA_PKCS1V15_SIGN:MBEDTLS_PEM_PARSE_C:!MBEDTLS_PSA_STATIC_KEY_SLOTS
+mbedtls_pk_check_pair:"../framework/data_files/server1.pubkey":"../framework/data_files/rsa4096_prv.pem":MBEDTLS_ERR_PK_BAD_INPUT_DATA
+
+Check pair #11 (RSA, OK) 4096 bit keys
 depends_on:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:PSA_WANT_ALG_RSA_PKCS1V15_SIGN:MBEDTLS_PEM_PARSE_C:!MBEDTLS_PSA_STATIC_KEY_SLOTS
 mbedtls_pk_check_pair:"../framework/data_files/rsa4096_pub.pem":"../framework/data_files/rsa4096_prv.pem":0
 
