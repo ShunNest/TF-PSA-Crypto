@@ -12,10 +12,6 @@
 
 #include "tf_psa_crypto_common.h"
 
-#if defined(MBEDTLS_BIGNUM_C)
-#include "mbedtls/private/bignum.h"
-#endif
-
 /*
  * To improve readability of constant_time_internal.h, the static inline
  * definitions are here, and constant_time_internal.h has only the declarations.
@@ -430,19 +426,6 @@ static inline mbedtls_ct_condition_t mbedtls_ct_bool_if(mbedtls_ct_condition_t c
                                                   (mbedtls_ct_uint_t) if0);
 }
 
-#if defined(MBEDTLS_BIGNUM_C)
-
-static inline mbedtls_mpi_uint mbedtls_ct_mpi_uint_if(mbedtls_ct_condition_t condition,
-                                                      mbedtls_mpi_uint if1,
-                                                      mbedtls_mpi_uint if0)
-{
-    return (mbedtls_mpi_uint) mbedtls_ct_if(condition,
-                                            (mbedtls_ct_uint_t) if1,
-                                            (mbedtls_ct_uint_t) if0);
-}
-
-#endif
-
 static inline size_t mbedtls_ct_size_if_else_0(mbedtls_ct_condition_t condition, size_t if1)
 {
     return (size_t) (condition & if1);
@@ -458,16 +441,6 @@ static inline mbedtls_ct_condition_t mbedtls_ct_bool_if_else_0(mbedtls_ct_condit
 {
     return (mbedtls_ct_condition_t) (condition & if1);
 }
-
-#if defined(MBEDTLS_BIGNUM_C)
-
-static inline mbedtls_mpi_uint mbedtls_ct_mpi_uint_if_else_0(mbedtls_ct_condition_t condition,
-                                                             mbedtls_mpi_uint if1)
-{
-    return (mbedtls_mpi_uint) (condition & if1);
-}
-
-#endif /* MBEDTLS_BIGNUM_C */
 
 static inline int mbedtls_ct_error_if(mbedtls_ct_condition_t condition, int if1, int if0)
 {

@@ -13,9 +13,11 @@
 
 #include "tf_psa_crypto_common.h"
 
-#if defined(MBEDTLS_BIGNUM_C)
+/*
+ * bignum.h may define MBEDTLS_HAVE_INT64 that is used in the definition of
+ * mbedtls_ct_*_t types below.
+ */
 #include "mbedtls/private/bignum.h"
-#endif
 
 /* The constant-time interface provides various operations that are likely
  * to result in constant-time code that does not branch or use conditional
@@ -295,26 +297,6 @@ static inline mbedtls_ct_condition_t mbedtls_ct_bool_if(mbedtls_ct_condition_t c
                                                         mbedtls_ct_condition_t if1,
                                                         mbedtls_ct_condition_t if0);
 
-#if defined(MBEDTLS_BIGNUM_C)
-
-/** Choose between two mbedtls_mpi_uint values.
- *
- * Functionally equivalent to:
- *
- * condition ? if1 : if0.
- *
- * \param condition     Condition to test.
- * \param if1           Value to use if \p condition == MBEDTLS_CT_TRUE.
- * \param if0           Value to use if \p condition == MBEDTLS_CT_FALSE.
- *
- * \return  \c if1 if \p condition == MBEDTLS_CT_TRUE, otherwise \c if0.
- */
-static inline mbedtls_mpi_uint mbedtls_ct_mpi_uint_if(mbedtls_ct_condition_t condition, \
-                                                      mbedtls_mpi_uint if1, \
-                                                      mbedtls_mpi_uint if0);
-
-#endif
-
 /** Choose between an unsigned value and 0.
  *
  * Functionally equivalent to:
@@ -363,27 +345,6 @@ static inline mbedtls_ct_condition_t mbedtls_ct_bool_if_else_0(mbedtls_ct_condit
  * \return  \c if1 if \p condition == MBEDTLS_CT_TRUE, otherwise 0.
  */
 static inline size_t mbedtls_ct_size_if_else_0(mbedtls_ct_condition_t condition, size_t if1);
-
-#if defined(MBEDTLS_BIGNUM_C)
-
-/** Choose between an mbedtls_mpi_uint value and 0.
- *
- * Functionally equivalent to:
- *
- * condition ? if1 : 0.
- *
- * Functionally equivalent to mbedtls_ct_mpi_uint_if(condition, if1, 0) but
- * results in smaller code size.
- *
- * \param condition     Condition to test.
- * \param if1           Value to use if \p condition == MBEDTLS_CT_TRUE.
- *
- * \return  \c if1 if \p condition == MBEDTLS_CT_TRUE, otherwise 0.
- */
-static inline mbedtls_mpi_uint mbedtls_ct_mpi_uint_if_else_0(mbedtls_ct_condition_t condition,
-                                                             mbedtls_mpi_uint if1);
-
-#endif
 
 /** Constant-flow char selection
  *
