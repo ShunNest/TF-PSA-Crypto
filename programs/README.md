@@ -3,6 +3,8 @@ TF-PSA-Crypto sample programs
 
 This subdirectory mostly contains sample programs that illustrate specific features of the library, as well as a few test and support programs.
 
+We try to ensure that the sample programs are good examples of how to use Mbed TLS but we make no hard guarantees about their security. They should not be used in production unless they have been separately tested and thoroughly audited for security. Note that this means vulnerabilities in the sample programs are out of the scope of our usual security process and will be fixed in public.
+
 ## PSA cryptography API examples
 
 * [`psa/aead_demo.c`](psa/aead_demo.c): demonstrates the AEAD multi-part PSA Cryptography API.
