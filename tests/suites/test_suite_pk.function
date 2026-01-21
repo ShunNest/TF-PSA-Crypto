@@ -206,11 +206,19 @@ static int pk_setup(mbedtls_pk_context *pk, mbedtls_pk_type_t pk_type, int curve
 
     if ((pk_type == MBEDTLS_PK_RSA) || (pk_type == MBEDTLS_PK_RSASSA_PSS)) {
 #if defined(PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY)
-        mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_RSA_KEY_PAIR, curve_or_keybits,
-                                                   &key_data, &key_data_len);
-        mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_RSA_PUBLIC_KEY, curve_or_keybits,
-                                                   &pub_key_data, &pub_key_data_len);
-        TEST_EQUAL(pk_psa_import_key(key_data, key_data_len,
+        ret = mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_RSA_KEY_PAIR,
+                                                         curve_or_keybits,
+                                                         &key_data, &key_data_len);
+        if (ret != 0) {
+            goto exit;
+        }
+        ret = mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_RSA_PUBLIC_KEY,
+                                                         curve_or_keybits,
+                                                         &pub_key_data, &pub_key_data_len);
+        if (ret != 0) {
+            goto exit;
+        }
+        PSA_ASSERT(pk_psa_import_key(key_data, key_data_len,
                                      PSA_KEY_TYPE_RSA_KEY_PAIR,
                                      PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH |
                                      PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE |
@@ -218,7 +226,7 @@ static int pk_setup(mbedtls_pk_context *pk, mbedtls_pk_type_t pk_type, int curve
                                      PSA_KEY_USAGE_EXPORT,
                                      PSA_ALG_RSA_PKCS1V15_SIGN(PSA_ALG_ANY_HASH),
                                      PSA_ALG_RSA_PSS(PSA_ALG_ANY_HASH),
-                                     &pk->priv_id), 0);
+                                     &pk->priv_id));
         memcpy(pk->pub_raw, pub_key_data, pub_key_data_len);
         pk->pub_raw_len = pub_key_data_len;
         pk->bits = curve_or_keybits;
@@ -228,12 +236,18 @@ static int pk_setup(mbedtls_pk_context *pk, mbedtls_pk_type_t pk_type, int curve
     } else {
 #if defined(PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY)
         pk->ec_family = mbedtls_ecc_group_to_psa(curve_or_keybits, &pk->bits);
-        mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_ECC_KEY_PAIR(pk->ec_family),
-                                                   pk->bits, &key_data, &key_data_len);
-        mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_ECC_PUBLIC_KEY(pk->ec_family),
-                                                   pk->bits, &pub_key_data,
-                                                   &pub_key_data_len);
-        TEST_EQUAL(pk_psa_import_key(key_data, key_data_len,
+        ret = mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_ECC_KEY_PAIR(pk->ec_family),
+                                                         pk->bits, &key_data, &key_data_len);
+        if (ret != 0) {
+            return ret;
+        }
+        ret = mbedtls_pk_helpers_get_predefined_key_data(PSA_KEY_TYPE_ECC_PUBLIC_KEY(pk->ec_family),
+                                                         pk->bits, &pub_key_data,
+                                                         &pub_key_data_len);
+        if (ret != 0) {
+            return ret;
+        }
+        PSA_ASSERT(pk_psa_import_key(key_data, key_data_len,
                                      PSA_KEY_TYPE_ECC_KEY_PAIR(pk->ec_family),
                                      PSA_KEY_USAGE_SIGN_HASH | PSA_KEY_USAGE_VERIFY_HASH |
                                      PSA_KEY_USAGE_SIGN_MESSAGE | PSA_KEY_USAGE_VERIFY_MESSAGE |
@@ -241,7 +255,7 @@ static int pk_setup(mbedtls_pk_context *pk, mbedtls_pk_type_t pk_type, int curve
                                      PSA_KEY_USAGE_EXPORT,
                                      MBEDTLS_PK_ALG_ECDSA(PSA_ALG_ANY_HASH),
                                      PSA_ALG_NONE,
-                                     &pk->priv_id), 0);
+                                     &pk->priv_id));
         memcpy(pk->pub_raw, pub_key_data, pub_key_data_len);
         pk->pub_raw_len = pub_key_data_len;
 #else /* PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY */
