@@ -361,12 +361,13 @@ static psa_status_t pk_psa_setup(psa_key_type_t type, size_t bits,
      * - ease requirements/dependencies on test cases.
      * For other keys (ex: DH) psa_generate_key() is used instead. */
     if (PSA_KEY_TYPE_IS_RSA(type) || PSA_KEY_TYPE_IS_ECC(type)) {
-        mbedtls_pk_helpers_get_predefined_key_data(type, bits, &key_data, &key_data_size);
-    } else {
-        return psa_generate_key(&attributes, key);
+        if (mbedtls_pk_helpers_get_predefined_key_data(type, bits, &key_data,
+                                                       &key_data_size) != 0) {
+            return PSA_ERROR_NOT_SUPPORTED;
+        }
+        return psa_import_key(&attributes, key_data, key_data_size, key);
     }
-
-    return psa_import_key(&attributes, key_data, key_data_size, key);
+    return psa_generate_key(&attributes, key);
 }
 
 static psa_key_usage_t pk_get_psa_attributes_implied_usage(
