@@ -61,8 +61,6 @@ int mbedtls_rsa_parse_pubkey(mbedtls_rsa_context *rsa, const unsigned char *key,
  *
  * \return          On success, the number of bytes written to the output buffer
  *                  (i.e. a value > 0).
- * \return          MBEDTLS_ERR_RSA_BAD_INPUT_DATA if the RSA context does not
- *                  contain a valid key pair.
  * \return          MBEDTLS_ERR_ASN1_xxx in case of failure while writing to the
  *                  output buffer.
  *
