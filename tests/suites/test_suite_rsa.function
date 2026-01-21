@@ -9,9 +9,9 @@
 #if defined(MBEDTLS_RSA_C) && defined(MBEDTLS_BIGNUM_C)
 
 static int mbedtls_rsa_test_fill_context(mbedtls_rsa_context *rsa,
-                                         data_t *P_data, data_t *Q_data,
                                          data_t *N_data, data_t *E_data,
-                                         data_t *D_data)
+                                         data_t *D_data, data_t *P_data,
+                                         data_t *Q_data)
 {
     int ret = MBEDTLS_ERR_RSA_BAD_INPUT_DATA;
 
@@ -224,8 +224,8 @@ void mbedtls_rsa_pkcs1_sign(data_t *message_str, int padding_mode,
     memset(output, 0x00, sizeof(output));
     memset(&rnd_info, 0, sizeof(mbedtls_test_rnd_pseudo_info));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     TEST_EQUAL(mbedtls_rsa_get_len(&ctx), (size_t) ((mod + 7) / 8));
     TEST_EQUAL(mbedtls_rsa_get_bitlen(&ctx), (size_t) mod);
@@ -258,7 +258,7 @@ void mbedtls_rsa_pkcs1_verify(data_t *message_str, int padding_mode,
     TEST_ASSERT(mbedtls_rsa_set_padding(&ctx, padding_mode,
                                         MBEDTLS_MD_NONE) == 0);
 
-    TEST_EQUAL(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL), 0);
+    TEST_EQUAL(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL), 0);
     TEST_EQUAL(mbedtls_rsa_get_len(&ctx), (size_t) ((mod + 7) / 8));
     TEST_EQUAL(mbedtls_rsa_get_bitlen(&ctx), (size_t) mod);
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
@@ -291,8 +291,8 @@ void rsa_pkcs1_sign_raw(data_t *hash_result,
     memset(output, 0x00, sizeof(output));
     memset(&rnd_info, 0, sizeof(mbedtls_test_rnd_pseudo_info));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     TEST_EQUAL(mbedtls_rsa_get_len(&ctx), (size_t) ((mod + 7) / 8));
     TEST_EQUAL(mbedtls_rsa_get_bitlen(&ctx), (size_t) mod);
@@ -327,7 +327,7 @@ void rsa_pkcs1_verify_raw(data_t *hash_result,
                                         MBEDTLS_MD_NONE) == 0);
     memset(output, 0x00, sizeof(output));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_EQUAL(mbedtls_rsa_get_len(&ctx), (size_t) ((mod + 7) / 8));
     TEST_EQUAL(mbedtls_rsa_get_bitlen(&ctx), (size_t) mod);
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
@@ -356,7 +356,7 @@ void mbedtls_rsa_pkcs1_encrypt(data_t *message_str, int padding_mode,
                                         MBEDTLS_MD_NONE) == 0);
     memset(output, 0x00, sizeof(output));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_EQUAL(mbedtls_rsa_get_len(&ctx), (size_t) ((mod + 7) / 8));
     TEST_EQUAL(mbedtls_rsa_get_bitlen(&ctx), (size_t) mod);
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
@@ -389,7 +389,7 @@ void rsa_pkcs1_encrypt_bad_rng(data_t *message_str, int padding_mode,
                                         MBEDTLS_MD_NONE) == 0);
     memset(output, 0x00, sizeof(output));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_EQUAL(mbedtls_rsa_get_len(&ctx), (size_t) ((mod + 7) / 8));
     TEST_EQUAL(mbedtls_rsa_get_bitlen(&ctx), (size_t) mod);
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
@@ -427,8 +427,8 @@ void mbedtls_rsa_pkcs1_decrypt(data_t *message_str, int padding_mode,
     memset(output, 0x00, sizeof(output));
     memset(&rnd_info, 0, sizeof(mbedtls_test_rnd_pseudo_info));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     TEST_EQUAL(mbedtls_rsa_get_len(&ctx), (size_t) ((mod + 7) / 8));
     TEST_EQUAL(mbedtls_rsa_get_bitlen(&ctx), (size_t) mod);
@@ -464,7 +464,7 @@ void mbedtls_rsa_public(data_t *message_str, int mod,
     mbedtls_rsa_init(&ctx2);
     memset(output, 0x00, sizeof(output));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
 
     /* Check test data consistency */
     TEST_EQUAL(message_str->len, (size_t) ((mod + 7) / 8));
@@ -520,8 +520,8 @@ void mbedtls_rsa_private(data_t *message_str, int mod,
 
     memset(&rnd_info, 0, sizeof(mbedtls_test_rnd_pseudo_info));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     /* Check test data consistency */
     TEST_EQUAL(message_str->len, (size_t) ((mod + 7) / 8));
@@ -589,7 +589,7 @@ void mbedtls_rsa_check_pubkey(data_t *input_N, data_t *input_E, int result)
 
     mbedtls_rsa_init(&ctx);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == result);
 
 exit:
@@ -985,7 +985,7 @@ void pkcs1_rsaes_v15_encrypt(int mod, data_t *input_N,
     TEST_EQUAL(mbedtls_rsa_get_padding_mode(&ctx), MBEDTLS_RSA_PKCS_V15);
     TEST_EQUAL(mbedtls_rsa_get_md_alg(&ctx), hash);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
 
@@ -1029,8 +1029,8 @@ void pkcs1_rsaes_v15_decrypt(int mod, data_t *input_P, data_t *input_Q,
     memset(output, 0x00, sizeof(output));
     memset(&rnd_info, 0, sizeof(mbedtls_test_rnd_pseudo_info));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_privkey(&ctx) == 0);
@@ -1139,7 +1139,7 @@ void pkcs1_v15_decode(data_t *input,
     memset(&rnd_info, 0, sizeof(mbedtls_test_rnd_pseudo_info));
     mbedtls_rsa_init(&ctx);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, &P_data, &Q_data, &N_data, &E_data, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, &N_data, &E_data, NULL, &P_data, &Q_data) == 0);
 
     TEST_ASSERT(input->len <= sizeof(N));
     memcpy(original, input->x, input->len);
@@ -1215,8 +1215,8 @@ void pkcs1_rsassa_v15_sign(int mod, data_t *input_P,
     TEST_EQUAL(mbedtls_rsa_get_padding_mode(&ctx), MBEDTLS_RSA_PKCS_V15);
     TEST_EQUAL(mbedtls_rsa_get_md_alg(&ctx), hash);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_privkey(&ctx) == 0);
@@ -1251,7 +1251,7 @@ void pkcs1_rsassa_v15_verify(int mod, data_t *input_N, data_t *input_E,
     TEST_EQUAL(mbedtls_rsa_get_padding_mode(&ctx), MBEDTLS_RSA_PKCS_V15);
     TEST_EQUAL(mbedtls_rsa_get_md_alg(&ctx), hash);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
 
@@ -1288,7 +1288,7 @@ void pkcs1_rsaes_oaep_encrypt(int mod, data_t *input_N, data_t *input_E,
     TEST_EQUAL(mbedtls_rsa_get_padding_mode(&ctx), MBEDTLS_RSA_PKCS_V21);
     TEST_EQUAL(mbedtls_rsa_get_md_alg(&ctx), hash);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
 
@@ -1334,8 +1334,8 @@ void pkcs1_rsaes_oaep_decrypt(int mod, data_t *input_P, data_t *input_Q,
     memset(output, 0x00, sizeof(output));
     memset(&rnd_info, 0, sizeof(mbedtls_test_rnd_pseudo_info));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_privkey(&ctx) == 0);
@@ -1391,8 +1391,8 @@ void pkcs1_rsassa_pss_sign(int mod, data_t *input_P, data_t *input_Q,
 
     memset(output, 0x00, sizeof(output));
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_P, input_Q,
-                                              input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E,
+                                              NULL, input_P, input_Q) == 0);
 
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_privkey(&ctx) == 0);
@@ -1441,7 +1441,7 @@ void pkcs1_rsassa_pss_verify(int mod, data_t *input_N, data_t *input_E,
     TEST_EQUAL(mbedtls_rsa_get_padding_mode(&ctx), MBEDTLS_RSA_PKCS_V21);
     TEST_EQUAL(mbedtls_rsa_get_md_alg(&ctx), hash);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
 
@@ -1474,7 +1474,7 @@ void pkcs1_rsassa_pss_verify_ext(int mod, data_t *input_N, data_t *input_E,
     TEST_EQUAL(mbedtls_rsa_get_padding_mode(&ctx), MBEDTLS_RSA_PKCS_V21);
     TEST_EQUAL(mbedtls_rsa_get_md_alg(&ctx), ctx_hash);
 
-    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, NULL, NULL, input_N, input_E, NULL) == 0);
+    TEST_ASSERT(mbedtls_rsa_test_fill_context(&ctx, input_N, input_E, NULL, NULL, NULL) == 0);
     TEST_ASSERT(mbedtls_rsa_get_len(&ctx) == (size_t) ((mod + 7) / 8));
     TEST_ASSERT(mbedtls_rsa_check_pubkey(&ctx) == 0);
 
