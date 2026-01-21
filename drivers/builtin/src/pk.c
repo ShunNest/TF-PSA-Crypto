@@ -1341,8 +1341,8 @@ int mbedtls_pk_sign_ext(mbedtls_pk_sigalg_t pk_type,
 int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
                           const mbedtls_pk_context *prv)
 {
-    if(prv->pub_raw_len == 0) {
-        mbedtls_pk_set_pubkey_from_prv((mbedtls_pk_context*) prv);
+    if (prv->pub_raw_len == 0) {
+        mbedtls_pk_set_pubkey_from_prv((mbedtls_pk_context *) prv);
     }
     /* Check for a valid context */
     if (pub->pk_info == NULL ||
