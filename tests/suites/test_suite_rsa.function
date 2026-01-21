@@ -55,8 +55,7 @@ static int mbedtls_rsa_test_fill_context(mbedtls_rsa_context *rsa,
 
 cleanup:
     if (ret != 0) {
-        mbedtls_mpi_free(&rsa->N); mbedtls_mpi_free(&rsa->P); mbedtls_mpi_free(&rsa->Q);
-        mbedtls_mpi_free(&rsa->E); mbedtls_mpi_free(&rsa->D);
+        mbedtls_rsa_free(rsa);
     }
 
     return ret;
