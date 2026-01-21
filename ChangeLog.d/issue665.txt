@@ -1,0 +1,5 @@
+Bugfix
+   * Fix instruction reordering issue in GCM tables generation found with GCC
+     compilers with version between 10.0 and 14.2 (both included) at
+     optimization level "-O3".
+     Fixes #655.
