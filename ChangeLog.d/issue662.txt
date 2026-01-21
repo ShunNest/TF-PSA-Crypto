@@ -1,0 +1,5 @@
+Removals
+   * Definition of macro 'inline' is removed from 'build_info.h'. This was
+     used on some old non-C99-compliant compilers (ArmCC 5 and old MSVC) for
+     which support for building the library has already been dropped in the
+     past.
