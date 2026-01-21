@@ -130,8 +130,9 @@ component_test_tf_psa_crypto_zeroize () {
     done
 }
 
-# This originated from an issue (crypto#665) found in GCM when the library is
-# built with GCC "10 <= version <= 14" on platforms other than x86 and ARM64.
+# This originated from an issue (https://github.com/Mbed-TLS/TF-PSA-Crypto/issues/665) found
+# in GCM when the library is built with GCC "10.0 <= version <= 14.2" on platforms other than
+# x86 and ARM64.
 component_test_tf_psa_crypto_optimized_alignment() {
     msg "build: verify alignment with O3 optimizations in GCC"
 
@@ -170,5 +171,5 @@ support_test_tf_psa_crypto_optimized_alignment() {
     ver_minor="$(echo $ver | cut -d'.' -f2)"
     ver_patch="$(echo $ver | cut -d'.' -f3)"
 
-    [ "$ver_major" -ge 10 ] && [ "$ver_minor" -le 14 ]
+    [[ ($ver_major -ge 10 && $ver_major -le 13) || ($ver_major == 14 && $ver_minor -le 2) ]]
 }
