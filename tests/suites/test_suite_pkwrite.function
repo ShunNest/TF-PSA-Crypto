@@ -4,18 +4,12 @@
 #include "crypto_oid.h"
 #include "mbedtls/base64.h"
 #include "psa/crypto_sizes.h"
-#include "test/test_keys.h"
+#include "test/pk_helpers.h"
 
 typedef enum {
     TEST_PEM,
     TEST_DER
 } pkwrite_file_format_t;
-
-typedef enum {
-    TEST_WRAP_PSA,
-    TEST_COPY_FROM_PSA,
-    TEST_COPY_PUBLIC_FROM_PSA,
-} pkwrite_pk_derivation_method_t;
 
 typedef enum {
     TEST_PUBLIC_KEY,
@@ -206,42 +200,6 @@ static void test_pk_write_pubkey_psa(mbedtls_pk_context *pk)
 exit:; /* The ";" is intentional: we need the "exit" label, but we don't have any action to
         * to do, so the compiler would complain for that. */
 }
-
-static mbedtls_svc_key_id_t make_psa_key_from_predefined(psa_key_type_t key_type,
-                                                         psa_key_bits_t key_bits)
-{
-    mbedtls_svc_key_id_t key_id = MBEDTLS_SVC_KEY_ID_INIT;
-    psa_key_attributes_t attr = PSA_KEY_ATTRIBUTES_INIT;
-    const uint8_t *priv_key = NULL;
-    size_t priv_key_len = 0;
-
-    if (key_type == PSA_KEY_TYPE_RSA_KEY_PAIR) {
-        if (key_bits == 1024) {
-            priv_key = test_rsa_1024_priv;
-            priv_key_len = sizeof(test_rsa_1024_priv);
-        } else if (key_bits == 4096) {
-            priv_key = test_rsa_4096_priv;
-            priv_key_len = sizeof(test_rsa_4096_priv);
-        }
-    } else if (key_type == PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1)) {
-        if (key_bits == 256) {
-            priv_key = test_ec_secp256r1_priv;
-            priv_key_len = sizeof(test_ec_secp256r1_priv);
-        } else if (key_bits == 521) {
-            priv_key = test_ec_secp521r1_priv;
-            priv_key_len = sizeof(test_ec_secp521r1_priv);
-        }
-    } else {
-        TEST_FAIL("Unsupported key");
-    }
-
-    psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_EXPORT);
-    psa_set_key_type(&attr, key_type);
-    PSA_ASSERT(psa_import_key(&attr, priv_key, priv_key_len, &key_id));
-
-exit:
-    return key_id;
-}
 /* END_HEADER */
 
 /* BEGIN_DEPENDENCIES
@@ -355,23 +313,11 @@ void pk_write_pubkey_psa_from_psa(int key_type, int key_bits, int pk_gen_method)
 
     PSA_INIT();
 
-    key_id = make_psa_key_from_predefined(key_type, key_bits);
+    key_id = mbedtls_pk_helpers_make_psa_key_from_predefined(key_type, key_bits, PSA_ALG_NONE,
+                                                             PSA_ALG_NONE, PSA_KEY_USAGE_EXPORT);
 
-    switch (pk_gen_method) {
-        case TEST_WRAP_PSA:
-            TEST_EQUAL(mbedtls_pk_wrap_psa(&pk, key_id), 0);
-            break;
-        case TEST_COPY_FROM_PSA:
-            TEST_EQUAL(mbedtls_pk_copy_from_psa(key_id, &pk), 0);
-            break;
-        case TEST_COPY_PUBLIC_FROM_PSA:
-            TEST_EQUAL(mbedtls_pk_copy_public_from_psa(key_id, &pk), 0);
-            break;
-        default:
-            TEST_FAIL("Unknown method");
-    }
-
-    /* No need to check for return value here: TEST_EQUAL() macros are used in this function */
+    /* No need to check for return value here: TEST_EQUAL() macros are used in these functions */
+    mbedtls_pk_helpers_populate_context(&pk, key_id, pk_gen_method);
     test_pk_write_pubkey_psa(&pk);
 
 exit:
