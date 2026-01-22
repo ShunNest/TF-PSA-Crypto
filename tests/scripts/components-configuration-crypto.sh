@@ -24,7 +24,7 @@ component_test_accel_ecdh() {
     make
 
     # Make sure built-in ECDH was not re-enabled by accident (additive config)
-    not grep mbedtls_ecdh_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdh.c.o
+    not grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.c.o
 
     # Run the tests
     # -------------
