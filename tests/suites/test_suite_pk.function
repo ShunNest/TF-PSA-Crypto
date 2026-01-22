@@ -1050,7 +1050,6 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int expected_ret)
     TEST_ASSERT(mbedtls_pk_parse_public_keyfile(&pub, pub_file) == 0);
     TEST_ASSERT(mbedtls_pk_parse_keyfile(&prv, prv_file, NULL)
                 == 0);
-    mbedtls_pk_set_pubkey_from_prv(&prv);
 
     ret = mbedtls_pk_check_pair(&pub, &prv);
     if (ret != 0) {
