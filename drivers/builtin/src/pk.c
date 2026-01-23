@@ -1345,7 +1345,7 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
     if (pub->pk_info == NULL ||
         prv->pk_info == NULL ||
         prv->pub_raw_len == 0) {
-        return PSA_ERROR_INVALID_ARGUMENT;
+        return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
     }
 
     /* Check input data */
