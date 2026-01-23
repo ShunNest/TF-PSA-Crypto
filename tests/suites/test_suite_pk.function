@@ -2090,6 +2090,7 @@ void pk_copy_from_psa_success(data_t *priv_key_data, int key_type_arg,
     /* Check that generated private/public PK contexts form a valid private/public key pair. */
     TEST_EQUAL(mbedtls_pk_check_pair(&pk_pub, &pk_priv), 0);
     TEST_EQUAL(mbedtls_pk_check_pair(&pk_priv_copy_public, &pk_priv), 0);
+    TEST_EQUAL(mbedtls_pk_check_pair(&pk_pub_copy_public, &pk_priv), 0);
 
     /* Check consistency between copied PSA keys and generated PK contexts. */
     TEST_EQUAL(mbedtls_test_key_consistency_psa_pk(priv_key_id, &pk_priv), 1);
