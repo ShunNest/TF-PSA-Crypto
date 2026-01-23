@@ -1352,7 +1352,7 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
     if ((mbedtls_pk_get_bitlen(pub) != mbedtls_pk_get_bitlen(prv)) ||
         prv->pub_raw_len != pub->pub_raw_len ||
         memcmp(prv->pub_raw, pub->pub_raw, prv->pub_raw_len) != 0) {
-        return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
+        return MBEDTLS_ERR_PK_TYPE_MISMATCH;
     }
 
     /* Check types */
