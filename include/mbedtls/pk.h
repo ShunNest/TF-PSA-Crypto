@@ -715,8 +715,6 @@ int mbedtls_pk_sign_ext(mbedtls_pk_sigalg_t sig_type,
  * \param prv       Context holding a private (and public) key.
  *
  * \return          \c 0 on success (keys were checked and match each other).
- * \return          #MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE if the keys could not
- *                  be checked - in that case they may or may not match.
  * \return          #PSA_ERROR_INVALID_ARGUMENT if a context is invalid.
  * \return          Another non-zero value if the keys do not match.
  */
