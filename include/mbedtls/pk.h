@@ -717,6 +717,9 @@ int mbedtls_pk_sign_ext(mbedtls_pk_sigalg_t sig_type,
  * \return          \c 0 on success (keys were checked and match each other).
  * \return          #PSA_ERROR_INVALID_ARGUMENT if a context is invalid.
  * \return          Another non-zero value if the keys do not match.
+ * \note            This function assumes that the public key is exported in 
+ *                  the private keys context and will return 
+ *                  PSA_ERROR_INVALID_ARGUMENT if it is not.
  */
 int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
                           const mbedtls_pk_context *prv);
