@@ -166,10 +166,10 @@ component_test_tf_psa_crypto_optimized_alignment() {
 }
 
 support_test_tf_psa_crypto_optimized_alignment() {
-    ver="$(gcc --version | grep -oP '\d+\.\d+\.\d+' | head -n1)"
-    ver_major="$(echo $ver | cut -d'.' -f1)"
-    ver_minor="$(echo $ver | cut -d'.' -f2)"
-    ver_patch="$(echo $ver | cut -d'.' -f3)"
-
-    [[ ($ver_major -ge 10 && $ver_major -le 13) || ($ver_major == 14 && $ver_minor -le 2) ]]
+    case $(gcc -dumpfullversion 2>/dev/null) in
+        ""|?.*) false;; # too old
+        10.*|11.*|12.*|13.*) true;;
+        14.[012].*) true;;
+        *) false;; # too recent
+    esac
 }
