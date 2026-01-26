@@ -1,5 +1,6 @@
 Bugfix
-   * Fix instruction reordering issue in GCM tables generation found with GCC
-     compilers with version between 10.0 and 14.2 (both included) at
-     optimization level "-O3".
+   * Fix a bug that caused GCM tag calculations to fail, so that data was
+     correctly encrypted but could not be authenticated. The bug was only
+     observed with GCC 10.0 to 14.2 inclusive, when compiling with -O3, and
+     running without AESNI or AESCE.
      Fixes #665.
