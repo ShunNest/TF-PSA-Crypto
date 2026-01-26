@@ -589,7 +589,7 @@ exit:
 /* BEGIN_CASE */
 void pk_psa_utils(int key_is_rsa)
 {
-    mbedtls_pk_context pk, pk2;
+    mbedtls_pk_context pk;
     mbedtls_svc_key_id_t key = MBEDTLS_SVC_KEY_ID_INIT;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
 
@@ -599,7 +599,6 @@ void pk_psa_utils(int key_is_rsa)
     unsigned char b1[1], b2[1];
 
     mbedtls_pk_init(&pk);
-    mbedtls_pk_init(&pk2);
     PSA_INIT();
 
     TEST_ASSERT(mbedtls_pk_wrap_psa(&pk, MBEDTLS_SVC_KEY_ID_INIT) ==
@@ -647,15 +646,6 @@ void pk_psa_utils(int key_is_rsa)
                     == MBEDTLS_ERR_PK_TYPE_MISMATCH);
     }
 
-    /* unsupported functions: check_pair, debug */
-    if (key_is_rsa) {
-        TEST_ASSERT(mbedtls_pk_setup(&pk2,
-                                     mbedtls_pk_info_from_type(MBEDTLS_PK_RSA)) == 0);
-    } else {
-        TEST_ASSERT(mbedtls_pk_setup(&pk2,
-                                     mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY)) == 0);
-    }
-
     /* test that freeing the context does not destroy the key */
     mbedtls_pk_free(&pk);
     TEST_ASSERT(PSA_SUCCESS == psa_get_key_attributes(key, &attributes));
@@ -669,7 +659,6 @@ exit:
     psa_reset_key_attributes(&attributes);
 
     mbedtls_pk_free(&pk);   /* redundant except upon error */
-    mbedtls_pk_free(&pk2);
     PSA_DONE();
 }
 /* END_CASE */
