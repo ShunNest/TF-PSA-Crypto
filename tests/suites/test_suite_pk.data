@@ -536,7 +536,7 @@ Check pair #8 256 pub vs 521 prv bit ec keys
 depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_521:PSA_WANT_ECC_SECP_R1_256:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/ec_256_pub.pem":"../framework/data_files/ec_521_prv.pem":MBEDTLS_ERR_PK_TYPE_MISMATCH
 
-Check pair #9 256 ec keys prime vs brainpool
+Check pair #9 256 ec keys NIST vs brainpool
 depends_on:PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY:PSA_WANT_ECC_SECP_R1_521:PSA_WANT_ECC_SECP_R1_256:PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY:MBEDTLS_PEM_PARSE_C
 mbedtls_pk_check_pair:"../framework/data_files/ec_256_pub.pem":"../framework/data_files/ec_bp256_prv.pem":MBEDTLS_ERR_PK_TYPE_MISMATCH
 
