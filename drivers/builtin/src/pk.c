@@ -1356,8 +1356,7 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
     }
 
     /* Check types */
-    if (((prv->pk_info->type != MBEDTLS_PK_OPAQUE) && (pub->pk_info != prv->pk_info)) ||
-        !PSA_KEY_TYPE_IS_KEY_PAIR(prv->psa_type) ||
+    if (!PSA_KEY_TYPE_IS_KEY_PAIR(prv->psa_type) ||
         pub->psa_type != PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(prv->psa_type)) {
         return MBEDTLS_ERR_PK_TYPE_MISMATCH;
     }
