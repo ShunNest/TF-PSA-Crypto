@@ -1039,7 +1039,6 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int expected_ret)
     mbedtls_pk_context pub, prv, empty_ctx;
     mbedtls_svc_key_id_t wrapped_key_id = MBEDTLS_SVC_KEY_ID_INIT;
     psa_key_attributes_t wrapped_key_attr = PSA_KEY_ATTRIBUTES_INIT;
-    int ret;
 
     mbedtls_pk_init(&pub);
     mbedtls_pk_init(&prv);
@@ -1050,11 +1049,7 @@ void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int expected_ret)
     TEST_ASSERT(mbedtls_pk_parse_keyfile(&prv, prv_file, NULL)
                 == 0);
 
-    ret = mbedtls_pk_check_pair(&pub, &prv);
-    if (ret != 0) {
-        TEST_ASSERT(expected_ret == ret);
-        goto exit;
-    }
+    TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), expected_ret);
 
     /* Turn the prv PK context into an wrapped one.*/
     TEST_EQUAL(mbedtls_pk_get_psa_attributes(&prv, PSA_KEY_USAGE_SIGN_HASH,
