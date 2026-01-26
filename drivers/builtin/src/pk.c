@@ -1348,16 +1348,16 @@ int mbedtls_pk_check_pair(const mbedtls_pk_context *pub,
         return PSA_ERROR_INVALID_ARGUMENT;
     }
 
+    /* Check types */
+    if (!PSA_KEY_TYPE_IS_KEY_PAIR(prv->psa_type) ||
+        pub->psa_type != PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(prv->psa_type)) {
+        return MBEDTLS_ERR_PK_TYPE_MISMATCH;
+    }
+
     /* Check input data */
     if ((mbedtls_pk_get_bitlen(pub) != mbedtls_pk_get_bitlen(prv)) ||
         prv->pub_raw_len != pub->pub_raw_len ||
         memcmp(prv->pub_raw, pub->pub_raw, prv->pub_raw_len) != 0) {
-        return MBEDTLS_ERR_PK_TYPE_MISMATCH;
-    }
-
-    /* Check types */
-    if (!PSA_KEY_TYPE_IS_KEY_PAIR(prv->psa_type) ||
-        pub->psa_type != PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(prv->psa_type)) {
         return MBEDTLS_ERR_PK_TYPE_MISMATCH;
     }
 
