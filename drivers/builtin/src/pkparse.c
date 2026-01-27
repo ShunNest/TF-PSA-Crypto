@@ -961,7 +961,8 @@ int mbedtls_pk_parse_key(mbedtls_pk_context *pk,
     if (ret == 0) {
         pk_info = mbedtls_pk_info_from_type(MBEDTLS_PK_RSA);
         if ((ret = mbedtls_pk_setup(pk, pk_info)) != 0 ||
-            (ret = mbedtls_pk_rsa_set_key(pk, pem.buf, pem.buflen)) != 0) {
+            (ret = mbedtls_pk_rsa_set_key(pk, pem.buf, pem.buflen)) != 0 ||
+            (ret = mbedtls_pk_set_pubkey_from_prv(pk)) != 0) {
             mbedtls_pk_free(pk);
         }
 

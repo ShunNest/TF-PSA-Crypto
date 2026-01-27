@@ -589,7 +589,7 @@ exit:
 /* BEGIN_CASE */
 void pk_psa_utils(int key_is_rsa)
 {
-    mbedtls_pk_context pk, pk2;
+    mbedtls_pk_context pk;
     mbedtls_svc_key_id_t key = MBEDTLS_SVC_KEY_ID_INIT;
     psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
 
@@ -599,7 +599,6 @@ void pk_psa_utils(int key_is_rsa)
     unsigned char b1[1], b2[1];
 
     mbedtls_pk_init(&pk);
-    mbedtls_pk_init(&pk2);
     PSA_INIT();
 
     TEST_ASSERT(mbedtls_pk_wrap_psa(&pk, MBEDTLS_SVC_KEY_ID_INIT) ==
@@ -647,17 +646,6 @@ void pk_psa_utils(int key_is_rsa)
                     == MBEDTLS_ERR_PK_TYPE_MISMATCH);
     }
 
-    /* unsupported functions: check_pair, debug */
-    if (key_is_rsa) {
-        TEST_ASSERT(mbedtls_pk_setup(&pk2,
-                                     mbedtls_pk_info_from_type(MBEDTLS_PK_RSA)) == 0);
-    } else {
-        TEST_ASSERT(mbedtls_pk_setup(&pk2,
-                                     mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY)) == 0);
-    }
-    TEST_ASSERT(mbedtls_pk_check_pair(&pk, &pk2)
-                == MBEDTLS_ERR_PK_TYPE_MISMATCH);
-
     /* test that freeing the context does not destroy the key */
     mbedtls_pk_free(&pk);
     TEST_ASSERT(PSA_SUCCESS == psa_get_key_attributes(key, &attributes));
@@ -671,7 +659,6 @@ exit:
     psa_reset_key_attributes(&attributes);
 
     mbedtls_pk_free(&pk);   /* redundant except upon error */
-    mbedtls_pk_free(&pk2);
     PSA_DONE();
 }
 /* END_CASE */
@@ -1036,45 +1023,46 @@ exit:
 /* END_CASE */
 
 /* BEGIN_CASE depends_on:MBEDTLS_PK_PARSE_C:MBEDTLS_FS_IO */
-void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int ret)
+void mbedtls_pk_check_pair(char *pub_file, char *prv_file, int expected_ret)
 {
-    mbedtls_pk_context pub, prv, alt;
-    mbedtls_svc_key_id_t opaque_key_id = MBEDTLS_SVC_KEY_ID_INIT;
-    psa_key_attributes_t opaque_key_attr = PSA_KEY_ATTRIBUTES_INIT;
-    int is_ec_key = 0;
+    mbedtls_pk_context pub, prv, empty_ctx;
+    mbedtls_svc_key_id_t wrapped_key_id = MBEDTLS_SVC_KEY_ID_INIT;
+    psa_key_attributes_t wrapped_key_attr = PSA_KEY_ATTRIBUTES_INIT;
 
     mbedtls_pk_init(&pub);
     mbedtls_pk_init(&prv);
-    mbedtls_pk_init(&alt);
+    mbedtls_pk_init(&empty_ctx);
     PSA_INIT();
 
     TEST_ASSERT(mbedtls_pk_parse_public_keyfile(&pub, pub_file) == 0);
     TEST_ASSERT(mbedtls_pk_parse_keyfile(&prv, prv_file, NULL)
                 == 0);
 
-    TEST_ASSERT(mbedtls_pk_check_pair(&pub, &prv) == ret);
+    TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), expected_ret);
 
-    is_ec_key = (mbedtls_pk_get_type(&prv) == MBEDTLS_PK_ECKEY);
-    /* Turn the prv PK context into an opaque one.*/
+    /* Turn the prv PK context into an wrapped one.*/
     TEST_EQUAL(mbedtls_pk_get_psa_attributes(&prv, PSA_KEY_USAGE_SIGN_HASH,
-                                             &opaque_key_attr), 0);
-    TEST_EQUAL(mbedtls_pk_import_into_psa(&prv, &opaque_key_attr, &opaque_key_id), 0);
+                                             &wrapped_key_attr), 0);
+    TEST_EQUAL(mbedtls_pk_import_into_psa(&prv, &wrapped_key_attr, &wrapped_key_id), 0);
     mbedtls_pk_free(&prv);
     mbedtls_pk_init(&prv);
-    TEST_EQUAL(mbedtls_pk_wrap_psa(&prv, opaque_key_id), 0);
-    /* Test check_pair() between the opaque key we just created and the public PK counterpart.
-     * Note: opaque EC keys support check_pair(), whereas RSA ones do not. */
-    if (is_ec_key) {
-        TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), ret);
-    } else {
-        TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE);
-    }
+    TEST_EQUAL(mbedtls_pk_wrap_psa(&prv, wrapped_key_id), 0);
+    TEST_EQUAL(mbedtls_pk_check_pair(&pub, &prv), expected_ret);
+
+    /* Empty context checks */
+    TEST_EQUAL(mbedtls_pk_check_pair(&pub, &empty_ctx), PSA_ERROR_INVALID_ARGUMENT);
+    TEST_EQUAL(mbedtls_pk_check_pair(&empty_ctx, &prv), PSA_ERROR_INVALID_ARGUMENT);
+
+    /* Incorrect context provided */
+    TEST_EQUAL(mbedtls_pk_check_pair(&pub, &pub), MBEDTLS_ERR_PK_TYPE_MISMATCH);
+    TEST_EQUAL(mbedtls_pk_check_pair(&prv, &prv), MBEDTLS_ERR_PK_TYPE_MISMATCH);
+    TEST_EQUAL(mbedtls_pk_check_pair(&prv, &pub), MBEDTLS_ERR_PK_TYPE_MISMATCH);
 
 exit:
-    psa_destroy_key(opaque_key_id);
+    psa_destroy_key(wrapped_key_id);
     mbedtls_pk_free(&pub);
     mbedtls_pk_free(&prv);
-    mbedtls_pk_free(&alt);
+    mbedtls_pk_free(&empty_ctx);
     PSA_DONE();
 }
 /* END_CASE */
@@ -2083,6 +2071,8 @@ void pk_copy_from_psa_success(data_t *priv_key_data, int key_type_arg,
 
     /* Check that generated private/public PK contexts form a valid private/public key pair. */
     TEST_EQUAL(mbedtls_pk_check_pair(&pk_pub, &pk_priv), 0);
+    TEST_EQUAL(mbedtls_pk_check_pair(&pk_priv_copy_public, &pk_priv), 0);
+    TEST_EQUAL(mbedtls_pk_check_pair(&pk_pub_copy_public, &pk_priv), 0);
 
     /* Check consistency between copied PSA keys and generated PK contexts. */
     TEST_EQUAL(mbedtls_test_key_consistency_psa_pk(priv_key_id, &pk_priv), 1);

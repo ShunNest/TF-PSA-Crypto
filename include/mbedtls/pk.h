@@ -247,8 +247,7 @@ void mbedtls_pk_restart_free(mbedtls_pk_restart_ctx *ctx);
  * The resulting context can only perform operations that are allowed by the
  * key's policy. Additionally, it currently has the following limitations:
  * - restartable operations can't be used;
- * - for RSA keys, signature verification is not supported, and neither is use
- *   of \c mbedtls_pk_check_pair().
+ * - for RSA keys, signature verification is not supported.
  *
  * \warning The PSA wrapped key must remain valid as long as the wrapping PK
  *          context is in use, that is at least between the point this function
@@ -712,15 +711,10 @@ int mbedtls_pk_sign_ext(mbedtls_pk_sigalg_t sig_type,
 /**
  * \brief           Check if a public-private pair of keys matches.
  *
- * \note            This function currently does not work on keys created with
- *                  \c mbedtls_pk_wrap_psa().
- *
  * \param pub       Context holding a public key.
  * \param prv       Context holding a private (and public) key.
  *
  * \return          \c 0 on success (keys were checked and match each other).
- * \return          #MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE if the keys could not
- *                  be checked - in that case they may or may not match.
  * \return          #PSA_ERROR_INVALID_ARGUMENT if a context is invalid.
  * \return          Another non-zero value if the keys do not match.
  */
