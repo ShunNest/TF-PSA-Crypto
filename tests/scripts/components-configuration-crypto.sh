@@ -34,7 +34,7 @@ component_test_accel_ecc_all () {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-ecc.h" ..
-    make
+    cmake --build .
 
     # Make sure built-in EC alg objects are empty.
     not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
@@ -75,7 +75,7 @@ component_test_accel_ecc_all_but_ecp_light() {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-ecc.h" ..
-    make
+    cmake --build .
 
     # Make sure built-in EC alg objects are empty but ECP one.
     not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
@@ -167,7 +167,7 @@ common_test_accel_ecc_ffdh_no_bignum () {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="${user_config_accel_file_path}" ..
-    make
+    cmake --build .
 
     # Make sure any built-in EC alg was not re-enabled
     not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.o
@@ -218,7 +218,7 @@ component_test_accel_ecc_some_key_types () {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecc-some-key-types.h" ..
-    make
+    cmake --build .
 
     # ECP should be enabled but not the others
     not grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.c.o
@@ -287,7 +287,7 @@ common_test_accel_ecc_some_curves () {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecc-some-curves.h" ..
-    make
+    cmake --build .
 
     # We expect ECDH to be re-enabled for the missing curves
     grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.c.o
@@ -348,7 +348,7 @@ component_test_accel_ecdh() {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecdh.h" ..
-    make
+    cmake --build .
 
     # Make sure built-in ECDH is empty.
     not grep mbedtls_psa_key_agreement_ecdh ${CMAKE_BUILTIN_BUILD_DIR}/psa_crypto_ecp.c.o
@@ -388,7 +388,7 @@ component_test_accel_ecdsa() {
 
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecdsa.h" ..
-    make
+    cmake --build .
 
     # Make sure built-in ECDSA is empty.
     not grep mbedtls_ecdsa_ ${CMAKE_BUILTIN_BUILD_DIR}/ecdsa.c.o
@@ -422,7 +422,7 @@ component_test_accel_ecjpake() {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="user-config-accel-ecjpake.h" ..
-    make
+    cmake --build .
 
     # Make sure built-in EC-JPAKE is empty.
     not grep mbedtls_ecjpake_init ${CMAKE_BUILTIN_BUILD_DIR}/ecjpake.c.o
@@ -443,7 +443,7 @@ component_test_accel_hash () {
     cd $OUT_OF_SOURCE_DIR
     cmake -DTF_PSA_CRYPTO_TEST_DRIVER=On \
           -DTF_PSA_CRYPTO_USER_CONFIG_FILE="../tests/configs/user-config-accel-hash.h" ..
-    make
+    cmake --build .
 
     # Make sure built-in hash objects are empty.
     not grep mbedtls_md5 ${CMAKE_BUILTIN_BUILD_DIR}/md5.c.o
