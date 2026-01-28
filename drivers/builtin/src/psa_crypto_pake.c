@@ -112,6 +112,8 @@ static psa_status_t mbedtls_ecjpake_to_psa_error(int ret)
     switch (ret) {
         case MBEDTLS_ERR_ECP_INVALID_KEY:
             return PSA_ERROR_DATA_INVALID;
+        case MBEDTLS_ERR_MD_FEATURE_UNAVAILABLE:
+            return PSA_ERROR_NOT_SUPPORTED;
         default:
             return PSA_ERROR_GENERIC_ERROR;
     }
