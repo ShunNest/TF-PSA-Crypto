@@ -11,6 +11,10 @@
 #ifndef TF_PSA_CRYPTO_TF_PSA_CRYPTO_COMMON_H
 #define TF_PSA_CRYPTO_TF_PSA_CRYPTO_COMMON_H
 
+/* Before including any system header, declare some macros to tell system
+ * headers what we expect of them. */
+#include "tf_psa_crypto_platform_requirements.h"
+
 #include "tf-psa-crypto/build_info.h"
 #include "alignment.h"
 
