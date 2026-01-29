@@ -19,13 +19,6 @@
 #include "mbedtls/platform_util.h"
 #include "mbedtls/private/error_common.h"
 
-#if defined(PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY)
-#include "mbedtls/private/ecp.h"
-#endif
-#if defined(MBEDTLS_ECDSA_C)
-#include "mbedtls/private/ecdsa.h"
-#endif
-
 #include "psa_util_internal.h"
 #include "mbedtls/psa_util.h"
 

@@ -21,14 +21,6 @@
 
 #include <string.h>
 
-#if defined(MBEDTLS_ECP_C)
-#include "mbedtls/private/bignum.h"
-#include "mbedtls/private/ecp.h"
-#include "mbedtls/platform_util.h"
-#endif
-#if defined(PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY)
-#include "pk_internal.h"
-#endif
 #include "pkwrite.h"
 #if defined(MBEDTLS_PEM_WRITE_C)
 #include "mbedtls/pem.h"
