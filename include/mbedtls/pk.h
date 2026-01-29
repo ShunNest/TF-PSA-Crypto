@@ -73,17 +73,10 @@ typedef enum {
 #define MBEDTLS_PK_SIGNATURE_MAX_SIZE (PSA_VENDOR_ECDSA_SIGNATURE_MAX_SIZE + 11)
 #endif
 
-/* Keep this symbol for backward compatibility. There is code in the framework
- * which depends on this. Once 3.6 LTS branch will reach end-of-life framework's
- * code can be adjusted and this define removed. */
+/* These macros are no longer used in the library, but still used by some test
+ * code in the framework. Once 3.6 LTS branch will reach end-of-life framework's
+ * code can be adjusted and these defines removed. */
 #define MBEDTLS_PK_USE_PSA_EC_DATA
-
-/* This is identical to MBEDTLS_PK_USE_PSA_EC_DATA above, but for RSA keys.
- * The main reason for having it is that framework code is shared between
- * the develoment branch and the 3.6 LTS one and we need a way to tell from which
- * of the two we're building.
- * This symbol is not used in builtin driver and tests and it can be removed
- * at the same time as MBEDTLS_PK_USE_PSA_EC_DATA. */
 #define MBEDTLS_PK_USE_PSA_RSA_DATA
 
 /* Opaque internal type */
