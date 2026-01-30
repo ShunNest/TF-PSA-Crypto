@@ -6,20 +6,6 @@
  *  SPDX-License-Identifier: Apache-2.0 OR GPL-2.0-or-later
  */
 
-/*
- * Ensure gmtime_r is available even with -std=c99; must be defined before
- * mbedtls_config.h, which pulls in glibc's features.h. Harmless on other platforms
- * except OpenBSD, where it stops us accessing explicit_bzero.
- */
-#if !defined(_POSIX_C_SOURCE) && !defined(__OpenBSD__)
-#define _POSIX_C_SOURCE 200112L
-#endif
-
-#if !defined(_GNU_SOURCE)
-/* Clang requires this to get support for explicit_bzero */
-#define _GNU_SOURCE
-#endif
-
 #include "tf_psa_crypto_common.h"
 
 #include "mbedtls/platform_util.h"
@@ -28,10 +14,6 @@
 #include "mbedtls/private/error_common.h"
 
 #include <stddef.h>
-
-#ifndef __STDC_WANT_LIB_EXT1__
-#define __STDC_WANT_LIB_EXT1__ 1 /* Ask for the C11 gmtime_s() and memset_s() if available */
-#endif
 #include <string.h>
 
 #if defined(_WIN32)
