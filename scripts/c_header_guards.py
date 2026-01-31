@@ -47,6 +47,7 @@ FOLDERS_TO_CHECK = {
     'include/psa/': 'include/',
     'include/tf-psa-crypto/': 'include/',
     'core/': 'core/',
+    'extras/': 'extras/',
 }
 
 def generate_guard_name(file_path: str, trim_path: str) -> str:

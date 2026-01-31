@@ -731,7 +731,7 @@
  *
  * Enable the LMS stateful-hash asymmetric signature algorithm.
  *
- * Module:  drivers/builtin/src/lms.c
+ * Module:  extras/lms.c
  * Caller:
  *
  * Requires: MBEDTLS_PSA_CRYPTO_C
@@ -758,16 +758,16 @@
  * Enable the generic layer for message digest (hashing).
  *
  * Requires: MBEDTLS_PSA_CRYPTO_C with at least one hash.
- * Module:  drivers/builtin/src/md.c
+ * Module:  extras/md.c
  * Caller:  drivers/builtin/src/constant_time.c
  *          drivers/builtin/src/ecdsa.c
  *          drivers/builtin/src/ecjpake.c
  *          drivers/builtin/src/hmac_drbg.c
- *          drivers/builtin/src/pk.c
  *          drivers/builtin/src/pkcs5.c
  *          drivers/builtin/src/psa_crypto_ecp.c
  *          drivers/builtin/src/psa_crypto_rsa.c
  *          drivers/builtin/src/rsa.c
+ *          extras/pk.c
  *
  * Uncomment to enable generic message digest wrappers.
  */
@@ -780,7 +780,7 @@
  * KW (also known as RFC 3394) and KWP (RFC 5649).
  * Currently these modes are only supported with AES.
  *
- * Module:  drivers/builtin/src/nist_kw.c
+ * Module:  extras/nist_kw.c
  *
  * Auto enables: PSA_WANT_ALG_ECB_NO_PADDING
  */
@@ -791,7 +791,7 @@
  *
  * Enable the generic public (asymmetric) key layer.
  *
- * Module:  drivers/builtin/src/pk.c
+ * Module:  extras/pk.c
  * Caller:  drivers/builtin/src/psa_crypto_rsa.c
  *
  * Requires: #MBEDTLS_PSA_CRYPTO_CLIENT and at least one between
@@ -820,7 +820,7 @@
  *
  * Enable the generic public (asymmetric) key parser.
  *
- * Module:  drivers/builtin/src/pkparse.c
+ * Module:  extras/pkparse.c
  *
  * Requires: MBEDTLS_ASN1_PARSE_C, MBEDTLS_PK_C
  *
@@ -856,7 +856,7 @@
  *
  * Enable the generic public (asymmetric) key writer.
  *
- * Module:  drivers/builtin/src/pkwrite.c
+ * Module:  extras/pkwrite.c
  *
  * Requires: MBEDTLS_ASN1_WRITE_C, MBEDTLS_PK_C
  *
@@ -880,7 +880,7 @@
  *
  * Module:  drivers/builtin/src/asn1.c
  * Caller:  drivers/builtin/src/pkcs5.c
- *          drivers/builtin/src/pkparse.c
+ *          extras/pkparse.c
  */
 #define MBEDTLS_ASN1_PARSE_C
 
@@ -891,7 +891,7 @@
  *
  * Module:  drivers/builtin/src/asn1write.c
  * Caller:  drivers/builtin/src/ecdsa.c
- *          drivers/builtin/src/pkwrite.c
+ *          extras/pkwrite.c
  */
 #define MBEDTLS_ASN1_WRITE_C
 
@@ -913,7 +913,7 @@
  * Enable PEM decoding / parsing.
  *
  * Module:  drivers/builtin/src/pem.c
- * Caller:  drivers/builtin/src/pkparse.c
+ * Caller:  extras/pkparse.c
  *
  * Requires: MBEDTLS_BASE64_C
  *           optionally PSA_WANT_ALG_MD5
@@ -928,7 +928,7 @@
  * Enable PEM encoding / writing.
  *
  * Module:  drivers/builtin/src/pem.c
- * Caller:  drivers/builtin/src/pkwrite.c
+ * Caller:  extras/pkwrite.c
  *
  * Requires: MBEDTLS_BASE64_C
  *

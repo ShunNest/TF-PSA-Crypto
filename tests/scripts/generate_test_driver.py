@@ -24,13 +24,8 @@ EXCLUDE_FILES = {
     "asn1*",
     "base64*",
     "crypto_builtin_key_derivation.h",
-    "lmots*",
-    "lms.c",
-    "md.c",
     "memory_buffer_alloc.c",
-    "nist_kw.c",
     "pem.c",
-    "pk*",
     "platform*",
     "threading*",
 }
