@@ -2,6 +2,7 @@ set(drivers
     builtin
     everest
     p256-m
+    pqcp
 )
 
 # Drivers currently depend on each other through the indirect inclusion of
@@ -12,6 +13,7 @@ set(TF_PSA_CRYPTO_DRIVERS_INCLUDE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}/builtin/include
         ${CMAKE_CURRENT_SOURCE_DIR}/everest/include
         ${CMAKE_CURRENT_SOURCE_DIR}/p256-m
+        ${CMAKE_CURRENT_SOURCE_DIR}/pqcp/include
 )
 
 if(CMAKE_COMPILER_IS_MSVC)
@@ -98,3 +100,4 @@ set(TF_PSA_CRYPTO_DRIVER_TARGETS "${driver_targets}" PARENT_SCOPE)
 add_subdirectory(everest)
 add_subdirectory(p256-m)
 add_subdirectory(builtin)
+add_subdirectory(pqcp)

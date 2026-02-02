@@ -1,5 +1,12 @@
 #line 2 "suites/host_test.function"
 
+/* Buffer size used to read one line from a .datax file. */
+#if defined(TF_PSA_CRYPTO_PQCP_MLDSA_ENABLED)
+#define MBEDTLS_TEST_DATAX_MAX_LINE_LENGTH 22000
+#else
+#define MBEDTLS_TEST_DATAX_MAX_LINE_LENGTH 5000
+#endif
+
 /**
  * \brief       Verifies that string is in string parameter format i.e. "<str>"
  *              It also strips enclosing '"' from the input string.
@@ -502,7 +509,7 @@ static int execute_tests(int argc, const char **argv)
     int ret;
     unsigned total_errors = 0, total_tests = 0, total_skipped = 0;
     FILE *file;
-    char buf[5000];
+    char buf[MBEDTLS_TEST_DATAX_MAX_LINE_LENGTH];
     char *params[50];
     /* Store for processed integer params. */
     mbedtls_test_argument_t int_params[50];
