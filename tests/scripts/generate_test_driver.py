@@ -21,10 +21,7 @@ from mbedtls_framework import test_driver
 from config import TFPSACryptoConfig
 
 EXCLUDE_FILES = {
-    "asn1*",
-    "base64*",
     "crypto_builtin_key_derivation.h",
-    "pem.c",
 }
 
 IDENTIFIER_PREFIXES = {

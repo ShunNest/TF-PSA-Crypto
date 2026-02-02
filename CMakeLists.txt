@@ -411,6 +411,7 @@ set(TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}/core
         ${CMAKE_CURRENT_SOURCE_DIR}/extras
         ${CMAKE_CURRENT_SOURCE_DIR}/platform
+        ${CMAKE_CURRENT_SOURCE_DIR}/utilities
 )
 
 #
@@ -424,6 +425,7 @@ add_subdirectory(include)
 add_subdirectory(drivers)   # must precede core
 add_subdirectory(extras)
 add_subdirectory(platform)
+add_subdirectory(utilities)
 add_subdirectory(core)
 add_subdirectory(pkgconfig)
 

@@ -759,15 +759,15 @@
  *
  * Requires: MBEDTLS_PSA_CRYPTO_C with at least one hash.
  * Module:  extras/md.c
- * Caller:  drivers/builtin/src/constant_time.c
- *          drivers/builtin/src/ecdsa.c
+ * Caller:  drivers/builtin/src/ecdsa.c
  *          drivers/builtin/src/ecjpake.c
  *          drivers/builtin/src/hmac_drbg.c
- *          drivers/builtin/src/pkcs5.c
  *          drivers/builtin/src/psa_crypto_ecp.c
  *          drivers/builtin/src/psa_crypto_rsa.c
  *          drivers/builtin/src/rsa.c
  *          extras/pk.c
+ *          utilities/constant_time.c
+ *          utilities/pkcs5.c
  *
  * Uncomment to enable generic message digest wrappers.
  */
@@ -807,7 +807,7 @@
  *
  * Enable PKCS#5 functions.
  *
- * Module:  drivers/builtin/src/pkcs5.c
+ * Module:  utilities/pkcs5.c
  *
  * Auto-enables: MBEDTLS_MD_C
  *
@@ -878,9 +878,9 @@
  *
  * Enable the generic ASN1 parser.
  *
- * Module:  drivers/builtin/src/asn1.c
- * Caller:  drivers/builtin/src/pkcs5.c
- *          extras/pkparse.c
+ * Module:  utilities/asn1parse.c
+ * Caller:  extras/pkparse.c
+ *          utilities/pkcs5.c
  */
 #define MBEDTLS_ASN1_PARSE_C
 
@@ -889,7 +889,7 @@
  *
  * Enable the generic ASN1 writer.
  *
- * Module:  drivers/builtin/src/asn1write.c
+ * Module:  utilities/asn1write.c
  * Caller:  drivers/builtin/src/ecdsa.c
  *          extras/pkwrite.c
  */
@@ -900,8 +900,8 @@
  *
  * Enable the Base64 module.
  *
- * Module:  drivers/builtin/src/base64.c
- * Caller:  drivers/builtin/src/pem.c
+ * Module:  utilities/base64.c
+ * Caller:  utilities/pem.c
  *
  * This module is required for PEM support (required by X.509).
  */
@@ -912,7 +912,7 @@
  *
  * Enable PEM decoding / parsing.
  *
- * Module:  drivers/builtin/src/pem.c
+ * Module:  utilities/pem.c
  * Caller:  extras/pkparse.c
  *
  * Requires: MBEDTLS_BASE64_C
@@ -927,7 +927,7 @@
  *
  * Enable PEM encoding / writing.
  *
- * Module:  drivers/builtin/src/pem.c
+ * Module:  utilities/pem.c
  * Caller:  extras/pkwrite.c
  *
  * Requires: MBEDTLS_BASE64_C
@@ -1684,7 +1684,7 @@
  *      drivers/builtin/src/aesni.h
  *      drivers/builtin/src/aria.c
  *      drivers/builtin/src/bn_mul.h
- *      drivers/builtin/src/constant_time.c
+ *      utilities/constant_time.c
  *
  * Required by:
  *      MBEDTLS_AESCE_C

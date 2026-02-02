@@ -68,6 +68,7 @@ TF_PSA_CRYPTO_LIBRARY_PRIVATE_INCLUDE = \
 	-I$(TF_PSA_CRYPTO_DRIVERS_BUILTIN_SRC_PATH) \
 	-I$(TF_PSA_CRYPTO_PATH)/extras \
 	-I$(TF_PSA_CRYPTO_PATH)/platform \
+	-I$(TF_PSA_CRYPTO_PATH)/utilities \
 	$(THIRDPARTY_PRIVATE_INCLUDES)
 
 # Extra linker flags required by the crypto library or the platform

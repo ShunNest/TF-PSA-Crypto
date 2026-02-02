@@ -496,7 +496,7 @@
  *      drivers/builtin/src/aesni.h
  *      drivers/builtin/src/aria.c
  *      drivers/builtin/src/bn_mul.h
- *      drivers/builtin/src/constant_time.c
+ *      utilities/constant_time.c
  *
  * Required by:
  *      MBEDTLS_AESCE_C

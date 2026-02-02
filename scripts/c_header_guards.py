@@ -49,6 +49,7 @@ FOLDERS_TO_CHECK = {
     'core/': 'core/',
     'extras/': 'extras/',
     'platform/': 'platform/',
+    'utilities/': 'utilities/',
 }
 
 def generate_guard_name(file_path: str, trim_path: str) -> str:
