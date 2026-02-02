@@ -136,7 +136,7 @@
  * based buffer to 'allocate' dynamic memory. (replaces calloc() and free()
  * calls)
  *
- * Module:  drivers/builtin/src/memory_buffer_alloc.c
+ * Module:  platform/memory_buffer_alloc.c
  *
  * Requires: MBEDTLS_PLATFORM_C
  *           MBEDTLS_PLATFORM_MEMORY (to use it within Mbed TLS)
@@ -158,7 +158,7 @@
  * \note This abstraction layer must be enabled on Windows (including MSYS2)
  * as other modules rely on it for a fixed snprintf implementation.
  *
- * Module:  drivers/builtin/src/platform.c
+ * Module:  platform/platform.c
  * Caller:  Most other .c files
  *
  * This module enables abstraction of common (libc) functions.

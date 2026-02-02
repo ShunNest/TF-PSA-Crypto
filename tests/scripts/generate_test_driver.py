@@ -24,10 +24,7 @@ EXCLUDE_FILES = {
     "asn1*",
     "base64*",
     "crypto_builtin_key_derivation.h",
-    "memory_buffer_alloc.c",
     "pem.c",
-    "platform*",
-    "threading*",
 }
 
 IDENTIFIER_PREFIXES = {
