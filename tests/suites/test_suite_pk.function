@@ -2392,3 +2392,10 @@ exit:
     PSA_DONE();
 }
 /* END_CASE */
+
+/* BEGIN_CASE */
+void pk_size_macro(int actual, int expected)
+{
+    TEST_EQUAL(actual, expected);
+}
+/* END_CASE */
