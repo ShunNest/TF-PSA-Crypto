@@ -3,3 +3,29 @@ xof_setup_fail:0:PSA_ERROR_INVALID_ARGUMENT
 
 XOF setup: alg=category (invalid)
 xof_setup_fail:PSA_ALG_CATEGORY_XOF:PSA_ERROR_NOT_SUPPORTED
+
+XOF setup: alg=SHA3-256 (invalid)
+xof_setup_fail:PSA_ALG_SHA3_256:PSA_ERROR_INVALID_ARGUMENT
+
+XOF setup: alg=SHAKE128 not supported
+depends_on:!PSA_WANT_ALG_SHAKE128
+xof_setup_fail:PSA_ALG_SHAKE128:PSA_ERROR_NOT_SUPPORTED
+
+XOF states: inactive
+xof_state_inactive:
+
+XOF set_context: SHAKE128 (bad)
+depends_on:PSA_WANT_ALG_SHAKE128
+xof_state_set_context:PSA_ALG_SHAKE128:PSA_ERROR_BAD_STATE
+
+XOF state: SHAKE128 without set_context (good)
+depends_on:PSA_WANT_ALG_SHAKE128
+xof_state_good_context:PSA_ALG_SHAKE128:0
+
+XOF state: SHAKE128 late set_context (bad)
+depends_on:PSA_WANT_ALG_SHAKE128
+xof_state_late_context:PSA_ALG_SHAKE128:0
+
+XOF skip update = update(0): SHAKE128
+depends_on:PSA_WANT_ALG_SHAKE128
+xof_state_skip_update:PSA_ALG_SHAKE128:0
