@@ -17,6 +17,8 @@
 
 #include <string.h>
 
+#include "mbedtls/private/sha3.h"
+
 psa_status_t mbedtls_psa_xof_abort(
     mbedtls_psa_xof_operation_t *operation)
 {
@@ -26,6 +28,18 @@ psa_status_t mbedtls_psa_xof_abort(
              * in use. It's ok to call abort on such an object, and there's
              * nothing to do. */
             break;
+
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128)
+        case PSA_ALG_SHAKE128:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256)
+        case PSA_ALG_SHAKE256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SOME_SHAKE)
+            mbedtls_sha3_free(&operation->ctx.shake);
+            break;
+#endif
+
         default:
             return PSA_ERROR_BAD_STATE;
     }
@@ -43,6 +57,17 @@ psa_status_t mbedtls_psa_xof_setup(
     }
 
     switch (alg) {
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128)
+        case PSA_ALG_SHAKE128:
+            mbedtls_sha3_starts(&operation->ctx.shake, MBEDTLS_SHA3_SHAKE128);
+            break;
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256)
+        case PSA_ALG_SHAKE256:
+            mbedtls_sha3_starts(&operation->ctx.shake, MBEDTLS_SHA3_SHAKE256);
+            break;
+#endif
+
         default:
             return PSA_ALG_IS_XOF(alg) ?
                    PSA_ERROR_NOT_SUPPORTED :
@@ -60,6 +85,7 @@ psa_status_t mbedtls_psa_xof_set_context(
     switch (operation->alg) {
         case 0:
             return PSA_ERROR_BAD_STATE;
+
         default:
             (void) context;
             (void) context_length;
@@ -72,6 +98,18 @@ psa_status_t mbedtls_psa_xof_update(
     const uint8_t *input, size_t input_length)
 {
     switch (operation->alg) {
+
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128)
+        case PSA_ALG_SHAKE128:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256)
+        case PSA_ALG_SHAKE256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SOME_SHAKE)
+    mbedtls_sha3_update(&operation->ctx.shake, input, input_length);
+    return PSA_SUCCESS;
+#endif
+
         default:
             (void) input;
             (void) input_length;
@@ -87,6 +125,18 @@ psa_status_t mbedtls_psa_xof_output(
      * What would be safe here? */
 
     switch (operation->alg) {
+
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128)
+        case PSA_ALG_SHAKE128:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256)
+        case PSA_ALG_SHAKE256:
+#endif
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SOME_SHAKE)
+    mbedtls_sha3_finish(&operation->ctx.shake, output, output_size);
+    return PSA_SUCCESS;
+#endif
+
         default:
             (void) output;
             (void) output_size;

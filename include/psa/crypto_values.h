@@ -983,6 +983,20 @@
  */
 #define PSA_ALG_ANY_HASH                        ((psa_algorithm_t) 0x020000ff)
 
+/** The SHAKE128 XOF (extendable-output function) algorithm.
+ *
+ * This is the SHAKE128 extendable-output function defined in FIPS 202,
+ * based on the Keccak sponge construction.
+ */
+#define PSA_ALG_SHAKE128                        ((psa_algorithm_t) 0x0d000100)
+
+/** The SHAKE256 XOF (extendable-output function) algorithm.
+ *
+ * This is the SHAKE256 extendable-output function defined in FIPS 202,
+ * based on the Keccak sponge construction.
+ */
+#define PSA_ALG_SHAKE256                        ((psa_algorithm_t) 0x0d000200)
+
 #define PSA_ALG_XOF_CONTEXT_FLAG                ((psa_algorithm_t) 0x00008000)
 /** Whether the specified XOF algorithm supports a context.
  *

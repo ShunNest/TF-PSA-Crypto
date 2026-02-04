@@ -38,6 +38,12 @@
 #define MBEDTLS_PSA_BUILTIN_ALG_SHA3_SOME_HASH
 #endif
 
+/* Whether any XOF based on sha3 is enabled in psa_crypto_xof.c. */
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256)
+#define MBEDTLS_PSA_BUILTIN_ALG_SOME_SHAKE
+#endif
+
 /* If a SHAKE variant is enabled in psa_crypto_xof.c, tell sha3.c that we
  * want it.
  *
