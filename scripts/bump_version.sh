@@ -40,7 +40,7 @@ do
       echo -e "  --version <version>\tVersion to bump to."
       echo -e "  --so-crypto <version>\tSO version to bump libtfpsacrypto to."
       echo -e "  -v|--verbose\t\tVerbose."
-      exit 1
+      exit 0
       ;;
     *)
       # print error
