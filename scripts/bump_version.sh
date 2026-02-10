@@ -14,7 +14,6 @@
 set -e
 
 VERSION=""
-SOVERSION=""
 
 # Parse arguments
 #
