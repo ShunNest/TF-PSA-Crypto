@@ -32,9 +32,12 @@ component_tf_psa_crypto_check_python_files () {
 }
 
 support_tf_psa_crypto_check_generated_files () {
-    # For generate_mldsa_tests.py, which is run
-    # from check_committed_generated_files.py
-    python3 -c 'import dilithium_py' 2>/dev/null || return 1
+    # check_committed_generated_files.py runs generate_mldsa_tests.py,
+    # which requires dilithium-py, which requires Python >=3.9.
+    # Check the Python version, not the presence of the package,
+    # because the CI runs `all.sh --list-components` outside of the
+    # venv that has our desired packages.
+    python3 -c 'import sys; exit(1 if sys.version_info < (3, 9) else 0)'
 }
 
 component_tf_psa_crypto_check_generated_files () {
