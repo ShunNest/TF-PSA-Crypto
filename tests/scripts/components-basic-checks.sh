@@ -31,6 +31,12 @@ component_tf_psa_crypto_check_python_files () {
     $FRAMEWORK/scripts/check-python-files.sh
 }
 
+support_tf_psa_crypto_check_generated_files () {
+    # For generate_mldsa_tests.py, which is run
+    # from check_committed_generated_files.py
+    python3 -c 'import dilithium_py' 2>/dev/null || return 1
+}
+
 component_tf_psa_crypto_check_generated_files () {
     msg "Check generated files"
     cd $OUT_OF_SOURCE_DIR
