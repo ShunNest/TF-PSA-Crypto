@@ -37,22 +37,22 @@
 static int pk_write_rsa_der(unsigned char **p, unsigned char *buf,
                             const mbedtls_pk_context *pk)
 {
-    uint8_t tmp[PSA_KEY_EXPORT_RSA_KEY_PAIR_MAX_SIZE(PSA_VENDOR_RSA_MAX_KEY_BITS)];
-    size_t tmp_len = 0;
+    psa_status_t status;
+    size_t buf_size = (size_t) (*p - buf);
+    size_t key_len = 0;
 
-    if (psa_export_key(pk->priv_id, tmp, sizeof(tmp), &tmp_len) != PSA_SUCCESS) {
-        return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
+    status = psa_export_key(pk->priv_id, buf, buf_size, &key_len);
+    if (status != PSA_SUCCESS) {
+        return status;
     }
-    /* Ensure there's enough space in the provided buffer before copying data into it. */
-    if (tmp_len > (size_t) (*p - buf)) {
-        mbedtls_platform_zeroize(tmp, sizeof(tmp));
-        return MBEDTLS_ERR_ASN1_BUF_TOO_SMALL;
-    }
-    *p -= tmp_len;
-    memcpy(*p, tmp, tmp_len);
-    mbedtls_platform_zeroize(tmp, sizeof(tmp));
 
-    return (int) tmp_len;
+    /* We wrote to the beginning of the buffer while
+     * we were supposed to write to its end. */
+    *p -= key_len;
+    memmove(*p, buf, key_len);
+    mbedtls_platform_zeroize(buf, *p - buf);
+
+    return (int) key_len;
 }
 
 static int pk_write_rsa_pubkey(unsigned char **p, unsigned char *start,
