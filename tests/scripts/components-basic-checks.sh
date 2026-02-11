@@ -41,7 +41,7 @@ component_tf_psa_crypto_check_generated_files () {
     $FRAMEWORK/scripts/make_generated_files.py --root $OUT_OF_SOURCE_DIR --check
 
     msg "Check committed generated files"
-    tests/scripts/check_option_lists.py
+    tests/scripts/check_committed_generated_files.py
 }
 
 component_tf_psa_crypto_check_recursion () {
