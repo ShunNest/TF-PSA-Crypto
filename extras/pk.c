@@ -730,7 +730,8 @@ psa_key_type_t mbedtls_pk_get_key_type(const mbedtls_pk_context *pk)
  * - using a macro in multiple places results in multiple copies of the code;
  * - this function only handles key types supported in PK.
  *
- * Return 0 on unexpected types. Callers need to check for that value.
+ * WARNING: callers need to ensure the type is supported before calling this
+ * function, possibly by calling is_valid_for_pk().
  */
 static size_t pk_export_max_size(psa_key_type_t key_type, size_t bits)
 {
@@ -977,6 +978,31 @@ int mbedtls_pk_import_into_psa(const mbedtls_pk_context *pk,
     }
 }
 
+static int is_valid_for_pk(psa_key_type_t key_type)
+{
+#if defined(PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY)
+    if (PSA_KEY_TYPE_IS_ECC_PUBLIC_KEY(key_type)) {
+        return 1;
+    }
+#endif
+#if defined(PSA_WANT_KEY_TYPE_ECC_KEY_PAIR_BASIC)
+    if (PSA_KEY_TYPE_IS_ECC_KEY_PAIR(key_type)) {
+        return 1;
+    }
+#endif
+#if defined(PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY)
+    if (key_type == PSA_KEY_TYPE_RSA_PUBLIC_KEY) {
+        return 1;
+    }
+#endif
+#if defined(PSA_WANT_KEY_TYPE_RSA_KEY_PAIR_BASIC)
+    if (key_type == PSA_KEY_TYPE_RSA_KEY_PAIR) {
+        return 1;
+    }
+#endif
+    return 0;
+}
+
 static int copy_from_psa(mbedtls_svc_key_id_t key_id,
                          mbedtls_pk_context *pk,
                          int public_only)
@@ -1005,6 +1031,10 @@ static int copy_from_psa(mbedtls_svc_key_id_t key_id,
     }
 
     key_type = psa_get_key_type(&key_attr);
+    if (!is_valid_for_pk(key_type)) {
+        return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
+    }
+
     if (public_only) {
         key_type = PSA_KEY_TYPE_PUBLIC_KEY_OF_KEY_PAIR(key_type);
     }
@@ -1012,19 +1042,9 @@ static int copy_from_psa(mbedtls_svc_key_id_t key_id,
 
 #if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
     exp_key_size = pk_export_max_size(key_type, key_bits);
-    if (exp_key_size == 0) {
-        return MBEDTLS_ERR_PK_BAD_INPUT_DATA;
-    }
     exp_key = mbedtls_calloc(1, exp_key_size);
     if (exp_key == NULL) {
         return MBEDTLS_ERR_PK_ALLOC_FAILED;
-    }
-#else
-    /* In case we're passed non-ECC key (API misuse), return a sensible error
-     * now. Otherwise we might get BUFFER_TOO_SMALL when exporting below, which
-     * is unlikely to be helpful to the user as the buffer is internal. */
-    if (!PSA_KEY_TYPE_IS_ECC(key_type)) {
-        return PSA_ERROR_INVALID_ARGUMENT;
     }
 #endif
 
