@@ -25,20 +25,30 @@
 #include <limits.h>
 #include <stdint.h>
 
-#if defined(PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY)
-#define PK_HAVE_KEYS_LARGER_THAN_ECC
+/*
+ * We're trying to statisfy two kinds of users:
+ * - those who don't want to use the heap;
+ * - those who can't afford large stack buffers.
+ *
+ * The current compromise is that if ECC is the only key type supported in PK,
+ * then we export keys on the stack, and otherwise we use the heap.
+ *
+ * Note: add && !ML-DSA when adding support for ML-DSA */
+#if !defined(PSA_WANT_KEY_TYPE_RSA_PUBLIC_KEY)
+#define PK_EXPORT_KEYS_ON_THE_STACK
 #endif
 
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if defined(PK_EXPORT_KEYS_ON_THE_STACK)
+/* We know for ECC, pubkey are longer than privkeys, but double check */
+#define PK_EXPORT_KEY_STACK_BUFFER_SIZE  MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH
+#if MBEDTLS_PSA_MAX_EC_KEY_PAIR_LENGTH > PK_EXPORT_KEY_STACK_BUFFER_SIZE
+#undef PK_EXPORT_KEY_STACK_BUFFER_SIZE
+#define PK_EXPORT_KEY_STACK_BUFFER_SIZE  MBEDTLS_PSA_MAX_EC_KEY_PAIR_LENGTH
+#endif
+#else
 #include "mbedtls/platform.h" // for calloc/free
 #endif
 
-/* We know for ECC, pubkey are longer than privkeys, but double check */
-#define PK_MAX_EC_KEYPAIR_OR_PUBKEY_LENGTH  MBEDTLS_PSA_MAX_EC_PUBKEY_LENGTH
-#if MBEDTLS_PSA_MAX_EC_KEY_PAIR_LENGTH > PK_MAX_EC_KEYPAIR_OR_PUBKEY_LENGTH
-#undef PK_MAX_EC_KEYPAIR_OR_PUBKEY_LENGTH
-#define PK_MAX_EC_KEYPAIR_OR_PUBKEY_LENGTH  MBEDTLS_PSA_MAX_EC_KEY_PAIR_LENGTH
-#endif
 
 /*
  * Initialise a mbedtls_pk_context
@@ -722,7 +732,7 @@ psa_key_type_t mbedtls_pk_get_key_type(const mbedtls_pk_context *pk)
     return pk->psa_type;
 }
 
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if !defined(PK_EXPORT_KEYS_ON_THE_STACK)
 /*
  * Size needed to export a key of a type supported by PK.
  *
@@ -757,24 +767,24 @@ static size_t pk_export_max_size(psa_key_type_t key_type, size_t bits)
 #endif
     return 0;
 }
-#endif /* PK_HAVE_KEYS_LARGER_THAN_ECC */
+#endif /* PK_EXPORT_KEYS_ON_THE_STACK */
 
 static psa_status_t export_import_into_psa(mbedtls_svc_key_id_t old_key_id,
                                            psa_key_type_t old_type, size_t old_bits,
                                            const psa_key_attributes_t *attributes,
                                            mbedtls_svc_key_id_t *new_key_id)
 {
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if !defined(PK_EXPORT_KEYS_ON_THE_STACK)
     unsigned char *key_buffer = NULL;
     size_t key_buffer_size = 0;
 #else
-    unsigned char key_buffer[PK_MAX_EC_KEYPAIR_OR_PUBKEY_LENGTH];
+    unsigned char key_buffer[PK_EXPORT_KEY_STACK_BUFFER_SIZE];
     const size_t key_buffer_size = sizeof(key_buffer);
 #endif
     size_t key_length = 0;
 
     /* We are exporting from a PK object, so we know key type is valid for PK */
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if !defined(PK_EXPORT_KEYS_ON_THE_STACK)
     key_buffer_size = pk_export_max_size(old_type, old_bits);
     key_buffer = mbedtls_calloc(1, key_buffer_size);
     if (key_buffer == NULL) {
@@ -795,7 +805,7 @@ static psa_status_t export_import_into_psa(mbedtls_svc_key_id_t old_key_id,
     mbedtls_platform_zeroize(key_buffer, key_length);
 
 cleanup:
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if !defined(PK_EXPORT_KEYS_ON_THE_STACK)
     mbedtls_free(key_buffer);
 #endif
     return status;
@@ -1011,11 +1021,11 @@ static int copy_from_psa(mbedtls_svc_key_id_t key_id,
     psa_key_attributes_t key_attr = PSA_KEY_ATTRIBUTES_INIT;
     psa_key_type_t key_type;
     size_t key_bits;
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if !defined(PK_EXPORT_KEYS_ON_THE_STACK)
     unsigned char *exp_key = NULL;
     size_t exp_key_size = 0;
 #else
-    unsigned char exp_key[PK_MAX_EC_KEYPAIR_OR_PUBKEY_LENGTH];
+    unsigned char exp_key[PK_EXPORT_KEY_STACK_BUFFER_SIZE];
     const size_t exp_key_size = sizeof(exp_key);
 #endif
     size_t exp_key_len;
@@ -1040,7 +1050,7 @@ static int copy_from_psa(mbedtls_svc_key_id_t key_id,
     }
     key_bits = psa_get_key_bits(&key_attr);
 
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if !defined(PK_EXPORT_KEYS_ON_THE_STACK)
     exp_key_size = pk_export_max_size(key_type, key_bits);
     exp_key = mbedtls_calloc(1, exp_key_size);
     if (exp_key == NULL) {
@@ -1121,7 +1131,7 @@ static int copy_from_psa(mbedtls_svc_key_id_t key_id,
 
 exit:
     mbedtls_platform_zeroize(exp_key, exp_key_size);
-#if defined(PK_HAVE_KEYS_LARGER_THAN_ECC)
+#if !defined(PK_EXPORT_KEYS_ON_THE_STACK)
     mbedtls_free(exp_key);
 #endif
     psa_reset_key_attributes(&key_attr);
