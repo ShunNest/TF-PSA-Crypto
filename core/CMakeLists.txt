@@ -147,9 +147,7 @@ foreach(target IN LISTS target_libraries)
         PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/>
                $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/>
                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        PRIVATE ${PROJECT_SOURCE_DIR}/core
-                ${PROJECT_SOURCE_DIR}/drivers/builtin/src
-                ${PROJECT_SOURCE_DIR}/drivers/pqcp/src
+        PRIVATE ${TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS}
                 # Needed to include psa_crypto_driver_wrappers.h
                 ${CMAKE_CURRENT_BINARY_DIR})
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_TARGETS})

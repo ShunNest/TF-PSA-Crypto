@@ -401,6 +401,17 @@ if (NOT EXISTS "${TF_PSA_CRYPTO_FRAMEWORK_DIR}/CMakeLists.txt")
 endif()
 
 #
+# Directories with internal headers. The headers in that directories are not
+# exposed to applications and thus not installed. These headers are currently
+# consumed by Mbed TLS, eventually not so when we've finished cleaning up.
+# Here we list all the directories containing such headers but the ones from
+# drivers, that are appended in `drivers/CMakeLists.txt`.
+#
+set(TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}/core
+)
+
+#
 # `drivers` must be added before `core` because the build of the main library
 # set up in `core` depends on the list of available drivers, which is
 # constructed in `drivers/CMakeLists.txt`. This list may include a generated
@@ -474,10 +485,7 @@ if(ENABLE_TESTING OR ENABLE_PROGRAMS)
                 # so that generated headers in the build tree take precedence.
                 ${CMAKE_CURRENT_BINARY_DIR}/include
                 include
-                core
-                drivers/builtin/src
-                drivers/pqcp/src
-            )
+                ${TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS})
 
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_TARGETS})
         get_target_property(public_includes ${driver_target} INTERFACE_INCLUDE_DIRECTORIES)

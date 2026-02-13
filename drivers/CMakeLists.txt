@@ -101,3 +101,16 @@ add_subdirectory(everest)
 add_subdirectory(p256-m)
 add_subdirectory(builtin)
 add_subdirectory(pqcp)
+
+#
+# Add to the list of directories with internal headers the driver ones that
+# must be visible by core and tests code.
+# Done after adding the driver sub-directories as drivers do not need to see
+# each other internal headers.
+#
+list(APPEND TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}/builtin/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/pqcp/src
+)
+set(TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS
+        "${TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS}" PARENT_SCOPE)
