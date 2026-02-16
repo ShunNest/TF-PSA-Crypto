@@ -388,10 +388,10 @@ int mbedtls_asn1_write_integer(unsigned char **p,
                                const unsigned char *integer,
                                size_t integer_length);
 
+#endif /* MBEDTLS_ASN1_WRITE_C */
+
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* MBEDTLS_ASN1_WRITE_C */
 
 #endif /* MBEDTLS_ASN1WRITE_H */
