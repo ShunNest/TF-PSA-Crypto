@@ -1011,7 +1011,7 @@
  *                      XOF algorithm.
  */
 #define PSA_ALG_XOF_HAS_CONTEXT(xof_alg)        \
-    (((alg) & PSA_ALG_XOF_CONTEXT_FLAG) != 0)
+    (((xof_alg) & PSA_ALG_XOF_CONTEXT_FLAG) != 0)
 
 #define PSA_ALG_MAC_SUBCATEGORY_MASK            ((psa_algorithm_t) 0x00c00000)
 #define PSA_ALG_HMAC_BASE                       ((psa_algorithm_t) 0x03800000)
