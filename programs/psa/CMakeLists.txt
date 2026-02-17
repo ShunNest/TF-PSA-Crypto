@@ -1,6 +1,7 @@
 set(executables
     aead_demo
     crypto_examples
+    generate_random_uuid
     hmac_demo
     key_ladder_demo
     psa_constant_names
