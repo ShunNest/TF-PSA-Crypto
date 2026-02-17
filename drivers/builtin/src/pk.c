@@ -19,13 +19,6 @@
 #include "mbedtls/platform_util.h"
 #include "mbedtls/private/error_common.h"
 
-#if defined(PSA_WANT_KEY_TYPE_ECC_PUBLIC_KEY)
-#include "mbedtls/private/ecp.h"
-#endif
-#if defined(MBEDTLS_ECDSA_C)
-#include "mbedtls/private/ecdsa.h"
-#endif
-
 #include "psa_util_internal.h"
 #include "mbedtls/psa_util.h"
 
@@ -822,7 +815,7 @@ static int import_public_into_psa(const mbedtls_pk_context *pk,
                                   mbedtls_svc_key_id_t *key_id)
 {
     psa_key_type_t psa_type = psa_get_key_type(attributes);
-    unsigned char key_buffer[PSA_EXPORT_PUBLIC_KEY_MAX_SIZE];
+    unsigned char key_buffer[MBEDTLS_PK_MAX_PUBKEY_RAW_LEN];
     unsigned char *key_data = NULL;
     size_t key_length = 0;
 

@@ -18,14 +18,6 @@
 /* Even if RSA not activated, for the sake of RSA-alt */
 #include "mbedtls/private/rsa.h"
 
-#if defined(MBEDTLS_ECP_C)
-#include "mbedtls/private/ecp.h"
-#endif
-
-#if defined(MBEDTLS_ECDSA_C)
-#include "mbedtls/private/ecdsa.h"
-#endif
-
 #include "psa_util_internal.h"
 #include "psa/crypto.h"
 #include "mbedtls/psa_util.h"
