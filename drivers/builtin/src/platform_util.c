@@ -22,6 +22,7 @@
 
 // Detect platforms known to support explicit_bzero()
 #if defined(__GLIBC__) && (__GLIBC__ >= 2) && (__GLIBC_MINOR__ >= 25)
+/* Note: requires _GNU_SOURCE when compiling with -pedantic */
 #define MBEDTLS_PLATFORM_HAS_EXPLICIT_BZERO 1
 #elif (defined(__FreeBSD__) && (__FreeBSD_version >= 1100037)) || defined(__OpenBSD__)
 #define MBEDTLS_PLATFORM_HAS_EXPLICIT_BZERO 1
@@ -287,16 +288,6 @@ int mbedtls_platform_get_entropy(psa_driver_get_entropy_flags_t flags,
     return 0;
 }
 #else /* _WIN32 && !EFIX64 && !EFI32 */
-
-#if defined(__linux__) || defined(__midipix__)
-/* Ensure that syscall() is available even when compiling with -std=c99 */
-#if !defined(_GNU_SOURCE)
-#define _GNU_SOURCE
-#endif
-#if !defined(__USE_MISC)
-#define __USE_MISC
-#endif
-#endif
 
 /*
  * Test for Linux getrandom() support.

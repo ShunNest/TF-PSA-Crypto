@@ -27,4 +27,9 @@
 #define _POSIX_C_SOURCE 200112L
 #endif
 
+/* With GNU libc, define all the things, even when compiling with -pedantic. */
+#if !defined(_GNU_SOURCE)
+#define _GNU_SOURCE
+#endif
+
 #endif /* TF_PSA_CRYPTO_TF_PSA_CRYPTO_PLATFORM_REQUIREMENTS_H */
