@@ -86,6 +86,8 @@
 #define PSA_WANT_ALG_TLS12_PRF                  1
 #define PSA_WANT_ALG_TLS12_PSK_TO_MS            1
 #define PSA_WANT_ALG_TLS12_ECJPAKE_TO_PMS       1
+#define PSA_WANT_ALG_SHAKE128                   1
+#define PSA_WANT_ALG_SHAKE256                   1
 
 #define PSA_WANT_ECC_BRAINPOOL_P_R1_256         1
 #define PSA_WANT_ECC_BRAINPOOL_P_R1_384         1
@@ -861,12 +863,6 @@
  * Uncomment to enable generic public key write functions.
  */
 #define MBEDTLS_PK_WRITE_C
-
-/* Enable SHAKE internally. There is no API yet. These macros are temporarily
- * exposed in crypto_config.h for technical reasons, but are not part of the
- * API of TF-PSA-Crypto and will become internal soon. */
-//#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE128
-//#define MBEDTLS_PSA_BUILTIN_ALG_SHAKE256
 
 /** \} name SECTION: Cryptographic mechanism selection (extended API) */
 

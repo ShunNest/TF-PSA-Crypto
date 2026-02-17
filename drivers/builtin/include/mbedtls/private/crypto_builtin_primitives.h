@@ -81,6 +81,29 @@ typedef struct {
 #define MBEDTLS_PSA_HASH_OPERATION_INIT { 0, { 0 } }
 
 /*
+ * XOF (extendable-output functions) multi-part operation definitions.
+ */
+
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE128) || \
+    defined(MBEDTLS_PSA_BUILTIN_ALG_SHAKE256) || \
+    0
+#define MBEDTLS_PSA_BUILTIN_XOF
+#endif
+
+typedef struct {
+    psa_algorithm_t MBEDTLS_PRIVATE(alg);
+    uint8_t have_output;
+    union {
+        unsigned dummy; /* Make the union non-empty even with no supported algorithms. */
+#if defined(MBEDTLS_PSA_BUILTIN_ALG_SOME_SHAKE)
+        mbedtls_sha3_context shake;
+#endif
+    } MBEDTLS_PRIVATE(ctx);
+} mbedtls_psa_xof_operation_t;
+
+#define MBEDTLS_PSA_XOF_OPERATION_INIT { 0, { 0 } }
+
+/*
  * Cipher multi-part operation definitions.
  */
 

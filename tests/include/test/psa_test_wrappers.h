@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include <tf-psa-crypto/build_info.h>
+#include <mbedtls/build_info.h>
 
 #if defined(MBEDTLS_PSA_CRYPTO_C) && defined(MBEDTLS_TEST_HOOKS) && \
     !defined(RECORD_PSA_STATUS_COVERAGE_LOG)
@@ -668,6 +668,13 @@ psa_status_t mbedtls_test_wrap_psa_pake_output(
     mbedtls_test_wrap_psa_pake_output(arg0_operation, arg1_step, arg2_output, arg3_output_size, arg4_output_length)
 #endif /* defined(PSA_WANT_ALG_SOME_PAKE) */
 
+psa_status_t mbedtls_test_wrap_psa_pake_set_context(
+    psa_pake_operation_t *arg0_operation,
+    const uint8_t *arg1_context,
+    size_t arg2_context_len);
+#define psa_pake_set_context(arg0_operation, arg1_context, arg2_context_len) \
+    mbedtls_test_wrap_psa_pake_set_context(arg0_operation, arg1_context, arg2_context_len)
+
 #if defined(PSA_WANT_ALG_SOME_PAKE)
 psa_status_t mbedtls_test_wrap_psa_pake_set_peer(
     psa_pake_operation_t *arg0_operation,
@@ -803,6 +810,38 @@ psa_status_t mbedtls_test_wrap_psa_verify_message(
     size_t arg5_signature_length);
 #define psa_verify_message(arg0_key, arg1_alg, arg2_input, arg3_input_length, arg4_signature, arg5_signature_length) \
     mbedtls_test_wrap_psa_verify_message(arg0_key, arg1_alg, arg2_input, arg3_input_length, arg4_signature, arg5_signature_length)
+
+psa_status_t mbedtls_test_wrap_psa_xof_abort(
+    psa_xof_operation_t *arg0_operation);
+#define psa_xof_abort(arg0_operation) \
+    mbedtls_test_wrap_psa_xof_abort(arg0_operation)
+
+psa_status_t mbedtls_test_wrap_psa_xof_output(
+    psa_xof_operation_t *arg0_operation,
+    uint8_t *arg1_output,
+    size_t arg2_output_length);
+#define psa_xof_output(arg0_operation, arg1_output, arg2_output_length) \
+    mbedtls_test_wrap_psa_xof_output(arg0_operation, arg1_output, arg2_output_length)
+
+psa_status_t mbedtls_test_wrap_psa_xof_set_context(
+    psa_xof_operation_t *arg0_operation,
+    const uint8_t *arg1_context,
+    size_t arg2_context_length);
+#define psa_xof_set_context(arg0_operation, arg1_context, arg2_context_length) \
+    mbedtls_test_wrap_psa_xof_set_context(arg0_operation, arg1_context, arg2_context_length)
+
+psa_status_t mbedtls_test_wrap_psa_xof_setup(
+    psa_xof_operation_t *arg0_operation,
+    psa_algorithm_t arg1_alg);
+#define psa_xof_setup(arg0_operation, arg1_alg) \
+    mbedtls_test_wrap_psa_xof_setup(arg0_operation, arg1_alg)
+
+psa_status_t mbedtls_test_wrap_psa_xof_update(
+    psa_xof_operation_t *arg0_operation,
+    const uint8_t *arg1_input,
+    size_t arg2_input_length);
+#define psa_xof_update(arg0_operation, arg1_input, arg2_input_length) \
+    mbedtls_test_wrap_psa_xof_update(arg0_operation, arg1_input, arg2_input_length)
 
 #endif /* defined(MBEDTLS_PSA_CRYPTO_C) && defined(MBEDTLS_TEST_HOOKS) && \
     !defined(RECORD_PSA_STATUS_COVERAGE_LOG) */
