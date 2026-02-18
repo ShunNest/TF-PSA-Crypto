@@ -32,4 +32,11 @@
 #define _GNU_SOURCE
 #endif
 
+/* On OpenBSD, needed to make <string.h> declare explicit_bzero()
+ * (<strings.h> doesn't declare it). Not used on FreeBSD or NetBSD,
+ * but causes Glibc to complain. */
+#if defined(__OpenBSD__) && !defined(_BSD_SOURCE)
+#define _BSD_SOURCE
+#endif
+
 #endif /* TF_PSA_CRYPTO_TF_PSA_CRYPTO_PLATFORM_REQUIREMENTS_H */
