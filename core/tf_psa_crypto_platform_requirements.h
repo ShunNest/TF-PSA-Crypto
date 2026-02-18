@@ -32,6 +32,12 @@
 #define _GNU_SOURCE
 #endif
 
+/* On NetBSD, needed to include <sys/sysctl.h>, which we do in platform_util.c
+ * to get sysctl() and KERN_ARND. */
+#if defined(__NetBSD__) && !defined(_NETBSD_SOURCE)
+#define _NETBSD_SOURCE
+#endif
+
 /* On OpenBSD, needed to make <string.h> declare explicit_bzero()
  * (<strings.h> doesn't declare it). Not used on FreeBSD or NetBSD,
  * but causes Glibc to complain. */
