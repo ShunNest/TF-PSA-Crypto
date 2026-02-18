@@ -382,30 +382,121 @@ static inline void mbedtls_xor_no_simd(unsigned char *r,
 #endif
 #endif
 
-/* Always provide a static assert macro, so it can be used unconditionally.
- * It does nothing on systems where we don't know how to define a static assert.
+/** \def MBEDTLS_STATIC_ASSERT
+ *
+ * A static assert macro, equivalent to `static_assert` or `_Static_assert`
+ * in modern C.
+ *
+ * You can use `MBEDTLS_STATIC_ASSERT(expr, msg)` in any position where a
+ * declaration is permitted, both at the toplevel and within a function.
+ * This macro may not be used inside an expression (see #STATIC_ASSERT_EXPR,
+ * available on fewer platforms).
+ *
+ * \param expr  An expression which must be a compile-time constant with
+ *              an integer value. This doesn't have to be a preprocessor
+ *              constant, for example it can use `sizeof`.
+ *              The compilation fails if the value is 0.
+ * \param msg   An error messsage to display if the value of \p expr is 0.
  */
-/* Can't use the C11-style `defined(static_assert)` on FreeBSD, since it
- * defines static_assert even with -std=c99, but then complains about it.
- */
-#if defined(static_assert) && !defined(__FreeBSD__)
+#if __STDC_VERSION__ >= 202311L
+/* static_assert is a keyword since C23 */
 #define MBEDTLS_STATIC_ASSERT(expr, msg)    static_assert(expr, msg)
-/* The GCC compiler supports _Static_assert since version 4.6 even with C99 so checking the
- * compiler version should suffice.
- * For non GCC compilers we check that C>=11 is used since C11 introduced _Static_assert.
- */
-#define MBEDTLS_STATIC_ASSERT_SUPPORT
-#elif !defined(__cplusplus) && \
-    ((defined(__GNUC__) && ((__GNUC__ == 4 && __GNUC_MINOR >= 6) || __GNUC__ > 4)) || \
-    (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L))
+
+#elif __STDC_VERSION__ >= 201112L
+/* _Static_assert is a keyword since C11 */
 #define MBEDTLS_STATIC_ASSERT(expr, msg)    _Static_assert(expr, msg)
-#define MBEDTLS_STATIC_ASSERT_SUPPORT
+
+#elif defined(static_assert) && !defined(__STRICT_ANSI__)
+/* If static_assert is defined as a macro, presumably from <assert.h>
+ * included above, then trust that it is what we expect.
+ * This is a common extension even before C11.
+ * However, don't use it if it looks like a build with `gcc -c99 -pedantic`
+ * or `clang -c99 -pedantic`, because they would complain about the use of
+ * a feature that doesn't exist in C99.
+ */
+#define MBEDTLS_STATIC_ASSERT(expr, msg)    static_assert(expr, msg)
+
+#elif defined(_MSC_VER)
+/* MSVC has `static_assert` as a keyword (not a macro) since
+ * Visual Studio 2010.
+ */
+#define MBEDTLS_STATIC_ASSERT(expr, msg)    static_assert(expr, msg)
+
+#elif defined(__GNUC__) && \
+    ((__GNUC__ == 4 && __GNUC_MINOR >= 6) || __GNUC__ > 4) && \
+    !defined(__STRICT_ANSI__)
+/* _Static_assert is a keyword since GCC 4.6.
+ * However, don't use it if it looks like a build with `gcc -c99 -pedantic`
+ * or `clang -c99 -pedantic`, because they would complain about the use of
+ * a feature that doesn't exist in C99.
+ */
+#define MBEDTLS_STATIC_ASSERT(expr, msg)    _Static_assert(expr, msg)
+
+#elif defined(__COUNTER__)
+/* Fall back to a hack that works in practice with non-ancient GCC-like
+ * compilers and MSVC, and doesn't trigger `-Wredundant-decls`.
+ *
+ * See the `#else` block below for an explanation. Here, we add another
+ * layer to make the declared name unique using the special preprocessor
+ * token `__COUNTER__`.
+ */
+#define MBEDTLS_STATIC_ASSERT_COUNTER(expr, counter) \
+    extern void mbedtls_static_assert_anchor##counter(char[1 - 2 * !(expr)])
+#define MBEDTLS_STATIC_ASSERT_WRAP(expr, counter) \
+    MBEDTLS_STATIC_ASSERT_COUNTER(expr, counter)
+#define MBEDTLS_STATIC_ASSERT(expr, msg) \
+    MBEDTLS_STATIC_ASSERT_WRAP(expr, __COUNTER__)
+
 #else
-/* Make sure `MBEDTLS_STATIC_ASSERT(expr, msg);` is valid both inside and
- * outside a function. We choose a struct declaration, which can be repeated
- * any number of times and does not need a matching definition. */
+/* Fall back to a hack that works in practice with almost all C compilers.
+ *
+ * Constraints:
+ * - Must be valid C99 when `expr` is a constant expression with a nonzero value.
+ * - Must compile without warnings on known compilers when `expr` is a
+ *   constant expression with a nonzero value.
+ * - Must be valid both at file scope and inside a function.
+ * - Must allow multiple static assertions in the same scope.
+ * - Must not rely on `__LINE__` to create unique identifiers, since this
+ *   could lead to collisions, e.g. if `MBEDTLS_STATIC_ASSERT` is used in
+ *   a header, or if a macro expands to multiple uses of
+ *   `MBEDTLS_STATIC_ASSERT`.
+ * - Should result in an error when `expr` evaluates to 0.
+ *
+ * How it works:
+ * - Ostensibly declare a function. This function will never be used, but
+ *   declaring a function that won't be used is routine.
+ * - The function's name is in our namespace, so we just need to avoid that
+ *   name for any other purpose.
+ * - Declaring the same function with the same prototype multiple times is
+ *   also common (it triggers `gcc -Wredundant-decls`, but we handle
+ *   non-ancient GCC separately above).
+ * - The function takes an argument whose type involves an array.
+ * - The array size is 1 (valid) when the expression is true, and -1
+ *   (invalid, triggers an error in almost all compilers) when the expression
+ *   is false.
+ *
+ * Limitations:
+ * - If you have multiple static assertions in the same scope,
+ *   `gcc -Wredundant-decls` complains.
+ * - Technically, an array of length -1 doesn't have to lead to a compilation
+ *   error in C99. In C89, it does: it's a constraint violation. But in C99,
+ *   it could be a variable-length array.
+ * - When the assertion fails, some compilers complain about a negative
+ *   array length without displaying the problematic line, so the message
+ *   is not visible.
+ *
+ * On Godbolt compiler explorer, the only failures I could find are:
+ * - 6502 cc65 complains if there are multiple assertions in the same scope:
+ *   "Multiple definition for `mbedtls_static_assert_anchor'"
+ * - Chibicc 2020-12-07 ignores the assertion.
+ * - LC3 (trunk) ignores the assertion.
+ * - ppci 0.5.5 dies with a NotImplementedError on the `!` operator.
+ * - SDCC 4.0.0 through 4.5.0 complains if there are multiple assertions in
+ *   the same scope:
+ *   "extern definition for 'mbedtls_static_assert_anchor' mismatches with declaration."
+ */
 #define MBEDTLS_STATIC_ASSERT(expr, msg)                                \
-    struct ISO_C_does_not_allow_extra_semicolon_outside_of_a_function
+    extern void mbedtls_static_assert_anchor(char[(expr) ? 1 : -1])
 #endif
 
 /* Define compiler branch hints */
