@@ -64,14 +64,6 @@ if(GEN_FILES)
     )
 endif(GEN_FILES)
 
-if(CMAKE_COMPILER_IS_GNUCC)
-    set(LIBS_C_FLAGS -Wmissing-declarations)
-endif(CMAKE_COMPILER_IS_GNUCC)
-
-if(CMAKE_COMPILER_IS_CLANG)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
-endif(CMAKE_COMPILER_IS_CLANG)
-
 if(CMAKE_C_COMPILER_ID MATCHES "AppleClang")
     set(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
     set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
@@ -117,7 +109,7 @@ if(USE_STATIC_TF_PSA_CRYPTO_LIBRARY)
         ${src_crypto}
         ${target_objects})
     tf_psa_crypto_set_base_compile_options(${tfpsacrypto_static_target})
-    target_compile_options(${tfpsacrypto_static_target} PRIVATE ${LIBS_C_FLAGS})
+    tf_psa_crypto_set_extra_compile_options(${tfpsacrypto_static_target})
     set_target_properties(${tfpsacrypto_static_target} PROPERTIES OUTPUT_NAME tfpsacrypto)
     target_link_libraries(${tfpsacrypto_static_target} PUBLIC ${libs})
 
@@ -137,7 +129,7 @@ if(USE_SHARED_TF_PSA_CRYPTO_LIBRARY)
         ${src_crypto}
         ${target_objects})
     tf_psa_crypto_set_base_compile_options(${tfpsacrypto_target})
-    target_compile_options(${tfpsacrypto_target} PRIVATE ${LIBS_C_FLAGS})
+    tf_psa_crypto_set_extra_compile_options(${tfpsacrypto_target})
     set_target_properties(${tfpsacrypto_target} PROPERTIES VERSION ${TF_PSA_CRYPTO_VERSION} SOVERSION ${TF_PSA_CRYPTO_SOVERSION})
     target_link_libraries(${tfpsacrypto_target} PUBLIC ${libs})
 

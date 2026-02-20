@@ -216,6 +216,8 @@ include(CheckCCompilerFlag)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD 99)
 
+# Set base compile options to be used for the compilation of all C files of
+# all targets.
 function(tf_psa_crypto_set_base_compile_options target)
     if(CMAKE_COMPILER_IS_GNU)
         tf_psa_crypto_set_gnu_base_compile_options(${target})
@@ -347,6 +349,32 @@ function(tf_psa_crypto_set_msvc_base_compile_options target)
         endforeach(flag_var)
     endif()
 endfunction(tf_psa_crypto_set_msvc_base_compile_options)
+
+
+# Set extra compile options. These options are expected to be set for the
+# compilation of the TF-PSA-Crypto library files. Not necessarily for the test
+# or third party driver files.
+function(tf_psa_crypto_set_extra_compile_options target)
+    if(CMAKE_COMPILER_IS_GNU)
+        tf_psa_crypto_set_gnu_extra_compile_options(${target})
+    elseif(CMAKE_COMPILER_IS_CLANG)
+        tf_psa_crypto_set_clang_extra_compile_options(${target})
+    endif()
+endfunction(tf_psa_crypto_set_extra_compile_options)
+
+function(tf_psa_crypto_set_gnu_extra_compile_options target)
+    target_compile_options(${target} PRIVATE -Wmissing-declarations)
+endfunction(tf_psa_crypto_set_gnu_extra_compile_options)
+
+function(tf_psa_crypto_set_clang_extra_compile_options target)
+    target_compile_options(${target} PRIVATE
+        -Wmissing-declarations
+        -Wdocumentation
+        -Wno-documentation-deprecated-sync
+        -Wunreachable-code
+    )
+endfunction(tf_psa_crypto_set_clang_extra_compile_options)
+
 
 function(tf_psa_crypto_set_config_files_compile_definitions target)
     if(TF_PSA_CRYPTO_CONFIG_FILE)
