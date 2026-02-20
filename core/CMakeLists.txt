@@ -72,17 +72,6 @@ if(CMAKE_COMPILER_IS_CLANG)
     set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
 endif(CMAKE_COMPILER_IS_CLANG)
 
-if(CMAKE_COMPILER_IS_MSVC)
-    if(MSVC_STATIC_RUNTIME)
-        foreach(flag_var
-            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-            CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-            CMAKE_C_FLAGS_CHECK)
-            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-        endforeach(flag_var)
-    endif()
-endif()
-
 if(CMAKE_C_COMPILER_ID MATCHES "AppleClang")
     set(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
     set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")

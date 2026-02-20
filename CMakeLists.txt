@@ -337,6 +337,15 @@ function(tf_psa_crypto_set_msvc_base_compile_options target)
     if(TF_PSA_CRYPTO_FATAL_WARNINGS)
         target_compile_options(${target} PRIVATE /WX)
     endif(TF_PSA_CRYPTO_FATAL_WARNINGS)
+
+    if(MSVC_STATIC_RUNTIME)
+        foreach(flag_var
+            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+            CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+            CMAKE_C_FLAGS_CHECK)
+            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+        endforeach(flag_var)
+    endif()
 endfunction(tf_psa_crypto_set_msvc_base_compile_options)
 
 function(tf_psa_crypto_set_config_files_compile_definitions target)
