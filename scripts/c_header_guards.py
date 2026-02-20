@@ -47,6 +47,7 @@ FOLDERS_TO_CHECK = {
     'include/psa/': 'include/',
     'include/tf-psa-crypto/': 'include/',
     'core/': 'core/',
+    'dispatch/': 'dispatch/',
     'extras/': 'extras/',
     'platform/': 'platform/',
     'utilities/': 'utilities/',

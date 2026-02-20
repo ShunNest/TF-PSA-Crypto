@@ -409,6 +409,7 @@ endif()
 #
 set(TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}/core
+        ${CMAKE_CURRENT_SOURCE_DIR}/dispatch
         ${CMAKE_CURRENT_SOURCE_DIR}/extras
         ${CMAKE_CURRENT_SOURCE_DIR}/platform
         ${CMAKE_CURRENT_SOURCE_DIR}/utilities
