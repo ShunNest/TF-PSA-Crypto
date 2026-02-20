@@ -98,6 +98,9 @@ if(USE_STATIC_TF_PSA_CRYPTO_LIBRARY)
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_STATIC_TARGETS})
         list(APPEND target_objects "$<TARGET_OBJECTS:${driver_target}>")
     endforeach()
+    foreach(objlib_target ${TF_PSA_CRYPTO_OBJLIB_STATIC_TARGETS})
+        list(APPEND target_objects "$<TARGET_OBJECTS:${objlib_target}>")
+    endforeach()
     add_library(${tfpsacrypto_static_target} STATIC
         ${src_crypto}
         ${target_objects})
@@ -117,6 +120,9 @@ if(USE_SHARED_TF_PSA_CRYPTO_LIBRARY)
     set(target_objects "")
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_TARGETS})
         list(APPEND target_objects "$<TARGET_OBJECTS:${driver_target}>")
+    endforeach()
+    foreach(objlib_target ${TF_PSA_CRYPTO_OBJLIB_TARGETS})
+        list(APPEND target_objects "$<TARGET_OBJECTS:${objlib_target}>")
     endforeach()
     add_library(${tfpsacrypto_target} SHARED
         ${src_crypto}
