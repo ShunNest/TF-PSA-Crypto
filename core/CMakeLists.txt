@@ -1,15 +1,8 @@
-set(src_crypto
-    constant_time.c
-    psa_crypto.c
-    psa_crypto_client.c
-    psa_crypto_driver_wrappers_no_static.c
-    psa_crypto_slot_management.c
-    psa_crypto_storage.c
-    psa_its_file.c
-    psa_util.c
-    tf_psa_crypto_config.c
-    tf_psa_crypto_version.c
-)
+file(GLOB src_crypto "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
+list(FIND src_crypto "${CMAKE_CURRENT_SOURCE_DIR}/psa_crypto_driver_wrappers_no_static.c" _idx)
+if(_idx EQUAL -1)
+    list(APPEND src_crypto psa_crypto_driver_wrappers_no_static.c)
+endif()
 
 if(GEN_FILES)
     add_custom_command(
