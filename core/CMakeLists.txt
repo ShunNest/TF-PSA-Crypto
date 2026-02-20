@@ -65,11 +65,11 @@ if(GEN_FILES)
 endif(GEN_FILES)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes)
+    set(LIBS_C_FLAGS -Wmissing-declarations)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(CMAKE_COMPILER_IS_CLANG)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
+    set(LIBS_C_FLAGS -Wmissing-declarations -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
 endif(CMAKE_COMPILER_IS_CLANG)
 
 if(CMAKE_C_COMPILER_ID MATCHES "AppleClang")

@@ -15,11 +15,11 @@
 # - ${tf_psa_crypto_driver}_src_files: the list of source files for the driver
 
 if(CMAKE_COMPILER_IS_GNUCC)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes)
+    set(LIBS_C_FLAGS -Wmissing-declarations)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 if(CMAKE_COMPILER_IS_CLANG)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
+    set(LIBS_C_FLAGS -Wmissing-declarations -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
 endif(CMAKE_COMPILER_IS_CLANG)
 
 set(${tf_psa_crypto_driver}_target ${TF_PSA_CRYPTO_TARGET_PREFIX}${tf_psa_crypto_driver})
