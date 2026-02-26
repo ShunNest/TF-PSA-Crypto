@@ -106,7 +106,7 @@ static size_t get_line(FILE *f, string_buffer_t *buffer)
         }
         length = offset + strlen(buffer->content + offset);
 
-        if (length == buffer->size - 1 && buffer->content[length] != '\n') {
+        if (length == buffer->size - 1 && buffer->content[length - 1] != '\n') {
             /* Unfinished line. Enlarge the buffer. */
             /* We don't use realloc() because it may not be available
              * (e.g. MBEDTLS_MEMORY_BUFFER_ALLOC_C doesn't provide it). */
