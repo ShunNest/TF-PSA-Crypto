@@ -154,7 +154,7 @@ void verify_pure_87(data_t *public_key, data_t *message, data_t *signature)
     TEST_EQUAL(tf_psa_crypto_pqcp_mldsa87_verify(signature->x, signature->len,
                                                  message->x, message->len,
                                                  NULL, 0,
-                                                 public_key->x), -1);
+                                                 public_key->x), MLD_ERR_FAIL);
     signature->x[signature->len - 1] ^= 1;
 
 }
