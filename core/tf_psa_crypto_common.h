@@ -445,7 +445,7 @@ static inline void mbedtls_xor_no_simd(unsigned char *r,
 #define MBEDTLS_STATIC_ASSERT(expr, msg)    static_assert(expr, msg)
 
 #elif defined(__GNUC__) && \
-    ((__GNUC__ == 4 && __GNUC_MINOR >= 6) || __GNUC__ > 4) && \
+    ((__GNUC__ == 4 && __GNUC_MINOR__ >= 6) || __GNUC__ > 4) && \
     !defined(__STRICT_ANSI__)
 /* _Static_assert is a keyword since GCC 4.6.
  * However, don't use it if it looks like a build with `gcc -c99 -pedantic`
