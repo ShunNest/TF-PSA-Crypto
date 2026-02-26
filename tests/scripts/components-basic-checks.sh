@@ -31,15 +31,6 @@ component_tf_psa_crypto_check_python_files () {
     $FRAMEWORK/scripts/check-python-files.sh
 }
 
-support_tf_psa_crypto_check_generated_files () {
-    # check_committed_generated_files.py runs generate_mldsa_tests.py,
-    # which requires dilithium-py, which requires Python >=3.9.
-    # Check the Python version, not the presence of the package,
-    # because the CI runs `all.sh --list-components` outside of the
-    # venv that has our desired packages.
-    python3 -c 'import sys; exit(1 if sys.version_info < (3, 9) else 0)'
-}
-
 component_tf_psa_crypto_check_generated_files () {
     msg "Check generated files"
     cd $OUT_OF_SOURCE_DIR
@@ -48,7 +39,18 @@ component_tf_psa_crypto_check_generated_files () {
 
     cd $TF_PSA_CRYPTO_ROOT_DIR
     $FRAMEWORK/scripts/make_generated_files.py --root $OUT_OF_SOURCE_DIR --check
+}
 
+support_tf_psa_crypto_check_committed_generated_files () {
+    # check_committed_generated_files.py runs generate_mldsa_tests.py,
+    # which requires dilithium-py, which requires Python >=3.9.
+    # Check the Python version, not the presence of the package,
+    # because the CI runs `all.sh --list-components` outside of the
+    # venv that has our desired packages.
+    python3 -c 'import sys; exit(1 if sys.version_info < (3, 9) else 0)'
+}
+
+component_tf_psa_crypto_check_committed_generated_files () {
     msg "Check committed generated files"
     tests/scripts/check_committed_generated_files.py
 }
