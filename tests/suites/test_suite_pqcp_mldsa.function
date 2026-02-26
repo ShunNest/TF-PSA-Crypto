@@ -78,7 +78,7 @@ void key_pair_from_seed_87(data_t *seed,
     uint8_t *public_key = NULL;
     const size_t public_key_length = MLDSA_PUBLICKEYBYTES(87);
 
-    /* Sanity checks on the test data */
+    /* Sanity checks on the test data that we pass to the function under test */
     TEST_EQUAL(seed->len, MLDSA_SEEDBYTES);
 
     TEST_CALLOC(secret_key, secret_key_length);
@@ -106,16 +106,16 @@ void sign_deterministic_pure_87(data_t *private_key,
                                 data_t *expected_signature)
 {
     uint8_t *signature = NULL;
-    size_t signature_size = MLDSA_SECRETKEYBYTES(87);
+    size_t signature_size = expected_signature->len;
     const uint8_t prefix[2] = { 0, 0 }; // pure ML-DSA with empty context
     const size_t prefix_length = sizeof(prefix);
     const uint8_t rnd[MLDSA_RNDBYTES] = { 0 };
 
     TEST_CALLOC(signature, signature_size);
 
-    /* Sanity checks on the test data */
+    /* Sanity checks on the test data that we pass to the function under test */
     TEST_EQUAL(private_key->len, MLDSA_SECRETKEYBYTES(87));
-    TEST_EQUAL(expected_signature->len, MLDSA_BYTES(87));
+    TEST_EQUAL(signature_size, MLDSA_BYTES(87));
 
     /* Calculate and check the deterministic signature */
     size_t signature_length = SIZE_MAX;
@@ -139,7 +139,7 @@ exit:
 /* BEGIN_CASE depends_on:TF_PSA_CRYPTO_PQCP_MLDSA_87_ENABLED */
 void verify_pure_87(data_t *public_key, data_t *message, data_t *signature)
 {
-    /* Sanity checks on the test data */
+    /* Sanity checks on the test data that we pass to the function under test */
     TEST_EQUAL(public_key->len, MLDSA_PUBLICKEYBYTES(87));
     TEST_EQUAL(signature->len, MLDSA_BYTES(87));
 
