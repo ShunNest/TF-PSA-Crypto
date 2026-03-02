@@ -1,7 +1,18 @@
 /**
  * \file tf_psa_crypto_common.h
  *
- * \brief Utility macros for internal use in the library
+ * \brief Utility macros for internal use in the library.
+ *
+ * This file should be included as the first thing in all library C files.
+ * It must not be included by sample programs, since sample programs
+ * illustrate what you can do without the library sources.
+ * It may be included (often indirectly) by test code that isn't purely
+ * black-box testing.
+ *
+ * This file takes care of setting up requirements for platform headers.
+ * It includes the library configuration and derived macros.
+ * It additionally defines various utility macros and other definitions
+ * (but no function declarations).
  */
 /*
  *  Copyright The Mbed TLS Contributors
@@ -15,7 +26,10 @@
  * headers what we expect of them. */
 #include "tf_psa_crypto_platform_requirements.h"
 
+/* From this point onwards, ensure we have the library configuration and
+ * the configuration-derived macros. */
 #include "tf-psa-crypto/build_info.h"
+
 #include "alignment.h"
 
 #include <assert.h>
