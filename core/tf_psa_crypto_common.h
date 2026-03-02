@@ -118,7 +118,7 @@ extern void (*mbedtls_test_hook_test_fail)(const char *test, int line, const cha
 /* A compile-time constant with the value 0. If `const_expr` is not a
  * compile-time constant with a nonzero value, cause a compile-time error. */
 #define STATIC_ASSERT_EXPR(const_expr)                                \
-    (0 && sizeof(char[1 - 2 * !(const_expr)]))
+    (0 && sizeof(struct { unsigned int STATIC_ASSERT : (const_expr) ? 1 : -1; }))
 
 /* Return the scalar value `value` (possibly promoted). This is a compile-time
  * constant if `value` is. `condition` must be a compile-time constant.
@@ -477,7 +477,9 @@ static inline void mbedtls_xor_no_simd(unsigned char *r,
  * token `__COUNTER__`.
  */
 #define MBEDTLS_STATIC_ASSERT_COUNTER(expr, counter) \
-    extern void mbedtls_static_assert_anchor##counter(char[1 - 2 * !(expr)])
+    struct mbedtls_static_assert_anchor##counter { \
+        unsigned int STATIC_ASSERT : (expr) ? 1 : -1; \
+    }
 #define MBEDTLS_STATIC_ASSERT_WRAP(expr, counter) \
     MBEDTLS_STATIC_ASSERT_COUNTER(expr, counter)
 #define MBEDTLS_STATIC_ASSERT(expr, msg) \
@@ -506,33 +508,44 @@ static inline void mbedtls_xor_no_simd(unsigned char *r,
  * - Declaring the same function with the same prototype multiple times is
  *   also common (it triggers `gcc -Wredundant-decls`, but we handle
  *   non-ancient GCC separately above).
- * - The function takes an argument whose type involves an array.
- * - The array size is 1 (valid) when the expression is true, and -1
- *   (invalid, triggers an error in almost all compilers) when the expression
- *   is false.
+ * - The function returns a pointer to an array.
+ * - The array size involves parsing an anonymous struct declaration.
+ * - The struct declaration contains a bit-field whose width is 1 if the
+ *   assertion is true, and -1 otherwise. This is a constraint violation,
+ *   requiring a diagnostic.
  *
  * Limitations:
  * - If you have multiple static assertions in the same scope,
  *   `gcc -Wredundant-decls` complains.
- * - Technically, an array of length -1 doesn't have to lead to a compilation
- *   error in C99. In C89, it does: it's a constraint violation. But in C99,
- *   it could be a variable-length array.
  * - When the assertion fails, some compilers complain about a negative
- *   array length without displaying the problematic line, so the message
+ *   bit-field width without displaying the problematic line, so the message
  *   is not visible.
  *
  * On Godbolt compiler explorer, the only failures I could find are:
- * - 6502 cc65 complains if there are multiple assertions in the same scope:
- *   "Multiple definition for `mbedtls_static_assert_anchor'"
+ * - CCC (Claude C Compiler) as of 2026-03-02 ignores the assertion.
  * - Chibicc 2020-12-07 ignores the assertion.
  * - LC3 (trunk) ignores the assertion.
- * - ppci 0.5.5 dies with a NotImplementedError on the `!` operator.
- * - SDCC 4.0.0 through 4.5.0 complains if there are multiple assertions in
- *   the same scope:
+ * - MSVC warns about assertions, whether they pass or not:
+ *   "warning C4116: unnamed type definition in parentheses"
+ *   This doesn't matter because non-ancient MSVC supports __COUNTER__,
+ *   which is covered above.
+ * - ppci 0.5.5 complains of a syntax error.
+ * - SDCC 4.5.0 (and earlier) complains if there are multiple assertions in
+ *   the same scope, even if they pass:
  *   "extern definition for 'mbedtls_static_assert_anchor' mismatches with declaration."
+ * - x86 tendra (trunk) complains if there are multiple assertions in
+ *   the same scope, even if they pass:
+ *   " The types 'int ( * ( void ) ) [<exp1>]' and 'int ( * ( void ) ) [<exp2>]' are incompatible."
+ * - vast (trunk) complains about assertions at function scope,
+ *   even if they pass:
+ *   "unexpected error: failed to legalize operation 'll.func' that was explicitly marked illegal"
+ *   This doesn't matter because it supports __COUNTER__,  which is covered
+ *   above.
  */
 #define MBEDTLS_STATIC_ASSERT(expr, msg)                                \
-    extern void mbedtls_static_assert_anchor(char[(expr) ? 1 : -1])
+    extern int (*mbedtls_static_assert_anchor(void))[sizeof(struct {    \
+        int STATIC_ASSERT : (expr) ? 1 : -1;                            \
+    })]
 #endif
 
 /* Define compiler branch hints */
