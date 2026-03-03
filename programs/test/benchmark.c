@@ -379,20 +379,17 @@ static unsigned long mbedtls_timing_hardclock(void)
 #define HAVE_HARDCLOCK
 
 static int hardclock_init = 0;
-static struct timeval tv_init;
+static mbedtls_ms_time_t ms_time_init;
 
 static unsigned long mbedtls_timing_hardclock(void)
 {
-    struct timeval tv_cur;
-
     if (hardclock_init == 0) {
-        gettimeofday(&tv_init, NULL);
+        ms_time_init = mbedtls_ms_time();
         hardclock_init = 1;
     }
 
-    gettimeofday(&tv_cur, NULL);
-    return (tv_cur.tv_sec  - tv_init.tv_sec) * 1000000U
-           + (tv_cur.tv_usec - tv_init.tv_usec);
+    mbedtls_ms_time_t now = mbedtls_ms_time();
+    return now - ms_time_init;
 }
 #endif /* !HAVE_HARDCLOCK */
 
