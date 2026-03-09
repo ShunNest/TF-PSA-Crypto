@@ -1,8 +1,17 @@
 file(GLOB src_crypto "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
-list(FIND src_crypto "${CMAKE_CURRENT_SOURCE_DIR}/psa_crypto_driver_wrappers_no_static.c" _idx)
-if(_idx EQUAL -1)
-    list(APPEND src_crypto psa_crypto_driver_wrappers_no_static.c)
+
+# The generated file `psa_crypto_driver_wrappers_no_static.c` may exist in the
+# source tree and therefore be picked up by the glob above. Remove it from
+# `src_crypto` if present, then append it using a relative path. This ensures
+# that the build system prefers the file from the build tree over the one in
+# the source tree.
+list(FIND src_crypto
+     "${CMAKE_CURRENT_SOURCE_DIR}/psa_crypto_driver_wrappers_no_static.c"
+     _idx)
+if(NOT _idx EQUAL -1)
+    list(REMOVE_AT src_crypto ${_idx})
 endif()
+list(APPEND src_crypto psa_crypto_driver_wrappers_no_static.c)
 
 if(GEN_FILES)
     add_custom_command(
