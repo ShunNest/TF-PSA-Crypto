@@ -216,6 +216,8 @@ include(CheckCCompilerFlag)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD 99)
 
+# Set base compile options to be used for the compilation of all C files of
+# all targets.
 function(tf_psa_crypto_set_base_compile_options target)
     if(CMAKE_COMPILER_IS_GNU)
         tf_psa_crypto_set_gnu_base_compile_options(${target})
@@ -337,7 +339,42 @@ function(tf_psa_crypto_set_msvc_base_compile_options target)
     if(TF_PSA_CRYPTO_FATAL_WARNINGS)
         target_compile_options(${target} PRIVATE /WX)
     endif(TF_PSA_CRYPTO_FATAL_WARNINGS)
+
+    if(MSVC_STATIC_RUNTIME)
+        foreach(flag_var
+            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+            CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+            CMAKE_C_FLAGS_CHECK)
+            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+        endforeach(flag_var)
+    endif()
 endfunction(tf_psa_crypto_set_msvc_base_compile_options)
+
+
+# Set extra compile options. These options are expected to be set for the
+# compilation of the TF-PSA-Crypto library files. Not necessarily for the test
+# or third party driver files.
+function(tf_psa_crypto_set_extra_compile_options target)
+    if(CMAKE_COMPILER_IS_GNU)
+        tf_psa_crypto_set_gnu_extra_compile_options(${target})
+    elseif(CMAKE_COMPILER_IS_CLANG)
+        tf_psa_crypto_set_clang_extra_compile_options(${target})
+    endif()
+endfunction(tf_psa_crypto_set_extra_compile_options)
+
+function(tf_psa_crypto_set_gnu_extra_compile_options target)
+    target_compile_options(${target} PRIVATE -Wmissing-declarations)
+endfunction(tf_psa_crypto_set_gnu_extra_compile_options)
+
+function(tf_psa_crypto_set_clang_extra_compile_options target)
+    target_compile_options(${target} PRIVATE
+        -Wmissing-declarations
+        -Wdocumentation
+        -Wno-documentation-deprecated-sync
+        -Wunreachable-code
+    )
+endfunction(tf_psa_crypto_set_clang_extra_compile_options)
+
 
 function(tf_psa_crypto_set_config_files_compile_definitions target)
     if(TF_PSA_CRYPTO_CONFIG_FILE)
@@ -364,6 +401,21 @@ if (NOT EXISTS "${TF_PSA_CRYPTO_FRAMEWORK_DIR}/CMakeLists.txt")
 endif()
 
 #
+# Directories with internal headers. The headers in that directories are not
+# exposed to applications and thus not installed. These headers are currently
+# consumed by Mbed TLS, eventually not so when we've finished cleaning up.
+# Here we list all the directories containing such headers but the ones from
+# drivers, that are appended in `drivers/CMakeLists.txt`.
+#
+set(TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}/core
+        ${CMAKE_CURRENT_SOURCE_DIR}/dispatch
+        ${CMAKE_CURRENT_SOURCE_DIR}/extras
+        ${CMAKE_CURRENT_SOURCE_DIR}/platform
+        ${CMAKE_CURRENT_SOURCE_DIR}/utilities
+)
+
+#
 # `drivers` must be added before `core` because the build of the main library
 # set up in `core` depends on the list of available drivers, which is
 # constructed in `drivers/CMakeLists.txt`. This list may include a generated
@@ -372,6 +424,9 @@ endif()
 add_subdirectory(framework)
 add_subdirectory(include)
 add_subdirectory(drivers)   # must precede core
+add_subdirectory(extras)
+add_subdirectory(platform)
+add_subdirectory(utilities)
 add_subdirectory(core)
 add_subdirectory(pkgconfig)
 
@@ -437,10 +492,7 @@ if(ENABLE_TESTING OR ENABLE_PROGRAMS)
                 # so that generated headers in the build tree take precedence.
                 ${CMAKE_CURRENT_BINARY_DIR}/include
                 include
-                core
-                drivers/builtin/src
-                drivers/pqcp/src
-            )
+                ${TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS})
 
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_TARGETS})
         get_target_property(public_includes ${driver_target} INTERFACE_INCLUDE_DIRECTORIES)

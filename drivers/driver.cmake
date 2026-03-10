@@ -14,14 +14,6 @@
 # - tf_psa_crypto_driver: the driver name (e.g. "builtin", "libtestdriver1")
 # - ${tf_psa_crypto_driver}_src_files: the list of source files for the driver
 
-if(CMAKE_COMPILER_IS_GNUCC)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes)
-endif(CMAKE_COMPILER_IS_GNUCC)
-
-if(CMAKE_COMPILER_IS_CLANG)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
-endif(CMAKE_COMPILER_IS_CLANG)
-
 set(${tf_psa_crypto_driver}_target ${TF_PSA_CRYPTO_TARGET_PREFIX}${tf_psa_crypto_driver})
 if (USE_STATIC_TF_PSA_CRYPTO_LIBRARY)
     set(${tf_psa_crypto_driver}_static_target ${${tf_psa_crypto_driver}_target})
@@ -35,7 +27,7 @@ endif()
 foreach (target IN LISTS target_libraries)
     add_library(${target} OBJECT ${${tf_psa_crypto_driver}_src_files})
     tf_psa_crypto_set_base_compile_options(${target})
-    target_compile_options(${target} PRIVATE ${LIBS_C_FLAGS})
+    tf_psa_crypto_set_extra_compile_options(${target})
 
     target_include_directories(${target}
       PUBLIC include
@@ -43,7 +35,7 @@ foreach (target IN LISTS target_libraries)
               # so that generated headers in the build tree take precedence.
               ${PROJECT_BINARY_DIR}/include
               ${PROJECT_SOURCE_DIR}/include
-              ${PROJECT_SOURCE_DIR}/core
+              ${TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS}
               ${TF_PSA_CRYPTO_DRIVERS_INCLUDE_DIRS})
     tf_psa_crypto_set_config_files_compile_definitions(${target})
     if(TF_PSA_CRYPTO_TEST_DRIVER)

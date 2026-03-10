@@ -1,15 +1,17 @@
-set(src_crypto
-    constant_time.c
-    psa_crypto.c
-    psa_crypto_client.c
-    psa_crypto_driver_wrappers_no_static.c
-    psa_crypto_slot_management.c
-    psa_crypto_storage.c
-    psa_its_file.c
-    psa_util.c
-    tf_psa_crypto_config.c
-    tf_psa_crypto_version.c
-)
+file(GLOB src_crypto "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
+
+# The generated file `psa_crypto_driver_wrappers_no_static.c` may exist in the
+# source tree and therefore be picked up by the glob above. Remove it from
+# `src_crypto` if present, then append it using a relative path. This ensures
+# that the build system prefers the file from the build tree over the one in
+# the source tree.
+list(FIND src_crypto
+     "${CMAKE_CURRENT_SOURCE_DIR}/psa_crypto_driver_wrappers_no_static.c"
+     _idx)
+if(NOT _idx EQUAL -1)
+    list(REMOVE_AT src_crypto ${_idx})
+endif()
+list(APPEND src_crypto psa_crypto_driver_wrappers_no_static.c)
 
 if(GEN_FILES)
     add_custom_command(
@@ -64,25 +66,6 @@ if(GEN_FILES)
     )
 endif(GEN_FILES)
 
-if(CMAKE_COMPILER_IS_GNUCC)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes)
-endif(CMAKE_COMPILER_IS_GNUCC)
-
-if(CMAKE_COMPILER_IS_CLANG)
-    set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes -Wdocumentation -Wno-documentation-deprecated-sync -Wunreachable-code)
-endif(CMAKE_COMPILER_IS_CLANG)
-
-if(CMAKE_COMPILER_IS_MSVC)
-    if(MSVC_STATIC_RUNTIME)
-        foreach(flag_var
-            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-            CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-            CMAKE_C_FLAGS_CHECK)
-            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-        endforeach(flag_var)
-    endif()
-endif()
-
 if(CMAKE_C_COMPILER_ID MATCHES "AppleClang")
     set(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
     set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
@@ -124,11 +107,14 @@ if(USE_STATIC_TF_PSA_CRYPTO_LIBRARY)
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_STATIC_TARGETS})
         list(APPEND target_objects "$<TARGET_OBJECTS:${driver_target}>")
     endforeach()
+    foreach(objlib_target ${TF_PSA_CRYPTO_OBJLIB_STATIC_TARGETS})
+        list(APPEND target_objects "$<TARGET_OBJECTS:${objlib_target}>")
+    endforeach()
     add_library(${tfpsacrypto_static_target} STATIC
         ${src_crypto}
         ${target_objects})
     tf_psa_crypto_set_base_compile_options(${tfpsacrypto_static_target})
-    target_compile_options(${tfpsacrypto_static_target} PRIVATE ${LIBS_C_FLAGS})
+    tf_psa_crypto_set_extra_compile_options(${tfpsacrypto_static_target})
     set_target_properties(${tfpsacrypto_static_target} PROPERTIES OUTPUT_NAME tfpsacrypto)
     target_link_libraries(${tfpsacrypto_static_target} PUBLIC ${libs})
 
@@ -144,11 +130,14 @@ if(USE_SHARED_TF_PSA_CRYPTO_LIBRARY)
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_TARGETS})
         list(APPEND target_objects "$<TARGET_OBJECTS:${driver_target}>")
     endforeach()
+    foreach(objlib_target ${TF_PSA_CRYPTO_OBJLIB_TARGETS})
+        list(APPEND target_objects "$<TARGET_OBJECTS:${objlib_target}>")
+    endforeach()
     add_library(${tfpsacrypto_target} SHARED
         ${src_crypto}
         ${target_objects})
     tf_psa_crypto_set_base_compile_options(${tfpsacrypto_target})
-    target_compile_options(${tfpsacrypto_target} PRIVATE ${LIBS_C_FLAGS})
+    tf_psa_crypto_set_extra_compile_options(${tfpsacrypto_target})
     set_target_properties(${tfpsacrypto_target} PROPERTIES VERSION ${TF_PSA_CRYPTO_VERSION} SOVERSION ${TF_PSA_CRYPTO_SOVERSION})
     target_link_libraries(${tfpsacrypto_target} PUBLIC ${libs})
 
@@ -166,9 +155,7 @@ foreach(target IN LISTS target_libraries)
         PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/>
                $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/>
                $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        PRIVATE ${PROJECT_SOURCE_DIR}/core
-                ${PROJECT_SOURCE_DIR}/drivers/builtin/src
-                ${PROJECT_SOURCE_DIR}/drivers/pqcp/src
+        PRIVATE ${TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS}
                 # Needed to include psa_crypto_driver_wrappers.h
                 ${CMAKE_CURRENT_BINARY_DIR})
     foreach(driver_target ${TF_PSA_CRYPTO_DRIVER_TARGETS})

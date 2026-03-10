@@ -297,13 +297,10 @@ function(tf_psa_crypto_add_test_suite suite_name)
     # them as PUBLIC.
     target_include_directories(test_suite_${data_name}
         PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/test
-        PRIVATE ${TF_PSA_CRYPTO_FRAMEWORK_DIR}/tests/include
-        PRIVATE ${PROJECT_SOURCE_DIR}/core
-        PRIVATE ${PROJECT_SOURCE_DIR}/drivers/builtin/src
-        PRIVATE ${PROJECT_SOURCE_DIR}/drivers/pqcp/src
-    )
+                ${CMAKE_CURRENT_SOURCE_DIR}/include
+                ${CMAKE_CURRENT_SOURCE_DIR}/include/test
+                ${TF_PSA_CRYPTO_FRAMEWORK_DIR}/tests/include
+                ${TF_PSA_CRYPTO_PRIVATE_INCLUDE_DIRS})
     # Request C11, which is needed for memory poisoning tests
     set_target_properties(test_suite_${data_name} PROPERTIES C_STANDARD 11)
 
