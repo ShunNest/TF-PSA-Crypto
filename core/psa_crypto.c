@@ -21,6 +21,7 @@
 #include "psa_crypto_driver_wrappers.h"
 #include "psa_crypto_driver_wrappers_no_static.h"
 #include "psa_crypto_ecp.h"
+#include "psa_crypto_ed25519.h"
 #include "psa_crypto_ffdh.h"
 #include "psa_crypto_hash.h"
 #include "psa_crypto_mac.h"
@@ -714,6 +715,13 @@ psa_status_t psa_import_key_into_slot(
 #if defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_KEY_PAIR_IMPORT) || \
         defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_PUBLIC_KEY)
         if (PSA_KEY_TYPE_IS_ECC(type)) {
+            if (PSA_KEY_TYPE_ECC_GET_FAMILY(type) == PSA_ECC_FAMILY_TWISTED_EDWARDS) {
+                return mbedtls_psa_ed25519_import_key(attributes,
+                                                      data, data_length,
+                                                      key_buffer, key_buffer_size,
+                                                      key_buffer_length,
+                                                      bits);
+            }
             return mbedtls_psa_ecp_import_key(attributes,
                                               data, data_length,
                                               key_buffer, key_buffer_size,
@@ -1454,6 +1462,14 @@ psa_status_t psa_export_public_key_internal(
     } else if (PSA_KEY_TYPE_IS_ECC(type)) {
 #if defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_KEY_PAIR_EXPORT) || \
         defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_PUBLIC_KEY)
+        if (PSA_KEY_TYPE_ECC_GET_FAMILY(type) == PSA_ECC_FAMILY_TWISTED_EDWARDS) {
+            return mbedtls_psa_ed25519_export_public_key(attributes,
+                                                         key_buffer,
+                                                         key_buffer_size,
+                                                         data,
+                                                         data_size,
+                                                         data_length);
+        }
         return mbedtls_psa_ecp_export_public_key(attributes,
                                                  key_buffer,
                                                  key_buffer_size,
@@ -2882,6 +2898,10 @@ exit:
 static psa_status_t psa_sign_verify_check_alg(int input_is_message,
                                               psa_algorithm_t alg)
 {
+    if (input_is_message && alg == PSA_ALG_PURE_EDDSA) {
+        return PSA_SUCCESS;
+    }
+
     if (input_is_message) {
         if (!PSA_ALG_IS_SIGN_MESSAGE(alg)) {
             return PSA_ERROR_INVALID_ARGUMENT;
@@ -3053,6 +3073,13 @@ psa_status_t psa_sign_message_builtin(
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
 
+    if (alg == PSA_ALG_PURE_EDDSA) {
+        return mbedtls_psa_ed25519_sign_message(attributes,
+                                                key_buffer, key_buffer_size,
+                                                input, input_length,
+                                                signature, signature_size, signature_length);
+    }
+
     if (PSA_ALG_IS_SIGN_HASH(alg)) {
         size_t hash_length;
         uint8_t hash[PSA_HASH_MAX_SIZE];
@@ -3111,6 +3138,13 @@ psa_status_t psa_verify_message_builtin(
     size_t signature_length)
 {
     psa_status_t status = PSA_ERROR_CORRUPTION_DETECTED;
+
+    if (alg == PSA_ALG_PURE_EDDSA) {
+        return mbedtls_psa_ed25519_verify_message(attributes,
+                                                  key_buffer, key_buffer_size,
+                                                  input, input_length,
+                                                  signature, signature_length);
+    }
 
     if (PSA_ALG_IS_SIGN_HASH(alg)) {
         size_t hash_length;
@@ -8187,6 +8221,12 @@ psa_status_t psa_generate_key_internal(
 
 #if defined(MBEDTLS_PSA_BUILTIN_KEY_TYPE_ECC_KEY_PAIR_GENERATE)
     if (PSA_KEY_TYPE_IS_ECC(type) && PSA_KEY_TYPE_IS_KEY_PAIR(type)) {
+        if (PSA_KEY_TYPE_ECC_GET_FAMILY(type) == PSA_ECC_FAMILY_TWISTED_EDWARDS) {
+            return mbedtls_psa_ed25519_generate_key(attributes,
+                                                    key_buffer,
+                                                    key_buffer_size,
+                                                    key_buffer_length);
+        }
         return mbedtls_psa_ecp_generate_key(attributes,
                                             key_buffer,
                                             key_buffer_size,

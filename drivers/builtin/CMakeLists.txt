@@ -1,6 +1,8 @@
 add_subdirectory(src)
 
 file(GLOB src_builtin RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.c)
+file(GLOB src_builtin_thirdparty RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/thirdparty/*.c)
+list(APPEND src_builtin ${src_builtin_thirdparty})
 
 if(CMAKE_COMPILER_IS_GNUCC)
     set(LIBS_C_FLAGS -Wmissing-declarations -Wmissing-prototypes)
